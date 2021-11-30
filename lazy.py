@@ -2,12 +2,14 @@
 from sys import argv
 
 # own imports
-from src.account import ACCOUNT_COMMANDS
+from src.commands.account import ACCOUNT_COMMANDS
+from src.commands.explore.explore import EXPLORE_COMMANDS
 from src import utility
 
 
 _COMMANDS = {
-    ACCOUNT_COMMANDS.name: ACCOUNT_COMMANDS
+    ACCOUNT_COMMANDS.name: ACCOUNT_COMMANDS,
+    EXPLORE_COMMANDS.name: EXPLORE_COMMANDS
 }
 
 

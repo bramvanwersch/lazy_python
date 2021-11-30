@@ -75,6 +75,23 @@ def get_values_from_file(file: str, names: List[str]) -> List[str]:
     return values
 
 
+def remove_lines_from_file(file: str, lines: List[str]):
+    new_text = []
+    uncovered_values = {value: None for value in lines}
+    with open(file) as f:
+        for line in f:
+            remove_line = False
+            for index, value in enumerate(uncovered_values):
+                if line.strip() == value:
+                    uncovered_values.pop(value)
+                    remove_line = True
+                    break
+            if not remove_line:
+                new_text.append(line)
+    with open(file, "w") as f:
+        f.write(''.join(new_text))
+
+
 def active_user_dir(username: Union[None, str] = None) -> "pathlib.Path":
     if username is None:
         username = get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]

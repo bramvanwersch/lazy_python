@@ -1,6 +1,7 @@
 import os
+import shutil
 
-from src import commands
+from src.commands import commands
 from src import utility
 from src import constants
 
@@ -33,8 +34,11 @@ def _create_account(username, password):
     utility.append_to_file(constants.ACCOUNT_PATH, f"n:{username}\np:{password}\n")
     os.mkdir(constants.USER_DIRS_PATH / username)
     active_user_dir = utility.active_user_dir(username)
-    open(active_user_dir / "general.txt", "w").close()
-    open(active_user_dir / "levels.txt", "w").close()
+    with open(active_user_dir / "general.txt", "w") as f:
+        f.write("current_activity:")
+        f.write("last_time_stamp:")
+    with open(active_user_dir / "levels.txt", "w") as f:
+        f.write("exploring:0")
 
 
 def load():
@@ -60,8 +64,22 @@ def info():
 
 
 def delete():
-    utility.message("Is not implemented yet :(")
-    pass
+    active_account = utility.get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
+    if active_account == "":
+        utility.message("No current active account that can be deleted")
+        return
+    utility.message(f"Starting the process for the deletion of the current active account {active_account}")
+    utility.message("Please provide the password for this account to confirm the deletion or type cancel to cancel. "
+                    "The deletion can not be undone!")
+
+    _, real_pw = _get_username_password(active_account)
+    if _confirm_password(real_pw) is False:
+        return
+    # TODO: fix issues with the same passwords
+    utility.remove_lines_from_file(constants.ACCOUNT_PATH, [f"n:{active_account}", f"p:{real_pw}"])
+    shutil.rmtree(constants.USER_DIRS_PATH / active_account)
+    utility.set_values_in_file(constants.GENERAL_INFO_PATH, ["active_user"], [""])
+    utility.message(f"Account {active_account} is no more.")
 
 
 def _get_username_password(name):
