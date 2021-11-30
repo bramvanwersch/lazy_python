@@ -1,6 +1,9 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, TYPE_CHECKING, Union
 
 from src import constants
+
+if TYPE_CHECKING:
+    import pathlib
 
 
 class LazyException(Exception):
@@ -41,15 +44,41 @@ def append_to_file(file, information):
 
 def set_values_in_file(file: str, names: List[str], values: List[str]):
     new_text = []
+    uncovered_names = {name: None for name in names}
     with open(file) as f:
         for line in f:
-            for index, name in enumerate(names):
+            added_line = False
+            for index, name in enumerate(uncovered_names):
                 if line.startswith(f"{name}:"):
                     new_text.append(f"{name}:{values[index]}\n")
-                else:
-                    new_text.append(line)
+                    uncovered_names.pop(name)
+                    added_line = True
+                    break
+            if not added_line:
+                new_text.append(line)
     with open(file, "w") as f:
         f.write(''.join(new_text))
+
+
+def get_values_from_file(file: str, names: List[str]) -> List[str]:
+    values = []
+    uncovered_names = {name: None for name in names}
+    with open(file) as f:
+        for line in f:
+            for index, name in enumerate(uncovered_names):
+                if line.startswith(f"{name}:"):
+                    values.append(line.replace(f"{name}:", "").strip())
+                    uncovered_names.pop(name)
+                    break
+            if len(uncovered_names) == 0:
+                break
+    return values
+
+
+def active_user_dir(username: Union[None, str] = None) -> "pathlib.Path":
+    if username is None:
+        username = get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
+    return constants.USER_DIRS_PATH / username
 
 
 def message(string):

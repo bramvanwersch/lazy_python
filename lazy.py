@@ -7,7 +7,7 @@ from src import utility
 
 
 _COMMANDS = {
-    "account": ACCOUNT_COMMANDS
+    ACCOUNT_COMMANDS.name: ACCOUNT_COMMANDS
 }
 
 

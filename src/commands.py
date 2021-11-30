@@ -14,6 +14,8 @@ class Command:
     def print_help(self):
         utility.message(f"This is the help message for {self.name}. These are the available commands:")
         for key in self._subcommands:
+            if key == "help":
+                continue
             utility.message(f"\t- {key}: {self._helps[key]}")
 
     def __call__(self, *args, **kwargs):
