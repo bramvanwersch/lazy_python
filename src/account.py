@@ -36,7 +36,7 @@ def load():
         utility.message(f"Account with username '{username}' does not exist.")
         return
 
-    utility.set_values_in_file(constants.GENERAL_INFO_PATH, "active_user", username)
+    utility.set_values_in_file(constants.GENERAL_INFO_PATH, ["active_user"], [username])
 
     utility.message("Please provide password:")
     if _confirm_password(db_password) is False:

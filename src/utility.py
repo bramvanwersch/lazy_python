@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from src import constants
 
@@ -39,7 +39,7 @@ def append_to_file(file, information):
         f.write(information)
 
 
-def set_values_in_file(file, names, values):
+def set_values_in_file(file: str, names: List[str], values: List[str]):
     new_text = []
     with open(file) as f:
         for line in f:
