@@ -1,0 +1,4 @@
+
+
+class Skills:
+    EXPLORING = "exploring"

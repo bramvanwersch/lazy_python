@@ -1,5 +1,7 @@
 from pathlib import Path
 
+TESTING = True
+
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
 
 
