@@ -6,7 +6,7 @@ from src.commands.explore import locations_definitions
 
 def get_area_rates(requested_area):
     area = locations_definitions.AREAS[requested_area]
-    area_header = f"# Inforation for area: {area.name} #"
+    area_header = f"# Information for area: {area.name} #"
     print("#" * len(area_header))
     print(area_header)
     print("#" * len(area_header))
@@ -28,11 +28,11 @@ def print_activity_data(xp_dict, item_dict, activity_name):
     print(f"\tRates for activity: {activity_name}")
     print("\t\tXP rates (per hour):")
     for skill, xp in xp_dict.items():
-        print(f"\t\t - {skill}: {round(xp, 5)} xp")
+        print(f"\t\t - {skill.name}: {round(xp, 5)} xp")
     print()
     print("\t\tItem rates (per hour):")
     for item, amnt in item_dict.items():
-        print(f"\t\t - {item}: {round(amnt, 5)}")
+        print(f"\t\t - {item.name}: {round(amnt, 5)}")
 
 
 def get_activity_rates(activity):

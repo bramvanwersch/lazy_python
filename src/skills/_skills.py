@@ -1,16 +1,18 @@
 from typing import Dict
+from abc import ABC
 
 from src import utility
 from src import constants
 
 
-class Skills:
-    EXPLORING = "exploring"
-    GATHERING = "gathering"
+class Skill(ABC):
+    # skills give an additional roll chance
+    def __init__(self, name):
+        self.name = name
 
-    @classmethod
-    def all_skills(cls):
-        return [varvalue for varname, varvalue in vars(cls).items() if not varname.startswith("__")]
+    def get_additional_roll_chance(self, level):
+        # TODO: think about changing per level
+        return level * 0.01
 
 
 def add_xp(xp_dict):
