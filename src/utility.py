@@ -60,6 +60,26 @@ def set_values_in_file(file: str, names: List[str], values: List[str]):
         f.write(''.join(new_text))
 
 
+def add_values_in_file(file: str, names: List[str], values: List[str], value_type: Any):
+    # add values to the current values in the file
+    uncovered_names = {name: None for name in names}
+    new_text = []
+    with open(file) as f:
+        for line in f:
+            added_line = False
+            for index, name in enumerate(uncovered_names):
+                if line.startswith(f"{name}:"):
+                    current_value = value_type(line.replace(f"{name}:", "").strip())
+                    new_text.append(f"{name}:{values[index] + current_value}\n")
+                    uncovered_names.pop(name)
+                    added_line = True
+                    break
+            if not added_line:
+                new_text.append(line)
+    with open(file, "w") as f:
+        f.write(''.join(new_text))
+
+
 def get_values_from_file(file: str, names: List[str]) -> List[str]:
     values = []
     uncovered_names = {name: None for name in names}
@@ -72,6 +92,16 @@ def get_values_from_file(file: str, names: List[str]) -> List[str]:
                     break
             if len(uncovered_names) == 0:
                 break
+    return values
+
+
+def get_all_named_values_from_file(file, value_type: Any = str):
+    # convenience function so the names of values are not required
+    values = {}
+    with open(file) as f:
+        for line in f:
+            name, value = line.strip().split(":")
+            values[name] = value_type(value)
     return values
 
 

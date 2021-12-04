@@ -4,12 +4,18 @@ TESTING = True
 
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
 
-
+# all user files
 _secret_path = Path(__file__).resolve().parent.parent / "data" / "secret"
 GENERAL_INFO_PATH = _secret_path / "general.txt"
 ACCOUNT_PATH = _secret_path / "accounts.txt"
 USER_DIRS_PATH = _secret_path / "users"
 
+# user specific files
+USER_GENERAL_FILE_NAME = "general.txt"
+USER_LEVEL_FILE_NAME = "levels.txt"
+USER_INVENTORY_FILE_NAME = "inventory.txt"
+
+# other
 XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299, 337, 379, 425, 476, 531, 592, 659,
               732, 813, 901, 997, 1103, 1219, 1346, 1485, 1638, 1806, 1990, 2191, 2412, 2655, 2920, 3212, 3531, 3882,
               4266, 4687, 5149, 5655, 6210, 6819, 7486, 8218, 9021, 9900, 10865, 11923, 13083, 14355, 15749, 17279,

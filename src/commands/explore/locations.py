@@ -1,12 +1,12 @@
-from typing import Dict, List, Union, Set
+from typing import Dict, List, Union, Set, DefaultDict
 from abc import ABC, abstractmethod
 import random
 from collections import defaultdict
 
 # own imports
 from src import constants
-from src.skills import Skills
-from src.items import Items
+from src import skills
+from src import items
 
 
 class Simulation(ABC):
@@ -15,17 +15,19 @@ class Simulation(ABC):
 
     def simulate(self, passed_time: int):
         # passed time is passed in seconds
-        level_dict = defaultdict(int)
+        xp_dict = defaultdict(int)
         item_dict = defaultdict(int)
-        pass
+        for _ in range(passed_time % self.SIMULATE_EVERY):
+            self._simulate_roll(xp_dict, item_dict)
+            skills.add_xp(xp_dict)
+            items.add_items(item_dict)
 
     @abstractmethod
     def _simulate_roll(
         self,
-        level_dict: defaultdict[str, int],
-        item_dict: defaultdict[str, int]
+        xp_dict: DefaultDict[str, int],
+        item_dict: DefaultDict[str, int]
     ):
-        # return xp, items
         pass
 
 
@@ -39,85 +41,86 @@ class Area(Simulation):
             for n in unlocked_locations:
                 assert n in self._locations
         self._unlocked_locations = unlocked_locations if unlocked_locations is not None else set()
-        self._locations_unlock_table = {location.name: location.discovery_chance for location in self._locations.values()
-                                        if location.name not in self._unlocked_locations}
+        self._locations_unlock_table = \
+            {location.name: location.discovery_chance for location in self._locations.values() 
+             if location.name not in self._unlocked_locations}
         self._unlock_chance = area_discovery_chance
         self.description = description
 
     def _simulate_roll(
         self,
-        level_dict: defaultdict[str, int],
-        item_dict: defaultdict[str, int]
+        xp_dict: DefaultDict[str, int],
+        item_dict: DefaultDict[str, int]
     ):
         if random.random() < self._unlock_chance:
             unlocked_area = random.choices(list(self._locations_unlock_table.keys()),
                                            list(self._locations_unlock_table.values()), k=1)[0]
-            level_dict[Skills.EXPLORING] += self._locations[unlocked_area].discover_xp
+            xp_dict[skills.Skills.EXPLORING] += self._locations[unlocked_area].discover_xp
             del self._locations_unlock_table[unlocked_area]
             self._unlocked_locations.add(unlocked_area)
 
 
 class Location:
-    def __init__(self, name, chance, discover_xp, description=""):
+    def __init__(self, name, chance, discover_xp, activities, description=""):
         self.name = name
         self.discover_xp = discover_xp
         self.discovery_chance = chance
         self.description = description
-        self._activities = []
+        self._activities = activities
 
 
 class Activity(Simulation):
-    def __init__(self, name, base_chance: float, action_table: Dict["Action", float], level_requirments: Dict[str, int],
+    def __init__(self, name, base_chance: float, loot_list: List["Loot"], level_requirments: Dict[str, int],
                  item_requirements: List[str], description=""):
         self.name = name
         self._succes_chance = base_chance
-        self._action_table = action_table
+        self._loot_table = {loot: loot.roll_weight for loot in loot_list}
         self._level_requirements = level_requirments
         self._item_requirements = item_requirements
         self.description = description
 
     def _simulate_roll(
         self,
-        level_dict: defaultdict[str, int],
-        item_dict: defaultdict[str, int]
+        xp_dict: DefaultDict[str, int],
+        item_dict: DefaultDict[str, int]
     ):
         if random.random() < self._succes_chance:
-            action = random.choices(list(self._action_table.keys()),
-                                    list(self._action_table.values()), k=1)[0]
-            action.add_items_and_levels(level_dict, item_dict)
+            loot = random.choices(list(self._loot_table.keys()), list(self._loot_table.values()), k=1)[0]
+            loot.add_xp_and_items(xp_dict, item_dict)
+            if loot.is_depleted():
+                del self._loot_table[loot]
 
 
-class Action:
-    # something you do during an activity
+class Loot:
     def __init__(
         self,
-        name: str,
         item_rewards: Dict[str, int],
         xp_rewards: Dict[str, int],
         chance: float,
-        description=""
+        max_supply: int = None
     ):
-        self.name = name
-        self.roll_chance = chance
+        self.roll_weight = chance
         self._item_rewards = item_rewards
         self._xp_rewards = xp_rewards
-        self.description = description
+        self._max_supply = max_supply
 
-    def add_items_and_levels(
+    def is_depleted(self):
+        if self.is_depletable() is False:
+            return False
+        return self._max_supply <= 0
+
+    def is_depletable(self):
+        return self._max_supply is not None
+
+    def add_xp_and_items(
         self,
-        level_dict: defaultdict[str, int],
-        item_dict: defaultdict[str, int]
+        xp_dict: DefaultDict[str, int],
+        item_dict: DefaultDict[str, int]
     ):
         for skill in self._xp_rewards:
-            level_dict[skill] += self._xp_rewards[skill]
+            xp_dict[skill] += self._xp_rewards[skill]
         for item in self._item_rewards:
             item_dict[item] += self._item_rewards[item]
 
-
-# green woods
-_green_wood_location = Area("green woods", [], 0.25, "The starting are. The place one could call home.")
-
-
-AREAS = {
-    _green_wood_location.name: _green_wood_location
-}
+        if self._max_supply is not None:
+            self._max_supply -= 1

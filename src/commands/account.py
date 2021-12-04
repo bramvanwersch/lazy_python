@@ -1,9 +1,11 @@
 import os
 import shutil
+import time
 
 from src.commands import commands
 from src import utility
 from src import constants
+from src.skills import Skills
 
 
 def new():
@@ -34,11 +36,16 @@ def _create_account(username, password):
     utility.append_to_file(constants.ACCOUNT_PATH, f"n:{username}\np:{password}\n")
     os.mkdir(constants.USER_DIRS_PATH / username)
     active_user_dir = utility.active_user_dir(username)
-    with open(active_user_dir / "general.txt", "w") as f:
+    with open(active_user_dir / constants.USER_GENERAL_FILE_NAME, "w") as f:
+        f.write("current_area:green woods")
+        f.write("current_location:")
         f.write("current_activity:")
-        f.write("last_time_stamp:")
-    with open(active_user_dir / "levels.txt", "w") as f:
-        f.write("exploring:0")
+        f.write(f"last_time_stamp:{time.time()}")
+    with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
+        for skillname in Skills.all_skills():
+            f.write(f"{skillname}:0\n")
+    with open(active_user_dir / constants.USER_INVENTORY_FILE_NAME, "w") as f:
+        f.write("")
 
 
 def load():
