@@ -8,4 +8,5 @@ class Skills:
 
     @classmethod
     def all_skills(cls):
-        return [varvalue for varname, varvalue in vars(cls).items() if not varname.startswith("__")]
+        return [varvalue for varname, varvalue in vars(cls).items() if not varname.startswith("__") and
+                varname != "all_skills"]

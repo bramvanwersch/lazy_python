@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, TYPE_CHECKING, Union
+import sys
 
 from src import constants
 
@@ -21,13 +22,12 @@ def ask_answer(fail_message: str, possible_answers: Dict[str, Any]):
 def ask_valid_string():
     while True:
         answer = input()
-        if check_string(answer) is True:
+        if is_valid_string(answer) is True:
             return answer
-        message("Invalid sequence provided. Make sure it contains at least 1 character and does not contain the "
-                f"following charaters: {' ,'.join(constants.BANNED_CHARACTERS)}")
+        message(constants.LazyWarningMessages.INVALID_STRING)
 
 
-def check_string(string: str):
+def is_valid_string(string: str):
     # check string for illegals
     if len(string) == 0:
         return False
@@ -125,6 +125,9 @@ def remove_lines_from_file(file: str, lines: List[str]):
 def active_user_dir(username: Union[None, str] = None) -> "pathlib.Path":
     if username is None:
         username = get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
+    if username == "":
+        message(constants.LazyWarningMessages.NO_USER)
+        sys.exit(0)
     return constants.USER_DIRS_PATH / username
 
 

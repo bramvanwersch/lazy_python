@@ -2,10 +2,13 @@
 
 from src.commands import commands
 from src import utility
+from src import constants
 
 
 def explore_area():
-    utility.message("What are do you want to explore? Choose one of: ")
+    utility.get_values_from_file(utility.active_user_dir() / constants.USER_GENERAL_FILE_NAME, "")
+    utility.message("You are currently in area {}")
+
 
 
 EXPLORE_COMMANDS = commands.Command("explore")

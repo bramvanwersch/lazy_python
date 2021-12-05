@@ -17,24 +17,24 @@ def get_area_rates(requested_area, start_level):
 
 
 def get_location_rates(location, start_xp):
-    location_header = f"\t| Rates for {location.name}: |"
-    print("\t" + "-" * len(location_header))
+    location_header = f"  | Rates for {location.name}: |"
+    print("  " + "-" * len(location_header))
     print(location_header)
-    print("\t" + "-" * len(location_header))
+    print("  " + "-" * len(location_header))
     for activity in location._activities:
         xp_dict, item_dict = get_activity_rates(activity, start_xp)
         print_activity_data(xp_dict, item_dict, activity.name)
 
 
 def print_activity_data(xp_dict, item_dict, activity_name):
-    print(f"\tRates for activity: {activity_name}")
-    print("\t\tXP rates (per hour):")
+    print(f"  Rates for activity: {activity_name}")
+    print("    XP rates (per hour):")
     for skill, xp in xp_dict.items():
-        print(f"\t\t - {skill.name}: {round(xp, 5)} xp")
+        print(f"     - {skill.name}: {round(xp, 5)} xp")
     print()
-    print("\t\tItem rates (per hour):")
+    print("    Item rates (per hour):")
     for item, amnt in item_dict.items():
-        print(f"\t\t - {item.name}: {round(amnt, 5)}")
+        print(f"     - {item.name}: {round(amnt, 5)}")
     print()
 
 

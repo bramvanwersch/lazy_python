@@ -2,7 +2,16 @@ from pathlib import Path
 
 TESTING = True
 
+# user warning messages
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
+
+
+class LazyWarningMessages:
+    INVALID_STRING = "Invalid sequence provided. Make sure it contains at least 1 character and does not contain the " \
+                     f"following charaters: {' ,'.join(BANNED_CHARACTERS)}"
+    NO_USER = "No user selected. Select a user with 'account load' or create a new one with 'account new'"
+
+
 
 # all user files
 _secret_path = Path(__file__).resolve().parent.parent / "data" / "secret"
@@ -24,3 +33,5 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
               251089, 275323, 301896, 331032, 362979, 398008, 436416, 478531, 524708, 575340, 630858, 691731,
               758478, 831664, 911911, 999901)
 
+# new player values
+STARTING_LOCATION = "green woods"
