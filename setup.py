@@ -6,7 +6,11 @@ setup(
     packages=['src', '.'],
     url='tbd',
     license='MIT',
-    scripts=["lazy.py"],
+    entry_points={
+        'console_scripts': [
+            'lazy=lazy:main',
+        ],
+    },
     author='bramv',
     author_email='bramvanwersch@live.nl',
     description='command line idle program'

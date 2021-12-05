@@ -52,6 +52,6 @@ _player_home = Location("Home", 0.0, 0, [_home_gather],
                         "A place with good and bad memories")
 
 # area definition
-green_woods = _green_wood_area = Area("green woods", [_old_tree_location, _player_home], 0, 0.25,
+green_woods = _green_wood_area = Area("green woods", [_old_tree_location, _player_home], 0, 0.25, 10,
                                       "The starting are. The place I grew up in and call home.",
                                       {_player_home.name})

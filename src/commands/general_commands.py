@@ -12,15 +12,27 @@ def check():
     area, location, activity = utility.get_values_from_file(current_user_dir / constants.USER_GENERAL_FILE_NAME,
                                                             ["current_area", "current_location", "current_activity"])
     area_obj = areas.AREA_MAPPING[area]
-    passed_time = float(utility.get_values_from_file(utility.active_user_dir() / constants.USER_GENERAL_FILE_NAME,
-                                                     ["last_time_stamp"])[0]) - time.time()
+    passed_time = int(float(utility.get_values_from_file(utility.active_user_dir() / constants.USER_GENERAL_FILE_NAME,
+                                                         ["last_time_stamp"])[0]) - time.time())
 
     if constants.TESTING:
-        passed_time += 360  # tien minuten
+        passed_time += 360  # ten minutes
 
-    # TODO report items and xp
+    before_check_levels = skills.get_levels()
+
     # values are returned in order to report them
+    utility.message(f"In total {passed_time}s passed since last check")
     xp_dict, item_dict = area_obj.perform_activity_rolls(location, activity, passed_time)
+    utility.message("XP gained this check")
+
+    current_levels = skills.get_levels()
+    for skill, xp in xp_dict.items():
+        level_change = current_levels[skill.name] - before_check_levels[skill.name]
+        level_str = f"({before_check_levels[skill.name]}-{current_levels[skill.name]})" if level_change > 0 else ''
+        utility.message(f"{skill.name}: +{xp} {level_str}")
+    print()
+    for item, amnt in
+
 
     utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["last_time_stamp"],
                                [str(time.time())])
@@ -51,7 +63,7 @@ def move(*args):
     utility.message(f"You moved to area {chosen_area} and start exploring...")
 
 
-GENERAL_COMMAND = _commands.Command("general", description="General commands that are used to do general account"
-                                                           " related things.")
-GENERAL_COMMAND.add_command("check", check, "Check the current activity and get a report on the gained xp and items.")
-GENERAL_COMMAND.add_command("move", move, "Check the current activity and get a report on the gained xp and items.")
+GENERAL_COMMANDS = _commands.Command("general", description="General commands that are used to do general account"
+                                                            " related things.")
+GENERAL_COMMANDS.add_command("check", check, "Check the current activity and get a report on the gained xp and items.")
+GENERAL_COMMANDS.add_command("move", move, "Check the current activity and get a report on the gained xp and items.")

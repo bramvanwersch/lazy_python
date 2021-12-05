@@ -15,4 +15,4 @@ def explore(*args):
 
 TRAINING_COMMANDS = _commands.Command("train", description="The explore command is used to explore areas and move to "
                                                            "new areas")
-TRAINING_COMMANDS.add_command("explore", explore, "Explore the current area")
+TRAINING_COMMANDS.add_command("exploring", explore, "Explore the current area")

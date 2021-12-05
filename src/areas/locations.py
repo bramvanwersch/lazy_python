@@ -34,9 +34,10 @@ class Simulation(ABC):
 
 class Area(Simulation):
 
-    def __init__(self, name, locations, level, location_discovery_chance, description="",
+    def __init__(self, name, locations, level, location_discovery_chance, repeated_discover_xp, description="",
                  unlocked_locations: Union[Set[str], None] = None):
         self.name = name
+        self._no_find_xp = repeated_discover_xp
         self.required_level = level
         self._locations = {location.name: location for location in locations}
         if constants.TESTING:
@@ -60,15 +61,18 @@ class Area(Simulation):
         xp_dict: DefaultDict[str, int],
         item_dict: DefaultDict[str, int]
     ):
-        all_xp = skills.get_xp(skills.Skills.EXPLORING.name) + item_dict[skills.Skills.EXPLORING.name]
+        all_xp = skills.get_xp(skills.Skills.EXPLORING.name) + xp_dict[skills.Skills.EXPLORING]
         additional_skill_chance = skills.Skills.EXPLORING.get_additional_roll_chance(all_xp)
 
         if random.random() < self._unlock_chance + additional_skill_chance:
-            unlocked_area = random.choices(list(self._locations_unlock_table.keys()),
-                                           list(self._locations_unlock_table.values()), k=1)[0]
-            xp_dict[skills.Skills.EXPLORING] += self._locations[unlocked_area].discover_xp
-            del self._locations_unlock_table[unlocked_area]
-            self._unlocked_locations.add(unlocked_area)
+            if len(self._locations_unlock_table) != 0:
+                unlocked_area = random.choices(list(self._locations_unlock_table.keys()),
+                                               list(self._locations_unlock_table.values()), k=1)[0]
+                xp_dict[skills.Skills.EXPLORING] += self._locations[unlocked_area].discover_xp
+                del self._locations_unlock_table[unlocked_area]
+                self._unlocked_locations.add(unlocked_area)
+            else:
+                xp_dict[skills.Skills.EXPLORING] += self._no_find_xp
 
 
 class Location:
@@ -95,7 +99,7 @@ class Activity(Simulation):
         xp_dict: DefaultDict[str, int],
         item_dict: DefaultDict[str, int]
     ):
-        all_xp = skills.get_xp(self._main_skill.name) + item_dict[skills.Skills.EXPLORING.name]
+        all_xp = skills.get_xp(self._main_skill.name) + xp_dict[skills.Skills.EXPLORING]
         additional_skill_chance = self._main_skill.name.get_additional_roll_chance(all_xp)
         if random.random() < self._succes_chance + additional_skill_chance:
             loot = random.choices(list(self._loot_table.keys()), list(self._loot_table.values()), k=1)[0]
