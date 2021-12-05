@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 
-from src.commands import commands
+from src.commands import _commands
 from src import utility
 from src import constants
 from src.skills import Skills
@@ -65,7 +65,7 @@ def _create_account(username, password):
         f.write(f"current_area:{constants.STARTING_LOCATION}\n")
         f.write("current_location:\n")
         f.write("current_activity:\n")
-        f.write(f"last_time_stamp:{time.time()}")
+        f.write(f"last_time_stamp:{time.time()}\n")
     with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
         for skill in Skills.all_skills():
             f.write(f"{skill.name}:0\n")
@@ -109,7 +109,7 @@ def load(*args):
 
 def info(*args):
     active_user = utility.get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
-    utility.message(f"The current active account is: {active_user if active_user is not '' else 'No active account'}")
+    utility.message(f"The current active account is: {active_user if active_user != '' else 'No active account'}")
 
 
 def delete(*args):
@@ -164,7 +164,8 @@ def _confirm_password(real_pw):
         utility.message("Invalid password provided. Please try again or type 'cancel' to abort.")
 
 
-ACCOUNT_COMMANDS = commands.Command("account")
+ACCOUNT_COMMANDS = _commands.Command("account", description="Account managing functionalities. If you are new to the "
+                                                            "game this is the place to start and create an account.")
 ACCOUNT_COMMANDS.add_command("new", new, "Create a new account. Example: 'lazy account new (<name> <pw> <pw>)'")
 ACCOUNT_COMMANDS.add_command("load", load, "Load an existing account. Example: 'lazy account load (<name> <pw>)'")
 ACCOUNT_COMMANDS.add_command("info", info, "Show some basic information about the current account. Example:"

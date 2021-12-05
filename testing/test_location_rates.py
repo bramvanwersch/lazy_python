@@ -1,13 +1,13 @@
 from sys import argv
 from collections import defaultdict
 
-from src.commands.explore import locations_definitions
+from src import areas
 from src import skills
 
 
 def get_area_rates(requested_area, start_level):
     start_xp = skills.level_to_xp(start_level)
-    area = locations_definitions.AREAS[requested_area]
+    area = areas.AREA_MAPPING[requested_area]
     area_header = f"# Information for area: {area.name} #"
     print("#" * len(area_header))
     print(area_header)
@@ -21,7 +21,7 @@ def get_location_rates(location, start_xp):
     print("  " + "-" * len(location_header))
     print(location_header)
     print("  " + "-" * len(location_header))
-    for activity in location._activities:
+    for activity in location.activities.values():
         xp_dict, item_dict = get_activity_rates(activity, start_xp)
         print_activity_data(xp_dict, item_dict, activity.name)
 

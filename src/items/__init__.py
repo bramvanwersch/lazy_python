@@ -24,3 +24,11 @@ class Items:
     LEATHER_BOOTS = LeatherBootsItem("leather boots")
     BLACK_CAPE = BlackCapeItem("black cape")
     STONE_AXE = StoneAxeItem("stone axe")
+
+    @classmethod
+    def all_items(cls):
+        return [varvalue for varname, varvalue in vars(cls).items() if not varname.startswith("__") and
+                varname not in ["all_items"]]
+
+
+ITEM_MAPPING = {item.name: item for item in Items.all_items()}

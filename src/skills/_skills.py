@@ -28,6 +28,11 @@ def get_xps() -> Dict[str, int]:
     return level_dict
 
 
+def get_xp(name: str) -> int:
+    user_dir = utility.active_user_dir()
+    return int(utility.get_values_from_file(user_dir / constants.USER_LEVEL_FILE_NAME, [name])[0])
+
+
 def get_levels() -> Dict[str, int]:
     level_dict = get_xps()
     for name in level_dict:

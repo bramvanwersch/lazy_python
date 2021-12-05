@@ -1,4 +1,4 @@
-from src.commands.explore.locations import *
+from src.areas.locations import *
 from src.items import Items
 from src.skills import Skills
 
@@ -36,7 +36,6 @@ _home_loots = [_1_coin_loot, _old_bread_loot, _forgotten_stuff]
 # activities
 _old_tree_gather = Activity("gathering", Skills.GATHERING, 0.25, _tree_gather_loots, {},
                             "There might be some things left around by other people.")
-# TODO: make this an item type
 _old_tree_chopping = Activity("woodcutting", Skills.WOODCUTTING, 0.25, _tree_woodcut_loots, {},
                               "The old tree cna be chopped it never seems to get smaller though.")
 _old_tree_activities = [_old_tree_gather, _old_tree_chopping]
@@ -52,12 +51,7 @@ _old_tree_location = Location("Old tree", 0.4, 5, _old_tree_activities,
 _player_home = Location("Home", 0.0, 0, [_home_gather],
                         "A place with good and bad memories")
 
-
-_green_wood_area = Area("green woods", [_old_tree_location, _player_home], 0.25,
-                        "The starting are. The place I grew up in and call home.",
-                        {_player_home.name})
-
-
-AREAS = {
-    _green_wood_area.name: _green_wood_area
-}
+# area definition
+green_woods = _green_wood_area = Area("green woods", [_old_tree_location, _player_home], 0, 0.25,
+                                      "The starting are. The place I grew up in and call home.",
+                                      {_player_home.name})
