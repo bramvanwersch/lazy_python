@@ -34,13 +34,14 @@ _tree_woodcut_loots = [_log_loot, _branch_loot, _leaf_loot, _birdnest_loot]
 _home_loots = [_1_coin_loot, _old_bread_loot, _forgotten_stuff]
 
 # activities
-_old_tree_gather = Activity("gathering", 0.25, _tree_gather_loots, {}, [],
+_old_tree_gather = Activity("gathering", Skills.GATHERING, 0.25, _tree_gather_loots, {},
                             "There might be some things left around by other people.")
 # TODO: make this an item type
-_old_tree_chopping = Activity("woodcutting", 0.25, _tree_woodcut_loots, {}, [Items.STONE_AXE])
-_old_tree_activities = [_old_tree_gather]
+_old_tree_chopping = Activity("woodcutting", Skills.WOODCUTTING, 0.25, _tree_woodcut_loots, {},
+                              "The old tree cna be chopped it never seems to get smaller though.")
+_old_tree_activities = [_old_tree_gather, _old_tree_chopping]
 
-_home_gather = Activity("gathering", 0.05, _home_loots, {}, [],
+_home_gather = Activity("gathering", Skills.GATHERING, 0.05, _home_loots, {},
                         "There might be some supplies left, on the other hand there is a reason im leaving.")
 
 

@@ -52,7 +52,8 @@ class Area(Simulation):
         xp_dict: DefaultDict[str, int],
         item_dict: DefaultDict[str, int]
     ):
-        if random.random() < self._unlock_chance:
+        additional_skill_chance = skills.get_level(skills.Skills.EXPLORING.name)
+        if random.random() < self._unlock_chance + additional_skill_chance:
             unlocked_area = random.choices(list(self._locations_unlock_table.keys()),
                                            list(self._locations_unlock_table.values()), k=1)[0]
             xp_dict[skills.Skills.EXPLORING] += self._locations[unlocked_area].discover_xp
@@ -70,13 +71,13 @@ class Location:
 
 
 class Activity(Simulation):
-    def __init__(self, name, base_chance: float, loot_list: List["Loot"], level_requirments: Dict[str, int],
-                 item_requirements: List[str], description=""):
+    def __init__(self, name, main_skill, base_chance: float, loot_list: List["Loot"], level_requirments: Dict[str, int]
+                 , description=""):
         self.name = name
+        self._main_skill = main_skill
         self._succes_chance = base_chance
         self._loot_table = {loot: loot.roll_weight for loot in loot_list}
         self._level_requirements = level_requirments
-        self._item_requirements = item_requirements
         self.description = description
 
     def _simulate_roll(
@@ -84,7 +85,8 @@ class Activity(Simulation):
         xp_dict: DefaultDict[str, int],
         item_dict: DefaultDict[str, int]
     ):
-        if random.random() < self._succes_chance:
+        additional_skill_chance = skills.get_level(self._main_skill.name)
+        if random.random() < self._succes_chance + additional_skill_chance:
             loot = random.choices(list(self._loot_table.keys()), list(self._loot_table.values()), k=1)[0]
             loot.add_xp_and_items(xp_dict, item_dict)
             if loot.is_depleted():
