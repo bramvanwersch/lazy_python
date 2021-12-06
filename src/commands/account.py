@@ -66,6 +66,7 @@ def _create_account(username, password):
         f.write("current_location:\n")
         f.write("current_activity:\n")
         f.write(f"last_time_stamp:{time.time()}\n")
+        f.write("unlocked_areas:\n")
     with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
         for skill in Skills.all_skills():
             f.write(f"{skill.name}:0\n")

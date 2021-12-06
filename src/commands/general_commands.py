@@ -12,27 +12,34 @@ def check():
     area, location, activity = utility.get_values_from_file(current_user_dir / constants.USER_GENERAL_FILE_NAME,
                                                             ["current_area", "current_location", "current_activity"])
     area_obj = areas.AREA_MAPPING[area]
-    passed_time = int(float(utility.get_values_from_file(utility.active_user_dir() / constants.USER_GENERAL_FILE_NAME,
-                                                         ["last_time_stamp"])[0]) - time.time())
+    passed_time = int(time.time() - float(utility.get_values_from_file(utility.active_user_dir() /
+                                                                       constants.USER_GENERAL_FILE_NAME,
+                                                                       ["last_time_stamp"])[0]))
 
     if constants.TESTING:
-        passed_time += 360  # ten minutes
+        passed_time += 3600  # 60 rolls
 
     before_check_levels = skills.get_levels()
 
     # values are returned in order to report them
     utility.message(f"In total {passed_time}s passed since last check")
     xp_dict, item_dict = area_obj.perform_activity_rolls(location, activity, passed_time)
-    utility.message("XP gained this check")
+    utility.message("The following things happened while you were away:")
 
     current_levels = skills.get_levels()
     for skill, xp in xp_dict.items():
         level_change = current_levels[skill.name] - before_check_levels[skill.name]
         level_str = f"({before_check_levels[skill.name]}-{current_levels[skill.name]})" if level_change > 0 else ''
-        utility.message(f"{skill.name}: +{xp} {level_str}")
-    print()
-    for item, amnt in
-
+        utility.message(f"{skill.name}: +{xp}xp {level_str}")
+    if activity == "exploring":
+        for item, amnt in item_dict.items():
+            utility.message(f"You discovered {item.name}")
+    else:
+        for item, amnt in item_dict.items():
+            if amnt == 1:
+                utility.message(f"You found {item.name}")
+            else:
+                utility.message(f"You found {amnt} X {item.name}")
 
     utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["last_time_stamp"],
                                [str(time.time())])
