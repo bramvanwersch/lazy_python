@@ -12,7 +12,7 @@ class Skill(ABC):
 
     def get_additional_roll_chance(self, xp):
         level = xp_to_level(xp)
-        # TODO: think about changing per level
+        # TODO: think about changing per level with a formula
         return level * 0.005
 
 

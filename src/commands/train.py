@@ -10,7 +10,8 @@ def explore(*args):
     current_user_area = utility.get_values_from_file(current_user_dir / constants.USER_GENERAL_FILE_NAME,
                                                      ["current_area"])[0]
     utility.message(f"Started exploring {current_user_area}...")
-    utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["current_activity"], ["exploring"])
+    utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["current_activity"],
+                               [skills.Skills.EXPLORING.name])
 
 
 TRAINING_COMMANDS = _commands.Command("train", description="The explore command is used to explore areas and move to "
