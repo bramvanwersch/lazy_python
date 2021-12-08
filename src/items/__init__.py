@@ -1,8 +1,3 @@
-from src.items.food_items import *
-from src.items.equipment_items import *
-from src.items.weapon_items import *
-from src.items.general_items import *
-from src.items.tool_items import *
 from src.items._items import *
 
 
