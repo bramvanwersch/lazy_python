@@ -48,6 +48,7 @@ _home_gather = Activity("gathering", Skills.GATHERING, 0.05, _home_loots, {},
 _old_tree_location = Location("Old tree", 0.4, 5, _old_tree_activities,
                               "An old looking tree. Does not look like there is a lot of interesting things to "
                               "find here.")
+
 _player_home = Location("Home", 0.0, 0, [_home_gather],
                         "A place with good and bad memories")
 

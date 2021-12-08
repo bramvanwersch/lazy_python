@@ -46,23 +46,25 @@ class Area:
 
     def perform_activity_rolls(self, location, activity, passed_time):
         if activity == "exploring":
-            unlocked_areas = utility.get_values_from_file(utility.active_user_dir() / constants.USER_GENERAL_FILE_NAME,
-                                                          ["unlocked_areas"])[0]
-            unlocked_areas = set(unlocked_areas.split(","))
+            current_area = utility.get_values_from_file(utility.active_user_dir() /
+                                                        constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+            unlocked_locations = utility.get_values_from_file(utility.active_user_area_dir() / current_area,
+                                                              ["unlocked_locations"])[0]
+            unlocked_locations = set(unlocked_locations.split(","))
 
-            return self._discover_areas(passed_time, unlocked_areas)
+            return self._discover_areas(passed_time, unlocked_locations)
         else:
             return self._locations[location].activities[activity].simulate(passed_time)
 
     def _discover_areas(
         self,
         passed_time: int,
-        unlocked_areas: Set[str]
+        unlocked_locations: Set[str]
     ):
         xp_dict = defaultdict(int)
         item_dict = defaultdict(int)
         locations_unlock_table = {location: location.discovery_chance for location_name, location
-                                  in self._locations.items() if location_name not in unlocked_areas}
+                                  in self._locations.items() if location_name not in unlocked_locations}
         for _ in range(int(passed_time / self.SIMULATE_EVERY)):
             all_xp = skills.get_xp(skills.Skills.EXPLORING.name) + xp_dict[skills.Skills.EXPLORING]
             additional_skill_chance = skills.Skills.EXPLORING.get_additional_roll_chance(all_xp)
@@ -73,11 +75,13 @@ class Area:
                     xp_dict[skills.Skills.EXPLORING] += unlocked_area.discover_xp
                     item_dict[unlocked_area] = 1
                     del locations_unlock_table[unlocked_area]
-                    unlocked_areas.add(unlocked_area.name)
+                    unlocked_locations.add(unlocked_area.name)
                 else:
                     xp_dict[skills.Skills.EXPLORING] += self._no_find_xp
-        utility.set_values_in_file(utility.active_user_dir() / constants.USER_GENERAL_FILE_NAME, ["unlocked_areas"],
-                                   [','.join(unlocked_areas)])
+        current_area = utility.get_values_from_file(utility.active_user_dir() /
+                                                    constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+        utility.set_values_in_file(utility.active_user_area_dir() / current_area, ["unlocked_locations"],
+                                   [','.join(unlocked_locations)])
         skills.add_xp(xp_dict)
         return xp_dict, item_dict
 

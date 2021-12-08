@@ -4,7 +4,7 @@ import sys
 from src import constants
 
 if TYPE_CHECKING:
-    import pathlib
+    from pathlib import Path
 
 
 class LazyException(Exception):
@@ -37,12 +37,12 @@ def is_valid_string(string: str):
     return True
 
 
-def append_to_file(file, information):
+def append_to_file(file: Union[str, "Path"], information):
     with open(file, "a") as f:
         f.write(information)
 
 
-def set_values_in_file(file: str, names: List[str], values: List[str]):
+def set_values_in_file(file: Union[str, "Path"], names: List[str], values: List[str]):
     new_text = []
     uncovered_names = {name: None for name in names}
     with open(file) as f:
@@ -60,7 +60,7 @@ def set_values_in_file(file: str, names: List[str], values: List[str]):
         f.write(''.join(new_text))
 
 
-def add_values_in_file(file: str, names: List[str], values: List[str], value_type: Any):
+def add_values_in_file(file: Union[str, "Path"], names: List[str], values: List[str], value_type: Any):
     # add values to the current values in the file
     uncovered_names = {name: None for name in names}
     new_text = []
@@ -80,7 +80,7 @@ def add_values_in_file(file: str, names: List[str], values: List[str], value_typ
         f.write(''.join(new_text))
 
 
-def get_values_from_file(file: str, names: List[str]) -> List[str]:
+def get_values_from_file(file: Union[str, "Path"], names: List[str]) -> List[str]:
     values = []
     uncovered_names = {name: None for name in names}
     with open(file) as f:
@@ -95,7 +95,7 @@ def get_values_from_file(file: str, names: List[str]) -> List[str]:
     return values
 
 
-def get_all_named_values_from_file(file, value_type: Any = str):
+def get_all_named_values_from_file(file: Union[str, "Path"], value_type: Any = str):
     # convenience function so the names of values are not required
     values = {}
     with open(file) as f:
@@ -105,7 +105,7 @@ def get_all_named_values_from_file(file, value_type: Any = str):
     return values
 
 
-def remove_lines_from_file(file: str, lines: List[str]):
+def remove_lines_from_file(file: Union[str, "Path"], lines: List[str]):
     new_text = []
     uncovered_values = {value: None for value in lines}
     with open(file) as f:
@@ -122,13 +122,17 @@ def remove_lines_from_file(file: str, lines: List[str]):
         f.write(''.join(new_text))
 
 
-def active_user_dir(username: Union[None, str] = None) -> "pathlib.Path":
+def active_user_dir(username: Union[None, str] = None) -> "Path":
     if username is None:
         username = get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
     if username == "":
         message(constants.LazyWarningMessages.NO_USER)
         sys.exit(0)
     return constants.USER_DIRS_PATH / username
+
+
+def active_user_area_dir(username: Union[None, str] = None) -> "Path":
+    return active_user_dir(username) / constants.USER_AREA_DIR
 
 
 def message(string):

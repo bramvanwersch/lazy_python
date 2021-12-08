@@ -12,7 +12,6 @@ class LazyWarningMessages:
     NO_USER = "No user selected. Select a user with 'account load' or create a new one with 'account new'"
 
 
-
 # all user files
 _secret_path = Path(__file__).resolve().parent.parent / "data" / "secret"
 GENERAL_INFO_PATH = _secret_path / "general.txt"
@@ -23,6 +22,7 @@ USER_DIRS_PATH = _secret_path / "users"
 USER_GENERAL_FILE_NAME = "general.txt"
 USER_LEVEL_FILE_NAME = "levels.txt"
 USER_INVENTORY_FILE_NAME = "inventory.txt"
+USER_AREA_DIR = "areas"
 
 # other
 XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299, 337, 379, 425, 476, 531, 592, 659,
@@ -34,4 +34,4 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
               758478, 831664, 911911, 999901)
 
 # new player values
-STARTING_LOCATION = "green woods"
+STARTING_AREA = "green woods"

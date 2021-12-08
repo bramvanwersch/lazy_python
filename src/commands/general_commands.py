@@ -73,4 +73,4 @@ def move(*args):
 GENERAL_COMMANDS = _commands.Command("general", description="General commands that are used to do general account"
                                                             " related things.")
 GENERAL_COMMANDS.add_command("check", check, "Check the current activity and get a report on the gained xp and items.")
-GENERAL_COMMANDS.add_command("move", move, "Check the current activity and get a report on the gained xp and items.")
+GENERAL_COMMANDS.add_command("move", move, "Move to any of the available areas.")

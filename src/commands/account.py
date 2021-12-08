@@ -62,16 +62,24 @@ def _create_account(username, password):
     os.mkdir(constants.USER_DIRS_PATH / username)
     active_user_dir = utility.active_user_dir(username)
     with open(active_user_dir / constants.USER_GENERAL_FILE_NAME, "w") as f:
-        f.write(f"current_area:{constants.STARTING_LOCATION}\n")
+        f.write(f"current_area:{constants.STARTING_AREA}\n")
         f.write("current_location:\n")
         f.write("current_activity:\n")
         f.write(f"last_time_stamp:{time.time()}\n")
-        f.write("unlocked_areas:\n")
     with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
         for skill in Skills.all_skills():
             f.write(f"{skill.name}:0\n")
     with open(active_user_dir / constants.USER_INVENTORY_FILE_NAME, "w") as f:
         f.write("")
+
+    os.mkdir(active_user_dir / constants.USER_AREA_DIR)
+    create_area_file(constants.STARTING_AREA, username, ["Home"])
+
+
+def create_area_file(area_name, username=None, unlocked_areas=None):
+    # put all area specific values in this file. Set expected defined values here
+    with open(utility.active_user_area_dir(username) / area_name, "w") as f:
+        f.write(f"unlocked_locations:{'' if unlocked_areas is None else ','.join(unlocked_areas)}\n")
 
 
 def load(*args):
