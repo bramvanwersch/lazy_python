@@ -17,6 +17,59 @@ class Item(ABC):
         return other.name == self.name
 
 
+class GeneralItem(Item):
+    pass
+
+
+class FoodItem(Item, ABC):
+
+    def __init__(self, name, health_restored):
+        super().__init__(name)
+        self._health_restored = health_restored
+
+    @property
+    def health_restored(self):
+        return self._health_restored
+
+
+class EquipmentItem(Item, ABC):
+
+    def __init__(self, name, armour):
+        super().__init__(name)
+        self._armour = armour
+
+    @property
+    def armour(self):
+        return self._armour
+
+
+class ToolItem(Item, ABC):
+
+    def __init__(self, name, time_reduction, durability):
+        super().__init__(name)
+        self._time_reduction = time_reduction
+        self._durability = durability
+
+    @property
+    def time_reduction(self):
+        return self._time_reduction
+
+    @property
+    def durability(self):
+        return self._durability
+
+
+class WeaponItem(Item, ABC):
+
+    def __init__(self, name, damage):
+        super().__init__(name)
+        self._damage = damage
+
+    @property
+    def damage(self):
+        return self._damage
+
+
 # general utility functions related to player
 
 def add_items(item_dict):

@@ -27,6 +27,9 @@ _branch_loot = Loot({Items.BRANCH: 1}, {Skills.WOODCUTTING: 2}, 0.5)
 _leaf_loot = Loot({Items.LEAF: 15}, {Skills.WOODCUTTING: 1}, 0.2)
 _birdnest_loot = Loot({Items.BIRDSNEST: 1, Items.EGG: 1}, {}, 0.05)
 
+# lake fishing
+
+
 _tree_gather_loots = [_1_coin_loot, _10_coin_loot, _15_coin_loot, _20_coin_loot, _cobweb_loot, _brown_mushroom_loot,
                       _red_mushroom_loot, _yellow_mushroom_loot]
 _tree_woodcut_loots = [_log_loot, _branch_loot, _leaf_loot, _birdnest_loot]
@@ -45,10 +48,10 @@ _home_gather = Activity("gathering", Skills.GATHERING, 0.05, _home_loots, {},
 
 
 # locations
-_old_tree_location = Location("Old tree", 0.4, 5, _old_tree_activities,
+_old_tree_location = Location("Old tree", 0.4, 50, _old_tree_activities,
                               "An old looking tree. Does not look like there is a lot of interesting things to "
                               "find here.")
-
+_small_lake = Location("Small lakke", 0.1, 50, [], "The small lake close to town, maybe there are some fish left")
 _player_home = Location("Home", 0.0, 0, [_home_gather],
                         "A place with good and bad memories")
 
