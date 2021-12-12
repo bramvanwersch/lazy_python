@@ -1,3 +1,6 @@
+from typing import Dict
+
+from src.areas.locations import *
 from src.areas.green_woods_area_definitions import green_woods
 
 
@@ -19,4 +22,4 @@ class Areas:
                 varname not in ["all_areas", "get_elligable_areas", "area_by_name"]]
 
 
-AREA_MAPPING = {area.name: area for area in Areas.all_areas()}
+AREA_MAPPING: Dict[str, locations.Area] = {area.name: area for area in Areas.all_areas()}

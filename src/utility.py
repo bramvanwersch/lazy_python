@@ -11,9 +11,13 @@ class LazyException(Exception):
     pass
 
 
-def ask_answer(fail_message: str, possible_answers: Dict[str, Any]):
+def ask_answer(fail_message: str, possible_answers: Dict[str, Any], case_sensitive: bool = True):
+    if not case_sensitive:
+        possible_answers = {answer.lower(): return_value for answer, return_value in possible_answers}
     while True:
         answer = input()
+        if not case_sensitive:
+            answer = answer.lower()
         if answer in possible_answers:
             return possible_answers[answer]
         message(fail_message)

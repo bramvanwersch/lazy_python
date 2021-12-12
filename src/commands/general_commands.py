@@ -45,8 +45,35 @@ def check():
                                [str(time.time())])
 
 
+def examine(*args):
+    current_user_dir = utility.active_user_dir()
+
+    utility.message("Please select if you want to examine an Area a Location or an Activity")
+    answer = utility.ask_answer("Invalid answer given. Please choose one of 'Area', 'A', 'Location', 'L', 'Activity',"
+                                " 'C'", {"area": 1, "a": 1, "location": 2, "l": 2, "activity": 3, "c": 3},
+                                False)
+    indexes = ["area", "location", "activity"]
+    selected = None
+    for index in range(answer):
+        if index == 0:
+            user_area_dir = current_user_dir / constants.USER_AREA_DIR
+            area_files = user_area_dir.glob("*")
+            names = [p.name for p in area_files]
+        elif index == 1:
+            names = areas.get_unlocked_locations(selected)
+        else:
+            names = ""
+        utility.message(f"Please provide the name of the {indexes[index]}")
+        selected_value = utility.ask_answer(f"Please choose one of: {', '.join(names)}",
+                                            {name: name for name in names}, False)
+        selected = selected_value
+    selected for if in is
+
+#    utility.ask_answer()
+
+
 def move(*args):
-    # TODO add no input support
+    # TODO add no input support --> also not completely correct
     current_user_dir = utility.active_user_dir()
     current_user_area = utility.get_values_from_file(current_user_dir / constants.USER_GENERAL_FILE_NAME,
                                                      ["current_area"])[0]
@@ -74,3 +101,4 @@ GENERAL_COMMANDS = _commands.Command("general", description="General commands th
                                                             " related things.")
 GENERAL_COMMANDS.add_command("check", check, "Check the current activity and get a report on the gained xp and items.")
 GENERAL_COMMANDS.add_command("move", move, "Move to any of the available areas.")
+GENERAL_COMMANDS.add_command("examine", examine, "Examine an area, location or activity for some additional information.")

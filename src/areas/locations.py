@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Set, DefaultDict
+from typing import Dict, List, Union, Set, DefaultDict, Set
 from abc import ABC, abstractmethod
 import random
 from collections import defaultdict
@@ -8,6 +8,16 @@ from src import constants
 from src import skills
 from src import items
 from src import utility
+
+
+def get_unlocked_locations(current_area: str = None) -> Set[str]:
+    if current_area is None:
+        current_area = utility.get_values_from_file(utility.active_user_dir() /
+                                                    constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+    unlocked_locations = utility.get_values_from_file(utility.active_user_area_dir() / current_area,
+                                                      ["unlocked_locations"])[0]
+    unlocked_locations = set(unlocked_locations.split(","))
+    return unlocked_locations
 
 
 class Simulation(ABC):
@@ -44,17 +54,26 @@ class Area:
         self._unlock_chance = location_discovery_chance
         self.description = description
 
+    def examine(self):
+        description = self.description + "\nLocations:\n"
+        unlocked_locations = get_unlocked_locations()
+        for location in self._locations:
+            if location.name in unlocked_locations:
+                description += f"  - {location.name}: {location.description}\n"
+            else:
+                description += f"  - ???: ???\n"
+
     def perform_activity_rolls(self, location, activity, passed_time):
         if activity == "exploring":
-            current_area = utility.get_values_from_file(utility.active_user_dir() /
-                                                        constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
-            unlocked_locations = utility.get_values_from_file(utility.active_user_area_dir() / current_area,
-                                                              ["unlocked_locations"])[0]
-            unlocked_locations = set(unlocked_locations.split(","))
-
+            unlocked_locations = get_unlocked_locations()
             return self._discover_areas(passed_time, unlocked_locations)
         else:
             return self._locations[location].activities[activity].simulate(passed_time)
+
+    @property
+    def locations(self) -> Dict[str, "Location"]:
+        # make it sort of read only
+        return self._locations
 
     def _discover_areas(
         self,

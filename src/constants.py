@@ -34,4 +34,4 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
               758478, 831664, 911911, 999901)
 
 # new player values
-STARTING_AREA = "green woods"
+STARTING_AREA = "green_woods"
