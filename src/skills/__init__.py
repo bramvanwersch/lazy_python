@@ -5,6 +5,7 @@ class Skills:
     EXPLORING = Skill("exploring")
     GATHERING = Skill("gathering")
     WOODCUTTING = Skill("woodcutting")
+    FISHING = Skill("Fishing")
 
     @classmethod
     def all_skills(cls):

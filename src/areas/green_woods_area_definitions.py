@@ -28,7 +28,7 @@ _leaf_loot = Loot({Items.LEAF: 15}, {Skills.WOODCUTTING: 1}, 0.2)
 _birdnest_loot = Loot({Items.BIRDSNEST: 1, Items.EGG: 1}, {}, 0.05)
 
 # lake fishing
-
+_trout_loot = Loot({Items.TROUT: 1}, {Skills.FISHING: 10})
 
 _tree_gather_loots = [_1_coin_loot, _10_coin_loot, _15_coin_loot, _20_coin_loot, _cobweb_loot, _brown_mushroom_loot,
                       _red_mushroom_loot, _yellow_mushroom_loot]
