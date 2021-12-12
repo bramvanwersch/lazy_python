@@ -8,9 +8,9 @@ from src.skills import Skills
 # loot
 
 # home
-_old_bread_loot = Loot({Items.OLD_BREAD: 1}, {}, 1)
+_old_bread_loot = Loot({Items.OLD_BREAD: 1}, {}, 1, 0)
 _forgotten_stuff = Loot({Items.SMALL_DAGGER: 1, Items.BLACK_CAPE: 1, Items.LEATHER_BOOTS: 1},
-                        {Skills.GATHERING: 50}, 0.1, 1)
+                        {Skills.GATHERING: 50}, 0.1, 1, 0)
 # tree gather
 _1_coin_loot = Loot({Items.COIN: 1}, {Skills.GATHERING: 1}, 2)
 _10_coin_loot = Loot({Items.COIN: 10}, {Skills.GATHERING: 4}, 0.5)
@@ -28,7 +28,7 @@ _leaf_loot = Loot({Items.LEAF: 15}, {Skills.WOODCUTTING: 1}, 0.2)
 _birdnest_loot = Loot({Items.BIRDSNEST: 1, Items.EGG: 1}, {}, 0.05)
 
 # lake fishing
-_trout_loot = Loot({Items.TROUT: 1}, {Skills.FISHING: 10})
+_trout_loot = Loot({Items.TROUT: 1}, {Skills.FISHING: 10}, 0.1)
 
 _tree_gather_loots = [_1_coin_loot, _10_coin_loot, _15_coin_loot, _20_coin_loot, _cobweb_loot, _brown_mushroom_loot,
                       _red_mushroom_loot, _yellow_mushroom_loot]
@@ -37,13 +37,13 @@ _tree_woodcut_loots = [_log_loot, _branch_loot, _leaf_loot, _birdnest_loot]
 _home_loots = [_1_coin_loot, _old_bread_loot, _forgotten_stuff]
 
 # activities
-_old_tree_gather = Activity("gathering", Skills.GATHERING, 0.25, _tree_gather_loots, {},
+_old_tree_gather = Activity("gathering", Skills.GATHERING, 0.25, _tree_gather_loots,
                             "There might be some things left around by other people.")
-_old_tree_chopping = Activity("woodcutting", Skills.WOODCUTTING, 0.25, _tree_woodcut_loots, {},
+_old_tree_chopping = Activity("woodcutting", Skills.WOODCUTTING, 0.25, _tree_woodcut_loots,
                               "The old tree cna be chopped it never seems to get smaller though.")
 _old_tree_activities = [_old_tree_gather, _old_tree_chopping]
 
-_home_gather = Activity("gathering", Skills.GATHERING, 0.05, _home_loots, {},
+_home_gather = Activity("gathering", Skills.GATHERING, 0.05, _home_loots,
                         "There might be some supplies left, on the other hand there is a reason im leaving.")
 
 

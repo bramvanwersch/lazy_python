@@ -16,7 +16,7 @@ class Simulation(ABC):
 
     def simulate(self, passed_time: int):
         # passed time is passed in seconds
-        xp_dict = defaultdict(int)
+        xp_dict = skills.get_xps()
         item_dict = defaultdict(int)
         for _ in range(int(passed_time / self.SIMULATE_EVERY)):
             self._simulate_roll(xp_dict, item_dict)
@@ -27,7 +27,7 @@ class Simulation(ABC):
     @abstractmethod
     def _simulate_roll(
         self,
-        xp_dict: DefaultDict[str, int],
+        xp_dict: Dict[str, int],
         item_dict: DefaultDict[str, int]
     ):
         pass
@@ -96,24 +96,33 @@ class Location:
 
 
 class Activity(Simulation):
-    def __init__(self, name, main_skill, base_chance: float, loot_list: List["Loot"], level_requirments: Dict[str, int],
-                 description=""):
+    def __init__(
+        self,
+        name: str,
+        main_skill: skills.Skill,
+        base_weight: float,
+        loot_list: List["Loot"],
+        description: str = ""
+    ):
         self.name = name
         self._main_skill = main_skill
-        self._succes_chance = base_chance
+        self._succes_chance = base_weight
         self._loot_table = {loot: loot.roll_weight for loot in loot_list}
-        self._level_requirements = level_requirments
+        self._level_requirements = None  # TODO set this based on the loot to check when moving here
         self.description = description
 
     def _simulate_roll(
         self,
-        xp_dict: DefaultDict[str, int],
+        xp_dict: Dict[str, int],
         item_dict: DefaultDict[str, int]
     ):
-        all_xp = skills.get_xp(self._main_skill.name) + xp_dict[skills.Skills.EXPLORING]
-        additional_skill_chance = self._main_skill.name.get_additional_roll_chance(all_xp)
+        all_xp = xp_dict[self._main_skill.name]
+        additional_skill_chance = self._main_skill.get_additional_roll_chance(all_xp)
+        main_skill_level = skills.get_level(self._main_skill.name)
         if random.random() < self._succes_chance + additional_skill_chance:
-            loot = random.choices(list(self._loot_table.keys()), list(self._loot_table.values()), k=1)[0]
+            elligable_loots = {loot: chance for loot, chance in self._loot_table.items() if
+                               loot.required_level >= main_skill_level}
+            loot = random.choices(list(elligable_loots.keys()), list(elligable_loots.values()), k=1)[0]
             loot.add_xp_and_items(xp_dict, item_dict)
             if loot.is_depleted():
                 del self._loot_table[loot]
@@ -124,12 +133,14 @@ class Loot:
         self,
         item_rewards: Dict[str, int],
         xp_rewards: Dict[str, int],
-        chance: float,
+        weight: float,
+        required_level: int,
         max_supply: int = None
     ):
-        self.roll_weight = chance
+        self.roll_weight = weight
         self._item_rewards = item_rewards
         self._xp_rewards = xp_rewards
+        self.required_level = required_level  # level needed to be able to loot this based in the main skill of activity
         self._max_supply = max_supply
 
     def is_depleted(self):

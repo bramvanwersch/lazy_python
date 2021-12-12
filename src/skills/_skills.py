@@ -22,6 +22,12 @@ def add_xp(xp_dict):
                                list(xp_dict.values()), int)
 
 
+def set_xp(xp_dict):
+    user_dir = utility.active_user_dir()
+    utility.set_values_in_file(user_dir / constants.USER_LEVEL_FILE_NAME, list(key.name for key in xp_dict.keys()),
+                               list(xp_dict.values()))
+
+
 def get_xps() -> Dict[str, int]:
     user_dir = utility.active_user_dir()
     level_dict = utility.get_all_named_values_from_file(user_dir / constants.USER_LEVEL_FILE_NAME, int)
