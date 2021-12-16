@@ -13,7 +13,7 @@ class LazyException(Exception):
 
 def ask_answer(fail_message: str, possible_answers: Dict[str, Any], case_sensitive: bool = True):
     if not case_sensitive:
-        possible_answers = {answer.lower(): return_value for answer, return_value in possible_answers}
+        possible_answers = {answer.lower(): return_value for answer, return_value in possible_answers.items()}
     while True:
         answer = input()
         if not case_sensitive:
@@ -140,4 +140,8 @@ def active_user_area_dir(username: Union[None, str] = None) -> "Path":
 
 
 def message(string):
-    print(f"(lazy)> {string}")
+    for index, line in enumerate(string.split("\n")):
+        if index == 0:
+            print(f"(lazy)> {line}")
+        else:
+            print(f"(....)> {line}")

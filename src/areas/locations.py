@@ -55,13 +55,14 @@ class Area:
         self.description = description
 
     def examine(self):
-        description = self.description + "\nLocations:\n"
+        description = f"{self.name.upper()}:\n{self.description}\nLocations:\n"
         unlocked_locations = get_unlocked_locations()
-        for location in self._locations:
-            if location.name in unlocked_locations:
-                description += f"  - {location.name}: {location.description}\n"
+        for location_name in self._locations:
+            if location_name in unlocked_locations:
+                description += f"- {location_name}: {self._locations[location_name].description}\n"
             else:
-                description += f"  - ???: ???\n"
+                description += f"- ???: ???\n"
+        utility.message(description[:-1])  # remove last newline
 
     def perform_activity_rolls(self, location, activity, passed_time):
         if activity == "exploring":
@@ -111,7 +112,18 @@ class Location:
         self.discover_xp = discover_xp
         self.discovery_chance = chance
         self.description = description
-        self.activities = {activity.name: activity for activity in activities}
+        self._activities = {activity.name: activity for activity in activities}
+    
+    @property
+    def activities(self) -> Dict[str, "Activity"]:
+        return self._activities
+
+    def examine(self):
+        description = f"{self.name.upper()}:\n{self.description}\nActivities:\n"
+        for activity_name, activity in self._activities.items():
+            description += f" - {activity_name} (min. lvl. {activity.level_requirement} " \
+                           f"{activity.main_skill.name}): {activity.description}\n"
+        utility.message(description[:-1])  # remove last newline
 
 
 class Activity(Simulation):
@@ -127,8 +139,16 @@ class Activity(Simulation):
         self._main_skill = main_skill
         self._succes_chance = base_weight
         self._loot_table = {loot: loot.roll_weight for loot in loot_list}
-        self._level_requirements = None  # TODO set this based on the loot to check when moving here
+        self._level_requirements = 0  # TODO set this based on the loot to check when moving here
         self.description = description
+
+    @property
+    def main_skill(self):
+        return self._main_skill
+
+    @property
+    def level_requirement(self):
+        return self._level_requirements
 
     def _simulate_roll(
         self,
@@ -146,11 +166,18 @@ class Activity(Simulation):
             if loot.is_depleted():
                 del self._loot_table[loot]
 
+    def examine(self):
+        description = f"{self.name.upper()}:\n{self.description}\nAvailable loot:\n"
+        for loot in self._loot_table:
+            for reward, amnt in loot.item_rewards.items():
+                description += f" - {reward.name}: {amnt}\n"
+        utility.message(description[:-1])
+
 
 class Loot:
     def __init__(
         self,
-        item_rewards: Dict[str, int],
+        item_rewards: Dict[items.Item, int],
         xp_rewards: Dict[str, int],
         weight: float,
         required_level: int,
@@ -161,6 +188,10 @@ class Loot:
         self._xp_rewards = xp_rewards
         self.required_level = required_level  # level needed to be able to loot this based in the main skill of activity
         self._max_supply = max_supply
+
+    @property
+    def item_rewards(self):
+        return self._item_rewards
 
     def is_depleted(self):
         if self.is_depletable() is False:
