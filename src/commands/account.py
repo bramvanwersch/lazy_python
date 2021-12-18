@@ -63,7 +63,7 @@ def _create_account(username, password):
     active_user_dir = utility.active_user_dir(username)
     with open(active_user_dir / constants.USER_GENERAL_FILE_NAME, "w") as f:
         f.write(f"current_area:{constants.STARTING_AREA}\n")
-        f.write("current_location:\n")
+        f.write(f"current_location:{constants.STARTING_LOCATION}\n")
         f.write("current_activity:\n")
         f.write(f"last_time_stamp:{time.time()}\n")
     with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
@@ -73,7 +73,7 @@ def _create_account(username, password):
         f.write("")
 
     os.mkdir(active_user_dir / constants.USER_AREA_DIR)
-    create_area_file(constants.STARTING_AREA, username, ["Home"])
+    create_area_file(constants.STARTING_AREA, username, ["home"])
 
 
 def create_area_file(area_name, username=None, unlocked_areas=None):

@@ -35,3 +35,4 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
 
 # new player values
 STARTING_AREA = "green_woods"
+STARTING_LOCATION = "home"

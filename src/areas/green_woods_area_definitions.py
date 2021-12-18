@@ -57,12 +57,12 @@ _lake_fish_activity = Activity("fishing", Skills.FISHING, 0.25, _lake_fish_loots
 
 
 # locations
-_old_tree_location = Location("Old tree", 0.4, 50, _old_tree_activities,
+_old_tree_location = Location("old tree", 0.4, 50, _old_tree_activities,
                               "An old looking tree. Does not look like there is a lot of interesting things to "
                               "find here.")
-_small_lake = Location("Small lakke", 0.1, 50, [_lake_fish_activity],
+_small_lake = Location("small lake", 0.1, 50, [_lake_fish_activity],
                        "The small lake close to town, maybe there are some fish left")
-_player_home = Location("Home", 0.0, 0, [_home_gather],
+_player_home = Location("home", 0.0, 0, [_home_gather],
                         "A place with good and bad memories")
 
 _all_locations = [_old_tree_location, _small_lake, _player_home]
