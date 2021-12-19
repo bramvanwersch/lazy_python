@@ -181,8 +181,8 @@ class Loot:
         self,
         item_rewards: Dict[items.Item, int],
         xp_rewards: Dict[skills.Skill, int],
-        weight: float,
-        required_level: int,
+        weight: float = 0,
+        required_level: int = 0,
         max_supply: int = None
     ):
         self.roll_weight = weight
