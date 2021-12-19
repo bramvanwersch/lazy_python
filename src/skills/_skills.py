@@ -18,13 +18,13 @@ class Skill(ABC):
 
 def add_xp(xp_dict):
     user_dir = utility.active_user_dir()
-    utility.add_values_in_file(user_dir / constants.USER_LEVEL_FILE_NAME, list(key.name for key in xp_dict.keys()),
+    utility.add_values_in_file(user_dir / constants.USER_LEVEL_FILE_NAME, list(key for key in xp_dict.keys()),
                                list(xp_dict.values()), int)
 
 
 def set_xp(xp_dict):
     user_dir = utility.active_user_dir()
-    utility.set_values_in_file(user_dir / constants.USER_LEVEL_FILE_NAME, list(key.name for key in xp_dict.keys()),
+    utility.set_values_in_file(user_dir / constants.USER_LEVEL_FILE_NAME, list(key for key in xp_dict.keys()),
                                list(xp_dict.values()))
 
 

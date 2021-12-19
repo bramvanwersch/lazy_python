@@ -10,7 +10,8 @@ from src import items
 from src import utility
 
 
-def get_unlocked_locations(current_area: str = None) -> Set[str]:
+# general functions
+def get_unlocked_location_names(current_area: str = None) -> Set[str]:
     if current_area is None:
         current_area = utility.get_values_from_file(utility.active_user_dir() /
                                                     constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
@@ -20,6 +21,7 @@ def get_unlocked_locations(current_area: str = None) -> Set[str]:
     return unlocked_locations
 
 
+# objects
 class Simulation(ABC):
 
     SIMULATE_EVERY: int = 60  # seconds
@@ -56,7 +58,7 @@ class Area:
 
     def examine(self):
         description = f"{self.name.upper()}:\n{self.description}\nLocations:\n"
-        unlocked_locations = get_unlocked_locations()
+        unlocked_locations = get_unlocked_location_names()
         for location_name in self._locations:
             if location_name in unlocked_locations:
                 description += f"- {location_name}: {self._locations[location_name].description}\n"
@@ -66,7 +68,7 @@ class Area:
 
     def perform_activity_rolls(self, location, activity, passed_time):
         if activity == "exploring":
-            unlocked_locations = get_unlocked_locations()
+            unlocked_locations = get_unlocked_location_names()
             return self._discover_areas(passed_time, unlocked_locations)
         else:
             return self._locations[location].activities[activity].simulate(passed_time)
@@ -178,7 +180,7 @@ class Loot:
     def __init__(
         self,
         item_rewards: Dict[items.Item, int],
-        xp_rewards: Dict[str, int],
+        xp_rewards: Dict[skills.Skill, int],
         weight: float,
         required_level: int,
         max_supply: int = None
@@ -207,9 +209,9 @@ class Loot:
         item_dict: DefaultDict[str, int]
     ):
         for skill in self._xp_rewards:
-            xp_dict[skill] += self._xp_rewards[skill]
+            xp_dict[skill.name] += self._xp_rewards[skill]
         for item in self._item_rewards:
-            item_dict[item] += self._item_rewards[item]
+            item_dict[item.name] += self._item_rewards[item]
 
         if self._max_supply is not None:
             self._max_supply -= 1

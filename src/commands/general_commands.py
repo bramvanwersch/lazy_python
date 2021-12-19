@@ -31,19 +31,21 @@ def check():
     utility.message("The following things happened while you where away:")
 
     current_levels = skills.get_levels()
-    for skill, xp in xp_dict.items():
-        level_change = current_levels[skill.name] - before_check_levels[skill.name]
-        level_str = f"({before_check_levels[skill.name]}-{current_levels[skill.name]})" if level_change > 0 else ''
-        utility.message(f"{skill.name}: +{xp}xp {level_str}")
+    for skill_name, xp in xp_dict.items():
+        if xp <= 0:
+            continue
+        level_change = current_levels[skill_name] - before_check_levels[skill_name]
+        level_str = f"({before_check_levels[skill_name]}-{current_levels[skill_name]})" if level_change > 0 else ''
+        utility.message(f"{skill_name}: +{xp}xp {level_str}")
     if activity == "exploring":
-        for item, amnt in item_dict.items():
-            utility.message(f"You discovered {item.name}")
+        for location_name, amnt in item_dict.items():
+            utility.message(f"You discovered {location_name}")
     else:
-        for item, amnt in item_dict.items():
+        for item_name, amnt in item_dict.items():
             if amnt == 1:
-                utility.message(f"You found {item.name}")
+                utility.message(f"You found {item_name}")
             else:
-                utility.message(f"You found {amnt} X {item.name}")
+                utility.message(f"You found {amnt} X {item_name}")
 
     # set the time stamp
     utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["last_time_stamp"],
@@ -108,7 +110,7 @@ def _get_area(*args) -> Union[areas.Area, None]:
 
 
 def _get_location(area_obj: areas.Area, *args) -> Union[areas.Location, None]:
-    location_names = areas.get_unlocked_locations(area_obj.name)
+    location_names = areas.get_unlocked_location_names(area_obj.name)
     if len(args) >= 2:
         if args[1] in location_names:
             selected_value = args[1]

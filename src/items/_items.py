@@ -75,7 +75,7 @@ class WeaponItem(Item, ABC):
 def add_items(item_dict):
     user_dir = utility.active_user_dir()
     utility.add_values_in_file(user_dir / constants.USER_INVENTORY_FILE_NAME,
-                               [item.name for item in item_dict.keys()], item_dict.values(), int)
+                               [item for item in item_dict.keys()], item_dict.values(), int)
 
 
 def get_all_items():
