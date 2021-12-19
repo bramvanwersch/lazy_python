@@ -54,7 +54,7 @@ def new(*args):
     answer = utility.ask_answer("Please answer one of: Y, y, yes, N, n, no", {"Y": True, "y": True, "yes": True,
                                                                               "N": False, "n": False, "no": False})
     if answer is True:
-        utility.set_values_in_file(constants.GENERAL_INFO_PATH, ["active_user"], [username])
+        utility.set_values_in_file(constants.GENERAL_INFO_PATH, [constants.N_ACTIVE_USER], [username])
 
 
 def _create_account(username, password):
@@ -62,10 +62,10 @@ def _create_account(username, password):
     os.mkdir(constants.USER_DIRS_PATH / username)
     active_user_dir = utility.active_user_dir(username)
     with open(active_user_dir / constants.USER_GENERAL_FILE_NAME, "w") as f:
-        f.write(f"current_area:{constants.STARTING_AREA}\n")
-        f.write(f"current_location:{constants.STARTING_LOCATION}\n")
-        f.write("current_activity:\n")
-        f.write(f"last_time_stamp:{time.time()}\n")
+        f.write(f"{constants.N_USER_AREA}:{constants.STARTING_AREA}\n")
+        f.write(f"{constants.N_USER_LOCATION}:{constants.STARTING_LOCATION}\n")
+        f.write(f"{constants.N_USER_ACTIVITY}:\n")
+        f.write(f"{constants.N_USER_TIME_STAMP}p:{time.time()}\n")
     with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
         for skill in Skills.all_skills():
             f.write(f"{skill.name}:0\n")
@@ -73,7 +73,7 @@ def _create_account(username, password):
         f.write("")
 
     os.mkdir(active_user_dir / constants.USER_AREA_DIR)
-    create_area_file(constants.STARTING_AREA, username, ["home"])
+    create_area_file(constants.STARTING_AREA, username, [constants.STARTING_LOCATION])
 
 
 def create_area_file(area_name, username=None, unlocked_areas=None):
@@ -111,19 +111,29 @@ def load(*args):
         if _confirm_password(db_password) is False:
             return
 
-    utility.set_values_in_file(constants.GENERAL_INFO_PATH, ["active_user"], [username])
+    utility.set_values_in_file(constants.GENERAL_INFO_PATH, [constants.N_ACTIVE_USER], [username])
 
     utility.message(f"Account {username} is now active!")
 
 
 def info(*args):
-    active_user = utility.get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
+    active_user = utility.get_values_from_file(constants.GENERAL_INFO_PATH, [constants.N_ACTIVE_USER])[0]
     utility.message(f"The current active account is: {active_user if active_user != '' else 'No active account'}")
+    active_user_dir = utility.active_user_dir(active_user)
+    all_general_values = utility.get_all_named_values_from_file(active_user_dir / constants.USER_GENERAL_FILE_NAME)
+    general_info = "General information:\n"
+    for key, value in all_general_values.items():
+        # change the timestamp value
+        if key == constants.N_USER_TIME_STAMP:
+            key = "time since last check"
+            value = int(time.time() - float(value))
+        general_info += f" - {key.replace('_', ' ')}: {value}\n"
+    utility.message(general_info[:-1])
 
 
 def delete(*args):
     input_password_provided = len(args) > 0
-    active_account = utility.get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
+    active_account = utility.get_values_from_file(constants.GENERAL_INFO_PATH, [constants.N_ACTIVE_USER])[0]
     if active_account == "":
         utility.message(constants.LazyWarningMessages.NO_USER)
         return
@@ -148,7 +158,7 @@ def delete(*args):
     # TODO: fix issues with the same passwords
     utility.remove_lines_from_file(constants.ACCOUNT_PATH, [f"n:{active_account}", f"p:{real_pw}"])
     shutil.rmtree(constants.USER_DIRS_PATH / active_account)
-    utility.set_values_in_file(constants.GENERAL_INFO_PATH, ["active_user"], [""])
+    utility.set_values_in_file(constants.GENERAL_INFO_PATH, [constants.N_ACTIVE_USER], [""])
     utility.message(f"Account {active_account} is no more.")
 
 

@@ -36,3 +36,12 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
 # new player values
 STARTING_AREA = "green_woods"
 STARTING_LOCATION = "home"
+
+
+# file variable names --> in order to make sure that names are always consistent --> always start with N
+N_ACTIVE_USER = "active_user"
+N_USER_AREA = "current_area"
+N_USER_LOCATION = "current_location"
+N_USER_ACTIVITY = "current_activity"
+N_USER_TIME_STAMP = "last_time_stamp"
+N_AREA_UNLOCKED_LOCATIONS = "unlocked_locations"

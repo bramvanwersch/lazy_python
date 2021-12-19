@@ -32,11 +32,11 @@ class Command:
             if self._own_command is not None:
                 self._own_command()
                 return
-            utility.message(f"{self.name} expects at least 1 argument: Choose one of "
-                            f"{' ,'.join(self._subcommands.keys())}")
+            utility.message(f"{self.name}  expects at least any 1 of these arguments: "
+                            f"{', '.join(self._subcommands.keys())}")
             return
         if args[0] not in self._subcommands:
             utility.message(f"{self.name} expects at least any 1 of these arguments: "
-                            f"{' ,'.join(self._subcommands.keys())}")
+                            f"{', '.join(self._subcommands.keys())}")
             return
         self._subcommands[args[0]](*args[1:])  # noqa
