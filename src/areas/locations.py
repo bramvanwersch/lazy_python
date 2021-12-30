@@ -93,7 +93,7 @@ class Area:
                     unlocked_area = random.choices(list(locations_unlock_table.keys()),
                                                    list(locations_unlock_table.values()), k=1)[0]
                     xp_dict[skills.Skills.EXPLORING.name] += unlocked_area.discover_xp
-                    item_dict[unlocked_area] = 1
+                    item_dict[unlocked_area.name] = 1
                     del locations_unlock_table[unlocked_area]
                     unlocked_locations.add(unlocked_area.name)
                 else:

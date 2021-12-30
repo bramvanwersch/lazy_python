@@ -41,7 +41,7 @@ def check():
         level_change = current_level - before_check_levels[skill_name]
         level_str = f"({before_check_levels[skill_name]}-{current_level})" if level_change > 0 else ''
         utility.message(f"{skill_name}: +{xp_difference}xp {level_str}")
-    if activity == "exploring":
+    if activity == skills.Skills.EXPLORING.name:
         for location_name, amnt in item_dict.items():
             utility.message(f"You discovered {location_name}")
     else:
@@ -89,7 +89,7 @@ def _examine(depth, *args):
 
 
 EXAMINE_COMMANDS = _commands.Command("examine", description="Examine an area, location or activity to get more detailed"
-                                                            "information.")
+                                                            " information.")
 EXAMINE_COMMANDS.add_command("area", examine_area, "See al the unlocked locations and what there is still to uncover in"
                                                    "an area")
 EXAMINE_COMMANDS.add_command("location", examine_location, "See all possible activities in a location and all the "

@@ -1,2 +1,8 @@
 small features:
 - dont allow test user --> because of test interferance
+- make sure to reset all values after testing --> active user for instance
+-
+
+major:
+- add crafting skills
+- add additional
