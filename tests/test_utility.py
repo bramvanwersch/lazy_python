@@ -1,9 +1,10 @@
 from unittest import TestCase
 import os
 from pathlib import Path
+import subprocess
 
 
-from lazy import utility
+from src import utility, constants
 
 
 class Test(TestCase):
@@ -13,6 +14,11 @@ class Test(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        # create account named test
+        process = subprocess.Popen("lazy account new test test test")
+        process.wait()
+        process = subprocess.Popen("lazy account load test test")
+        process.wait()
         try:
             os.mkdir(cls.TEST_FOLDER)
         except IOError:
@@ -25,6 +31,8 @@ class Test(TestCase):
         # clean up leftovers
         os.remove(cls.TEST_FILE)
         os.rmdir(cls.TEST_FOLDER)
+        process = subprocess.Popen("lazy account delete test")
+        process.wait()
 
     @classmethod
     def _clear_test_file(cls):
@@ -102,3 +110,11 @@ class Test(TestCase):
             text = f.read()
         self.assertEqual(text, "name2:2\nname3:1923")
         self._clear_test_file()
+
+    def test_active_user_dir(self):
+        path = utility.active_user_dir()
+        self.assertEqual(str(constants.USER_DIRS_PATH / "test"), str(path))
+
+    def test_active_user_area_dir(self):
+        path = utility.active_user_area_dir()
+        self.assertEqual(str(constants.USER_DIRS_PATH / "test" / constants.USER_AREA_DIR), str(path))
