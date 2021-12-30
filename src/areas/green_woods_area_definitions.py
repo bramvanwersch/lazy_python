@@ -68,5 +68,5 @@ _player_home = Location("home", 0.0, 0, [_home_gather],
 _all_locations = [_old_tree_location, _small_lake, _player_home]
 
 # area definition
-green_woods = _green_wood_area = Area("green_woods", _all_locations, 0, 0.25, 10,
-                                      "The starting are. The place I grew up in and call home.")
+green_woods = Area("green_woods", _all_locations, 0, 0.25, 10,
+                   "The starting are. The place I grew up in and call home.")

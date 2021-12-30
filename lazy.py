@@ -9,7 +9,7 @@ from src import utility
 def main():
     arguments = argv[1:]
     if len(arguments) == 0:
-        utility.message(f"Please provide one of the possible commands: {' ,'.join(commands.COMMANDS.keys())}, help")
+        utility.message(f"Please provide one of the possible commands: {', '.join(commands.COMMANDS.keys())}, help")
         return -1
     else:
         main_command = arguments[0]
@@ -17,7 +17,7 @@ def main():
             show_main_help()
             return 0
         if main_command not in commands.COMMANDS:
-            utility.message(f"Please provide one of the possible commands: {' ,'.join(commands.COMMANDS.keys())}")
+            utility.message(f"Please provide one of the possible commands: {', '.join(commands.COMMANDS.keys())}")
             return -1
         return commands.COMMANDS[main_command](*arguments[1:])
 

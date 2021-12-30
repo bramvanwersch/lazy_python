@@ -6,6 +6,7 @@ from src import utility
 from src import constants
 from src import areas
 from src import skills
+from src import items
 
 
 def check():
@@ -30,17 +31,22 @@ def check():
     xp_dict, item_dict = area_obj.perform_activity_rolls(location, activity, passed_time)
     utility.message("The following things happened while you where away:")
 
-    current_levels = skills.get_levels()
+    current_xps = skills.get_xps()
+    skills.set_xp(xp_dict)
     for skill_name, xp in xp_dict.items():
-        if xp <= 0:
+        xp_difference = xp - current_xps[skill_name]
+        if xp_difference <= 0:
             continue
-        level_change = current_levels[skill_name] - before_check_levels[skill_name]
-        level_str = f"({before_check_levels[skill_name]}-{current_levels[skill_name]})" if level_change > 0 else ''
-        utility.message(f"{skill_name}: +{xp}xp {level_str}")
+        current_level = skills.xp_to_level(xp)
+        level_change = current_level - before_check_levels[skill_name]
+        level_str = f"({before_check_levels[skill_name]}-{current_level})" if level_change > 0 else ''
+        utility.message(f"{skill_name}: +{xp_difference}xp {level_str}")
     if activity == "exploring":
         for location_name, amnt in item_dict.items():
             utility.message(f"You discovered {location_name}")
     else:
+        # exploring does not return items but locations
+        items.add_items(item_dict)
         for item_name, amnt in item_dict.items():
             if amnt == 1:
                 utility.message(f"You found {item_name}")

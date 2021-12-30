@@ -2,6 +2,10 @@ from pathlib import Path
 
 TESTING = True
 
+# constants for tests
+TEST_FOLDER = Path(__file__).resolve().parent / "test_dump"
+TEST_FILE = TEST_FOLDER / "test_file.txt"
+
 # user warning messages
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
 
