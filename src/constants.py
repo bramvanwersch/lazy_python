@@ -19,7 +19,7 @@ class LazyWarningMessages:
 
 
 # all user files
-appdata = Path(appdirs.AppDirs().user_data_dir)
+appdata = Path(appdirs.AppDirs().user_data_dir)  # appdata folder
 _lazy_appdata_folder = appdata / "lazy"
 if not _lazy_appdata_folder.exists():
     os.mkdir(_lazy_appdata_folder)

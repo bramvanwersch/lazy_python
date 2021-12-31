@@ -49,9 +49,12 @@ def fish(*args):
     _set_training_skill(skills.Skills.FISHING.name)
 
 
-TRAINING_COMMANDS = _commands.Command("train", description="The explore command is used to explore areas and move to "
-                                                           "new areas")
-TRAINING_COMMANDS.add_command(skills.Skills.EXPLORING.name, explore, "Explore the current area")
+TRAINING_COMMANDS = _commands.Command("train", description="The train command is used to train various skills. The "
+                                                           "skills that can be trained depend on the current area and "
+                                                           "location. An area can always be explored to reveal more "
+                                                           "locations were other skills can be performed")
+TRAINING_COMMANDS.add_command(skills.Skills.EXPLORING.name, explore, "Explore the current area and find new locations "
+                                                                     "to perform activities.")
 TRAINING_COMMANDS.add_command(skills.Skills.WOODCUTTING.name, woodcut, "Woodcut at the current location")
 TRAINING_COMMANDS.add_command(skills.Skills.FISHING.name, fish, "Fish at the current location")
 TRAINING_COMMANDS.add_command(skills.Skills.GATHERING.name, gather, "Gather at the current location")
