@@ -186,11 +186,15 @@ MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a ce
 
 
 def _update():
-    print(constants.PROJECT_BASE_PATH)
     # save all modifications in the data folder to configured remote
     popen = subprocess.Popen(f'git --git-dir "{constants.PROJECT_BASE_PATH / ".git"}" --work-tree '
-                             f'"{constants.PROJECT_BASE_PATH}" pull', shell=True)
-    popen.wait()
+                             f'"{constants.PROJECT_BASE_PATH}" pull', shell=True, stdout=subprocess.PIPE)
+    stdout, _ = popen.communicate()
+    stdout_str = stdout.decode('utf-8')
+    if stdout_str.startswith("Already up to date."):
+        utility.message("Nothing to update. Everything is up to date.")
+    else:
+        utility.message("A new update has been downloaded and installed.")
 
 
 UPDATE_COMMAND = _commands.Command("update", self_command=_update, description="Download the latest update for lazy. "
