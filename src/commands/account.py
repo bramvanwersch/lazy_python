@@ -82,7 +82,7 @@ def create_area_file(area_name, username=None, unlocked_areas=None):
         f.write(f"unlocked_locations:{'' if unlocked_areas is None else ','.join(unlocked_areas)}\n")
 
 
-def load(*args):
+def activate(*args):
     input_username_present = len(args) > 0
     if input_username_present:
         username = args[0]
@@ -117,8 +117,24 @@ def load(*args):
 
 
 def info(*args):
-    active_user = utility.get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
-    utility.message(f"The current active account is: {active_user if active_user != '' else 'No active account'}")
+    active_user = utility.get_values_from_file(constants.GENERAL_INFO_PATH, [constants.FILE_GENERAL_ACTIVE_USER])[0]
+    full_message = f"The current active account is: {active_user if active_user != '' else 'No active account'}\n"
+    if active_user != '':
+        user_dir = utility.active_user_dir(active_user)
+        current_area, current_location, current_activity, last_time_stamp = \
+            utility.get_values_from_file(user_dir / constants.USER_GENERAL_FILE_NAME,
+                                         [constants.USERFILE_GENERAL_CURRENT_AREA,
+                                          constants.USERFILE_GENERAL_CURRENT_LOCATION,
+                                          constants.USERFILE_GENERAL_CURRENT_ACTIVITY,
+                                          constants.USERFILE_GENERAL_TIMESTAMP])
+        time_since_last_check = int(time.time() - float(last_time_stamp))
+        full_message += f"This account is located in area {current_area} "
+        if current_location != '':
+            full_message += f"at location {current_location} "
+        if current_activity != '':
+            full_message += f"doing activity {current_activity}.\n"
+        full_message += f"Your last activity check was performed {time_since_last_check} seconds ago"
+    utility.message(full_message)
 
 
 def delete(*args):
@@ -176,7 +192,7 @@ def _confirm_password(real_pw):
 ACCOUNT_COMMANDS = _commands.Command("account", description="Account managing functionalities. If you are new to the "
                                                             "game this is the place to start and create an account.")
 ACCOUNT_COMMANDS.add_command("new", new, "Create a new account. Example: 'lazy account new (<name> <pw> <pw>)'")
-ACCOUNT_COMMANDS.add_command("load", load, "Load an existing account. Example: 'lazy account load (<name> <pw>)'")
+ACCOUNT_COMMANDS.add_command("activate", activate, "Load an existing account. Example: 'lazy account load (<name> <pw>)'")
 ACCOUNT_COMMANDS.add_command("info", info, "Show some basic information about the current account. Example:"
                                            " 'lazy account info'")
 ACCOUNT_COMMANDS.add_command("delete", delete, "Delete the current active account. Example: 'lazy account delete"

@@ -1,8 +1,15 @@
 small features:
 - dont allow test user --> because of test interferance
 - add globals for all constant file names
+- make sure that the password bug is fixed
+- stop activity when succesfully moving
+- make sure that items that can be collected once are only collected once
+- make sure that data files are created automatically and do not rely on being present in advance
 
 major:
 - add crafting skills
 - add additional areas, locations and activities
 - add towns with shops
+- check your own inventory for items --> searching and just general reading.
+- allow checking of inventory and individual inventory items.
+- add an almanac to see where items are found --> makes it easier to see where certain items are located for the user --> no wiki

@@ -159,7 +159,7 @@ class Activity(Simulation):
         main_skill_level = skills.get_level(self._main_skill.name)
         if random.random() < self._succes_chance + additional_skill_chance:
             elligable_loots = {loot: chance for loot, chance in self._loot_table.items() if
-                               loot.required_level >= main_skill_level}
+                               loot.required_level <= main_skill_level}
             loot = random.choices(list(elligable_loots.keys()), list(elligable_loots.values()), k=1)[0]
             loot.add_xp_and_items(xp_dict, item_dict)
             if loot.is_depleted():

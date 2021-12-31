@@ -1,6 +1,6 @@
 from pathlib import Path
 
-TESTING = False
+TESTING = True
 
 # constants for tests
 TEST_FOLDER = Path(__file__).resolve().parent / "test_dump"
@@ -41,3 +41,9 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
 # new player values
 STARTING_AREA = "green_woods"
 STARTING_LOCATION = "home"
+
+USERFILE_GENERAL_CURRENT_AREA = "current_area"
+USERFILE_GENERAL_CURRENT_LOCATION = "current_location"
+USERFILE_GENERAL_CURRENT_ACTIVITY = "current_activity"
+USERFILE_GENERAL_TIMESTAMP = "last_time_stamp"
+FILE_GENERAL_ACTIVE_USER = "active_user"
