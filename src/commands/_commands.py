@@ -4,7 +4,7 @@ from src import utility
 
 
 class Command:
-    def __init__(self, name, self_command: Callable = None, description: str = "", ):
+    def __init__(self, name, self_command: Callable = None, description: str = ""):
         self.name = name
         # comand called when no arguments are provided given that it is defined --> this callable can not take args
         self._own_command = self_command

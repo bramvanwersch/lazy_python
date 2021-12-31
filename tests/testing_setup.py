@@ -34,7 +34,7 @@ def create_test_account():
 
     process = subprocess.Popen("lazy account new test test test")
     process.wait()
-    process = subprocess.Popen("lazy account load test test")
+    process = subprocess.Popen("lazy account activate test test")
     process.wait()
 
 

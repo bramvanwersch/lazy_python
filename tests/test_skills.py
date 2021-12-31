@@ -24,7 +24,7 @@ class Test(TestCase):
         current_user_dir = utility.active_user_dir()
         with open(current_user_dir / constants.USER_LEVEL_FILE_NAME) as f:
             level_info = f.read()
-        self.assertEqual(level_info, "exploring:0\ngathering:1000\nwoodcutting:200\nFishing:0\nnon-existing:600\n")
+        self.assertEqual(level_info, "exploring:0\ngathering:1000\nwoodcutting:200\nfishing:0\nnon-existing:600\n")
 
     def test_set_xp(self):
         skills.set_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
@@ -32,13 +32,13 @@ class Test(TestCase):
         current_user_dir = utility.active_user_dir()
         with open(current_user_dir / constants.USER_LEVEL_FILE_NAME) as f:
             level_info = f.read()
-        self.assertEqual(level_info, "exploring:0\ngathering:50\nwoodcutting:10\nFishing:0\n")
+        self.assertEqual(level_info, "exploring:0\ngathering:50\nwoodcutting:10\nfishing:0\n")
 
     def test_get_xps(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500,
                        skills.Skills.FISHING.name: 300})
         xp_dict = skills.get_xps()
-        self.assertEqual(xp_dict, {'exploring': 0, 'gathering': 500, 'woodcutting': 100, 'Fishing': 300})
+        self.assertEqual(xp_dict, {'exploring': 0, 'gathering': 500, 'woodcutting': 100, 'fishing': 300})
 
     def test_get_xp(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500,
@@ -52,7 +52,7 @@ class Test(TestCase):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 1000, skills.Skills.GATHERING.name: 5,
                        skills.Skills.FISHING.name: 300})
         level_dict = skills.get_levels()
-        self.assertEqual(level_dict, {'exploring': 0, 'gathering': 0, 'woodcutting': 26, 'Fishing': 15})
+        self.assertEqual(level_dict, {'exploring': 0, 'gathering': 0, 'woodcutting': 26, 'fishing': 15})
 
     def test_get_level(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 1000, skills.Skills.GATHERING.name: 500,
@@ -80,10 +80,19 @@ class Test(TestCase):
         xp = skills.level_to_xp(20)
         self.assertEqual(xp, 531)
 
+    def test_xp_to_next_level(self):
+        xp_left = skills.xp_to_next_level(99)
+        self.assertEqual(xp_left, 10)
+        xp_left = skills.xp_to_next_level(0)
+        self.assertEqual(xp_left, 10)
+        xp_left = skills.xp_to_next_level(1)
+        self.assertEqual(xp_left, 9)
+        xp_left = skills.xp_to_next_level(999901)
+        self.assertEqual(xp_left, 0)
+
     def test_skill(self):
         fish_skill = skills.Skills.FISHING
         add_rol_chance = fish_skill.get_additional_roll_chance(10)
         self.assertEqual(add_rol_chance, 0.005)
         add_rol_chance = fish_skill.get_additional_roll_chance(500)
         self.assertEqual(add_rol_chance, 0.095)
-

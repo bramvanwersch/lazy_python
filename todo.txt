@@ -1,10 +1,9 @@
 small features:
 - dont allow test user --> because of test interferance
-- add globals for all constant file names
 - make sure that the password bug is fixed
 - stop activity when succesfully moving
 - make sure that items that can be collected once are only collected once
-- make sure that data files are created automatically and do not rely on being present in advance
+- alphabetical ordering of items and skills when showing
 
 major:
 - add crafting skills

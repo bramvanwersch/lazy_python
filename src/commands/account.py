@@ -5,7 +5,7 @@ import time
 from src.commands import _commands
 from src import utility
 from src import constants
-from src.skills import Skills
+from src import skills
 
 
 def new(*args):
@@ -67,7 +67,7 @@ def _create_account(username, password):
         f.write("current_activity:\n")
         f.write(f"last_time_stamp:{time.time()}\n")
     with open(active_user_dir / constants.USER_LEVEL_FILE_NAME, "w") as f:
-        for skill in Skills.all_skills():
+        for skill in skills.Skills.all_skills():
             f.write(f"{skill.name}:0\n")
     with open(active_user_dir / constants.USER_INVENTORY_FILE_NAME, "w") as f:
         f.write("")
@@ -119,22 +119,53 @@ def activate(*args):
 def info(*args):
     active_user = utility.get_values_from_file(constants.GENERAL_INFO_PATH, [constants.FILE_GENERAL_ACTIVE_USER])[0]
     full_message = f"The current active account is: {active_user if active_user != '' else 'No active account'}\n"
-    if active_user != '':
-        user_dir = utility.active_user_dir(active_user)
-        current_area, current_location, current_activity, last_time_stamp = \
-            utility.get_values_from_file(user_dir / constants.USER_GENERAL_FILE_NAME,
-                                         [constants.USERFILE_GENERAL_CURRENT_AREA,
-                                          constants.USERFILE_GENERAL_CURRENT_LOCATION,
-                                          constants.USERFILE_GENERAL_CURRENT_ACTIVITY,
-                                          constants.USERFILE_GENERAL_TIMESTAMP])
-        time_since_last_check = int(time.time() - float(last_time_stamp))
-        full_message += f"This account is located in area {current_area} "
-        if current_location != '':
-            full_message += f"at location {current_location} "
-        if current_activity != '':
-            full_message += f"doing activity {current_activity}.\n"
-        full_message += f"Your last activity check was performed {time_since_last_check} seconds ago"
-    utility.message(full_message)
+    if active_user == '':
+        return
+    user_dir = utility.active_user_dir(active_user)
+    if len(args) == 0:
+        _show_general_information(user_dir, full_message)
+    else:
+        if args[0] == "levels":
+            _show_levels(user_dir, full_message)
+        elif args[0] == "inventory":
+            _show_inventory(user_dir, full_message)
+        else:
+            utility.message("Invalid option provided for account info. Expected either 'levels' or 'inventory'.")
+
+
+def _show_general_information(user_dir, full_message):
+    current_area, current_location, current_activity, last_time_stamp = \
+        utility.get_values_from_file(user_dir / constants.USER_GENERAL_FILE_NAME,
+                                     [constants.USERFILE_GENERAL_CURRENT_AREA,
+                                      constants.USERFILE_GENERAL_CURRENT_LOCATION,
+                                      constants.USERFILE_GENERAL_CURRENT_ACTIVITY,
+                                      constants.USERFILE_GENERAL_TIMESTAMP])
+    time_since_last_check = int(time.time() - float(last_time_stamp))
+    full_message += f"This account is located in area {current_area} "
+    if current_location != '':
+        full_message += f"at location {current_location} "
+    if current_activity != '':
+        full_message += f"doing activity {current_activity}.\n"
+    full_message += f"Your last activity check was performed {time_since_last_check} seconds ago"
+    utility.message(full_message[:-1])
+
+
+def _show_levels(user_dir, full_message):
+    with open(user_dir / constants.USER_LEVEL_FILE_NAME) as f:
+        for line in f:
+            name, xp = line.strip().split(":")
+            level = skills.xp_to_level(int(xp))
+            xp_to_next = skills.xp_to_next_level(int(xp))
+            full_message += f"{name}: {level} ({xp_to_next} until next)\n"
+    utility.message(full_message[:-1])
+
+
+def _show_inventory(user_dir, full_message):
+    with open(user_dir / constants.USER_INVENTORY_FILE_NAME) as f:
+        for line in f:
+            name, total = line.strip().split(":")
+            full_message += f"{name}: {total}\n"
+    utility.message(full_message[:-1])
 
 
 def delete(*args):
