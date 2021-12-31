@@ -1,4 +1,6 @@
 from pathlib import Path
+import os
+import appdirs
 
 TESTING = True
 
@@ -17,11 +19,42 @@ class LazyWarningMessages:
 
 
 # all user files
-_secret_path = Path(__file__).resolve().parent.parent / "data" / "secret"
-PROJECT_BASE_PATH = _secret_path.parent.parent
+appdata = Path(appdirs.AppDirs().user_data_dir)
+_lazy_appdata_folder = appdata / "lazy"
+if not _lazy_appdata_folder.exists():
+    os.mkdir(_lazy_appdata_folder)
+
+_data_folder = _lazy_appdata_folder / "data"
+_secret_path = _data_folder / "secret"
+PROJECT_BASE_PATH = _data_folder.parent
 GENERAL_INFO_PATH = _secret_path / "general.txt"
 ACCOUNT_PATH = _secret_path / "accounts.txt"
 USER_DIRS_PATH = _secret_path / "users"
+
+# file name varaibles
+USERFILE_GENERAL_CURRENT_AREA = "current_area"
+USERFILE_GENERAL_CURRENT_LOCATION = "current_location"
+USERFILE_GENERAL_CURRENT_ACTIVITY = "current_activity"
+USERFILE_GENERAL_TIMESTAMP = "last_time_stamp"
+FILE_GENERAL_ACTIVE_USER = "active_user"
+
+# ensure the full data folders are present
+if not _data_folder.exists():
+    os.mkdir(_data_folder)
+
+if not _secret_path.exists():
+    os.mkdir(_secret_path)
+
+if not USER_DIRS_PATH.exists():
+    os.mkdir(USER_DIRS_PATH)
+
+if not GENERAL_INFO_PATH.exists():
+    with open(GENERAL_INFO_PATH, "w") as f:
+        f.write(f"{FILE_GENERAL_ACTIVE_USER}:\n")
+
+if not ACCOUNT_PATH.exists():
+    open(ACCOUNT_PATH, "w").close()
+
 
 # user specific files
 USER_GENERAL_FILE_NAME = "general.txt"
@@ -41,9 +74,3 @@ XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299
 # new player values
 STARTING_AREA = "green_woods"
 STARTING_LOCATION = "home"
-
-USERFILE_GENERAL_CURRENT_AREA = "current_area"
-USERFILE_GENERAL_CURRENT_LOCATION = "current_location"
-USERFILE_GENERAL_CURRENT_ACTIVITY = "current_activity"
-USERFILE_GENERAL_TIMESTAMP = "last_time_stamp"
-FILE_GENERAL_ACTIVE_USER = "active_user"
