@@ -1,9 +1,6 @@
 from unittest import TestCase
-import os
-from pathlib import Path
-import subprocess
 
-
+import testing_setup
 from src import utility, constants
 
 
@@ -11,29 +8,13 @@ class Test(TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        # create account named test
-        process = subprocess.Popen("lazy account new test test test")
-        process.wait()
-        process = subprocess.Popen("lazy account load test test")
-        process.wait()
-        try:
-            os.mkdir(constants.TEST_FOLDER)
-        except IOError:
-            pass
-        # reset / create the test_file
-        cls._clear_test_file()
+        testing_setup.setup_test_folder()
+        testing_setup.create_test_account()
 
     @classmethod
     def tearDownClass(cls) -> None:
-        # clean up leftovers
-        os.remove(constants.TEST_FILE)
-        os.rmdir(constants.TEST_FOLDER)
-        process = subprocess.Popen("lazy account delete test")
-        process.wait()
-
-    @classmethod
-    def _clear_test_file(cls):
-        open(constants.TEST_FILE, "w").close()
+        testing_setup.remove_test_account()
+        testing_setup.remove_test_folder()
 
     def test_is_valid_string_fail(self):
         self.assertFalse(utility.is_valid_string('"c'))
@@ -44,13 +25,14 @@ class Test(TestCase):
         self.assertFalse(utility.is_valid_string("dawd/"))
         self.assertFalse(utility.is_valid_string("d%awd"))
         self.assertFalse(utility.is_valid_string("da wd"))
+        self.assertTrue(utility.is_valid_string("some_name"))
 
     def test_append_to_file(self):
         utility.append_to_file(constants.TEST_FILE, "one line\nanother line")
         with open(constants.TEST_FILE) as f:
             text = f.read()
         self.assertEqual(text, "one line\nanother line")
-        self._clear_test_file()
+        testing_setup.clear_test_file()
 
     def test_set_values_in_file(self):
         # setup the file
@@ -62,7 +44,7 @@ class Test(TestCase):
         with open(constants.TEST_FILE) as f:
             text = f.read()
         self.assertEqual(text, "name1:value1\nname2:new_value2\n")
-        self._clear_test_file()
+        testing_setup.clear_test_file()
 
     def test_add_values_in_file(self):
         # setup the file
@@ -74,7 +56,7 @@ class Test(TestCase):
         with open(constants.TEST_FILE) as f:
             text = f.read()
         self.assertEqual(text, "name1:1\nname2:4\nname3:10\n")
-        self._clear_test_file()
+        testing_setup.clear_test_file()
 
     def test_get_values_from_file(self):
         # setup the file
@@ -84,7 +66,7 @@ class Test(TestCase):
         values = utility.get_values_from_file(constants.TEST_FILE, ["name1", "name3"], int)
 
         self.assertEqual(values, [1])
-        self._clear_test_file()
+        testing_setup.clear_test_file()
 
     def test_get_all_named_values_from_file(self):
         # setup the file
@@ -94,7 +76,7 @@ class Test(TestCase):
         value_dict = utility.get_all_named_values_from_file(constants.TEST_FILE, int)
 
         self.assertEqual(value_dict, {"name1": 1, "name2": 2})
-        self._clear_test_file()
+        testing_setup.clear_test_file()
 
     def test_remove_lines_from_file(self):
         # setup the file
@@ -106,7 +88,7 @@ class Test(TestCase):
         with open(constants.TEST_FILE) as f:
             text = f.read()
         self.assertEqual(text, "name2:2\nname3:1923")
-        self._clear_test_file()
+        testing_setup.clear_test_file()
 
     def test_active_user_dir(self):
         path = utility.active_user_dir()

@@ -5,22 +5,20 @@ import random
 from src.areas import locations, green_woods_area_definitions
 from src import skills
 from src import constants
+import testing_setup
 
 
 class TestLocation(TestCase):
 
     @classmethod
     def setUp(cls) -> None:
-        # create account named test
-        process = subprocess.Popen("lazy account new test test test")
-        process.wait()
-        process = subprocess.Popen("lazy account load test test")
-        process.wait()
+        testing_setup.setup_test_folder()
+        testing_setup.create_test_account()
 
     @classmethod
     def tearDown(cls) -> None:
-        process = subprocess.Popen("lazy account delete test")
-        process.wait()
+        testing_setup.remove_test_account()
+        testing_setup.remove_test_folder()
 
     def test_get_unlocked_location_names(self):
         unlocked_set = locations.get_unlocked_location_names()
@@ -31,7 +29,6 @@ class TestLocation(TestCase):
         area = green_woods_area_definitions.green_woods
         xp_dict, location_dict = area.perform_activity_rolls("", skills.Skills.EXPLORING.name, 3600)
         self.assertEqual(xp_dict, {'Fishing': 0, 'exploring': 300, 'gathering': 0, 'woodcutting': 0})
-        location_dict = {location.name: value for location, value in location_dict.items()}
         self.assertEqual(location_dict, {"small lake": 1, "old tree": 1})
 
     def test_area_train(self):

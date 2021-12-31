@@ -1,7 +1,6 @@
 small features:
 - dont allow test user --> because of test interferance
-- make sure to reset all values after testing --> active user for instance
--
+- add globals for all constant file names
 
 major:
 - add crafting skills

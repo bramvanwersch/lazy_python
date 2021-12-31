@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Union
 
 from src.areas.locations import *
 from src.areas.green_woods_area_definitions import green_woods
