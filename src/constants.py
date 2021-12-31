@@ -1,6 +1,6 @@
 from pathlib import Path
 
-TESTING = True
+TESTING = False
 
 # constants for tests
 TEST_FOLDER = Path(__file__).resolve().parent / "test_dump"
