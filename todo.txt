@@ -4,4 +4,5 @@ small features:
 
 major:
 - add crafting skills
-- add additional
+- add additional areas, locations and activities
+- add towns with shops

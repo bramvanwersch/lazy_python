@@ -1,5 +1,7 @@
 from typing import Union
 import time
+import subprocess
+import os
 
 from src.commands import _commands
 from src import utility
@@ -181,3 +183,15 @@ def _move(depth, *args):
 MOVE_COMMANDS = _commands.Command("move", description="Move to an area to explore or a location to perform skills.")
 MOVE_COMMANDS.add_command("area", move_area, "Move to an area in order to explore")
 MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a certain area to perform skills.")
+
+
+def _update():
+    print(constants.PROJECT_BASE_PATH)
+    # save all modifications in the data folder to configured remote
+    popen = subprocess.Popen(f'git --git-dir "{constants.PROJECT_BASE_PATH / ".git"}" --work-tree '
+                             f'"{constants.PROJECT_BASE_PATH}" pull', shell=True)
+    popen.wait()
+
+
+UPDATE_COMMAND = _commands.Command("update", self_command=_update, description="Download the latest update for lazy. "
+                                                                               "this requires git to be installed.")

@@ -18,6 +18,7 @@ class LazyWarningMessages:
 
 # all user files
 _secret_path = Path(__file__).resolve().parent.parent / "data" / "secret"
+PROJECT_BASE_PATH = _secret_path.parent.parent
 GENERAL_INFO_PATH = _secret_path / "general.txt"
 ACCOUNT_PATH = _secret_path / "accounts.txt"
 USER_DIRS_PATH = _secret_path / "users"
