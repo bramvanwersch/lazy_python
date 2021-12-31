@@ -191,9 +191,9 @@ def _confirm_password(real_pw):
 
 ACCOUNT_COMMANDS = _commands.Command("account", description="Account managing functionalities. If you are new to the "
                                                             "game this is the place to start and create an account.")
-ACCOUNT_COMMANDS.add_command("new", new, "Create a new account. Example: 'lazy account new (<name> <pw> <pw>)'")
-ACCOUNT_COMMANDS.add_command("activate", activate, "Load an existing account. Example: 'lazy account load (<name> <pw>)'")
-ACCOUNT_COMMANDS.add_command("info", info, "Show some basic information about the current account. Example:"
-                                           " 'lazy account info'")
-ACCOUNT_COMMANDS.add_command("delete", delete, "Delete the current active account. Example: 'lazy account delete"
-                                               " (<pw>)'")
+ACCOUNT_COMMANDS.add_command("new", new, "Create a new account", "lazy account new (<name> <password> <password>)")
+ACCOUNT_COMMANDS.add_command("activate", activate, "Load an existing account", "lazy account load (<name> <password>)")
+ACCOUNT_COMMANDS.add_command("info", info, "Show some basic information about the current account. Optionally request"
+                                           " more detailed information with inventory or levels",
+                             "lazy account info (levels | inventory)")
+ACCOUNT_COMMANDS.add_command("delete", delete, "Delete the current active account", "lazy account delete (<password>)")

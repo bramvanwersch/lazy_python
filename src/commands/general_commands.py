@@ -60,8 +60,9 @@ def check():
                                [str(time.time())])
 
 
-CHECK_COMMAND = _commands.Command("check", self_command=check, description="Check on the current activity and collect "
-                                                                           "all xp and resources. After that continue.")
+CHECK_COMMAND = _commands.Command("check", self_command=check,
+                                  description="Check on the current activity and collect all xp and resources. After"
+                                              " that continue. Example: 'lazy check'")
 
 
 def examine_area(*args):
@@ -93,10 +94,12 @@ def _examine(depth, *args):
 EXAMINE_COMMANDS = _commands.Command("examine", description="Examine an area, location or activity to get more detailed"
                                                             " information.")
 EXAMINE_COMMANDS.add_command("area", examine_area, "See al the unlocked locations and what there is still to uncover in"
-                                                   "an area")
-EXAMINE_COMMANDS.add_command("location", examine_location, "See all possible activities in a location and all the "
-                                                           "level requirements")
-EXAMINE_COMMANDS.add_command("activity", examine_activity, "Check the loot that you can get from a certain activity.")
+                                                   "an area", "lazy examine area (<area name>)")
+EXAMINE_COMMANDS.add_command("location", examine_location,
+                             "See all possible activities in a location and all the level requirements",
+                             "lazy examine location (<area name> <location name>)")
+EXAMINE_COMMANDS.add_command("activity", examine_activity, "Check the loot that you can get from a certain activity.",
+                             "lazy examine location (<area name> <location name> <activity name>)")
 
 
 def _get_area(*args) -> Union[areas.Area, None]:
@@ -181,8 +184,9 @@ def _move(depth, *args):
 
 
 MOVE_COMMANDS = _commands.Command("move", description="Move to an area to explore or a location to perform skills.")
-MOVE_COMMANDS.add_command("area", move_area, "Move to an area in order to explore")
-MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a certain area to perform skills.")
+MOVE_COMMANDS.add_command("area", move_area, "Move to an area in order to explore", "lazy move area (<area name>)")
+MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a certain area to perform skills.",
+                          "lazy move location (<area name> <location name>)")
 
 
 def _update():
@@ -197,5 +201,6 @@ def _update():
         utility.message("A new update has been downloaded and installed.")
 
 
-UPDATE_COMMAND = _commands.Command("update", self_command=_update, description="Download the latest update for lazy. "
-                                                                               "this requires git to be installed.")
+UPDATE_COMMAND = _commands.Command("update", self_command=_update,
+                                   description="Download the latest update for lazy, this requires git to be installed."
+                                               "Example: 'lazy update'")

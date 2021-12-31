@@ -7,7 +7,7 @@ from src import skills
 from src.commands import general_commands
 
 
-def explore(*args):
+def explore(*_):
     # special case cant realy be done with _set_training_skill
     general_commands.check()
     current_user_dir = utility.active_user_dir()
@@ -37,15 +37,15 @@ def _set_training_skill(skill_name):
     utility.message(f"Started {skill_name} at {location_obj.name}...")
 
 
-def gather(*args):
+def gather(*_):
     _set_training_skill(skills.Skills.GATHERING.name)
 
 
-def woodcut(*args):
+def woodcut(*_):
     _set_training_skill(skills.Skills.WOODCUTTING.name)
 
 
-def fish(*args):
+def fish(*_):
     _set_training_skill(skills.Skills.FISHING.name)
 
 
@@ -54,8 +54,11 @@ TRAINING_COMMANDS = _commands.Command("train", description="The train command is
                                                            "location. An area can always be explored to reveal more "
                                                            "locations were other skills can be performed")
 TRAINING_COMMANDS.add_command(skills.Skills.EXPLORING.name, explore, "Explore the current area and find new locations "
-                                                                     "to perform activities.")
-TRAINING_COMMANDS.add_command(skills.Skills.WOODCUTTING.name, woodcut, "Woodcut at the current location")
-TRAINING_COMMANDS.add_command(skills.Skills.FISHING.name, fish, "Fish at the current location")
-TRAINING_COMMANDS.add_command(skills.Skills.GATHERING.name, gather, "Gather at the current location")
-
+                                                                     "to perform activities.",
+                              f"lazy train {skills.Skills.EXPLORING.name}")
+TRAINING_COMMANDS.add_command(skills.Skills.WOODCUTTING.name, woodcut, "Woodcut at the current location",
+                              f"lazy train {skills.Skills.WOODCUTTING.name}")
+TRAINING_COMMANDS.add_command(skills.Skills.FISHING.name, fish, "Fish at the current location",
+                              f"lazy train {skills.Skills.FISHING.name}")
+TRAINING_COMMANDS.add_command(skills.Skills.GATHERING.name, gather, "Gather at the current location",
+                              f"lazy train {skills.Skills.GATHERING.name}")
