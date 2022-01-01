@@ -1,5 +1,4 @@
 from unittest import TestCase
-import subprocess
 import random
 
 from src.areas import locations, green_woods_area_definitions
