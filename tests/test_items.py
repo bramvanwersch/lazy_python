@@ -5,9 +5,6 @@ from src import items
 from src import constants
 from src import utility
 
-# very important this happens before
-constants.set_testing_globals()
-
 
 class Test(TestCase):
 
@@ -25,7 +22,6 @@ class Test(TestCase):
         items.add_items({"item_name": 5, "other_item": 123})
         items.add_items({"item_name": 10})
         current_user_dir = utility.active_user_dir()
-        print(current_user_dir / constants.USER_INVENTORY_FILE_NAME)
         with open(current_user_dir / constants.USER_INVENTORY_FILE_NAME) as f:
             item_text = f.read()
 

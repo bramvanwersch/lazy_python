@@ -5,7 +5,7 @@ import appdirs
 TESTING = False
 
 # constants for tests
-TEST_FOLDER = Path(__file__).resolve().parent / "test_dump"
+TEST_FOLDER = Path(__file__).resolve().parent.parent / "tests" / "test_dump"
 TEST_FILE = TEST_FOLDER / "test_file.txt"
 
 # user warning messages
@@ -15,7 +15,7 @@ BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
 class LazyWarningMessages:
     INVALID_STRING = "Invalid sequence provided. Make sure it contains at least 1 character and does not contain the " \
                      f"following charaters: {' ,'.join(BANNED_CHARACTERS)}"
-    NO_USER = "No user selected. Select a user with 'account load' or create a new one with 'account new'"
+    NO_USER = "No user selected. Select a user with 'account activate' or create a new one with 'account new'"
 
 
 # path where this project is located for git updating
@@ -85,16 +85,16 @@ def set_testing_globals():
     TESTING = True
 
     _test_data_folder = TEST_FOLDER / "data"
-    _test_secret_path = _data_folder / "secret"
-    GENERAL_INFO_PATH = _secret_path / "general.txt"
-    ACCOUNT_PATH = _secret_path / "accounts.txt"
-    USER_DIRS_PATH = _secret_path / "users"
+    _test_secret_path = _test_data_folder / "secret"
+    GENERAL_INFO_PATH = _test_secret_path / "general.txt"
+    ACCOUNT_PATH = _test_secret_path / "accounts.txt"
+    USER_DIRS_PATH = _test_secret_path / "users"
 
-    if not _data_folder.exists():
-        os.mkdir(_data_folder)
+    if not _test_data_folder.exists():
+        os.mkdir(_test_data_folder)
 
-    if not _secret_path.exists():
-        os.mkdir(_secret_path)
+    if not _test_secret_path.exists():
+        os.mkdir(_test_secret_path)
 
     if not USER_DIRS_PATH.exists():
         os.mkdir(USER_DIRS_PATH)

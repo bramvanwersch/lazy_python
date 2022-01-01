@@ -130,7 +130,7 @@ def remove_lines_from_file(file: Union[str, "Path"], lines: List[str]):
 
 def active_user_dir(username: Union[None, str] = None) -> "Path":
     if username is None:
-        username = get_values_from_file(constants.GENERAL_INFO_PATH, ["active_user"])[0]
+        username = get_values_from_file(constants.GENERAL_INFO_PATH, [constants.FILE_GENERAL_ACTIVE_USER])[0]
     if username == "":
         message(constants.LazyWarningMessages.NO_USER)
         sys.exit(0)

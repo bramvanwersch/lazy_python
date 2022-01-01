@@ -1,29 +1,30 @@
-import subprocess
-import os
 import shutil
+import os
 
 from src import constants
-
-# very important this happens before
-constants.set_testing_globals()
+from src.commands import account
 
 
 def setup_test_folder():
-    try:
+
+    if not constants.TEST_FOLDER.exists():
         os.mkdir(constants.TEST_FOLDER)
-    except IOError:
-        pass
+
+    # very important this happens --> might not work with importing we will see
+    constants.set_testing_globals()
+
     # reset / create the test_file
     clear_test_file()
 
 
 def clear_test_file():
-    # clear a general test text file
-    open(constants.TEST_FILE, "w").close()
+    if constants.TEST_FILE.exists():
+        # clear a general test text file
+        open(constants.TEST_FILE, "w").close()
 
 
 def remove_test_folder():
-    # remove the test folder and all files in it
+    # remove all files in test folder
     try:
         shutil.rmtree(constants.TEST_FOLDER)
     except IOError:
@@ -31,12 +32,11 @@ def remove_test_folder():
 
 
 def create_test_account():
-    process = subprocess.Popen("lazy account new test test test")
-    process.wait()
-    process = subprocess.Popen("lazy account activate test test")
-    process.wait()
+    if not constants.TEST_FOLDER.exists():
+        setup_test_folder()
+    account.new("test", "test", "test")
+    account.activate("test", "test")
 
 
 def remove_test_account():
-    process = subprocess.Popen("lazy account delete test")
-    process.wait()
+    account.delete("test")

@@ -2,11 +2,6 @@ from src.areas.locations import *
 from src.items import Items
 from src.skills import Skills
 
-
-# green woods
-
-# loot
-
 # home
 _old_bread_loot = Loot({Items.OLD_BREAD: 1}, {}, weight=1, required_level=0)
 _forgotten_stuff = Loot({Items.SMALL_DAGGER: 1, Items.BLACK_CAPE: 1, Items.LEATHER_BOOTS: 1},
