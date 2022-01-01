@@ -20,8 +20,8 @@ class Command:
 
     def print_help(self, *args):
         if len(self._subcommands) == 1:
-            utility.message("This command has no further subcommands. The help for this command is:")
-            utility.message(self.help_text)
+            utility.message(f"This is the help message for {self.name}. This command has no further subcommands."
+                            f" The help for this command is:\n{self.help_text}")
             return
         full_help_text = f"This is the help message for {self.name}. These are the available commands:\n"
         for key in self._subcommands:
@@ -37,8 +37,8 @@ class Command:
     def __call__(self, *args, **kwargs):
         if len(args) == 0:
             if self._own_command is not None:
-                self._own_command()
-                return
+                return self._own_command()
+
             utility.message(f"{self.name} expects at least 1 argument: Choose one of "
                             f"{', '.join(self._subcommands.keys())}")
             return
@@ -46,4 +46,4 @@ class Command:
             utility.message(f"{self.name} expects at least any 1 of these arguments: "
                             f"{', '.join(self._subcommands.keys())}")
             return
-        self._subcommands[args[0]](*args[1:])  # noqa
+        return self._subcommands[args[0]](*args[1:])  # noqa

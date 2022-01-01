@@ -11,4 +11,5 @@ major:
 - add towns with shops
 - check your own inventory for items --> searching and just general reading.
 - allow checking of inventory and individual inventory items.
-- add an almanac to see where items are found --> makes it easier to see where certain items are located for the user --> no wiki
+- add an almanac to see where items are found --> makes it easier to see where certain items are located for the user
+- add a version and update file that shows what was updated
