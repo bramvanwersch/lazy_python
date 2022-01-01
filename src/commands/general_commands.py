@@ -23,7 +23,8 @@ def check():
     if constants.TESTING:
         passed_time += 3600  # 60 rolls when testing
 
-    before_check_levels = skills.get_levels()
+    before_xps = skills.get_xps()
+    before_check_levels = skills.get_levels(before_xps)
 
     # values are returned in order to report them
     utility.message(f"In total {passed_time}s passed")
@@ -36,7 +37,8 @@ def check():
             continue
         level_change = current_levels[skill_name] - before_check_levels[skill_name]
         level_str = f"({before_check_levels[skill_name]}-{current_levels[skill_name]})" if level_change > 0 else ''
-        utility.message(f"{skill_name}: +{xp}xp {level_str}")
+        xp_change = xp - before_xps[skill_name]
+        utility.message(f"{skill_name}: +{xp_change}xp {level_str}")
     if activity == "exploring":
         for location_name, amnt in item_dict.items():
             utility.message(f"You discovered {location_name}")
@@ -149,6 +151,7 @@ def move_location(*args):
 
 def _move(depth, *args):
     # TODO add a moving time or not can be quite annoying
+    # TODO make sure to set location and activity back to empty
     utility.message("First checking current activity:")
     check()
     utility.message("")

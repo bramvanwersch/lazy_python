@@ -48,14 +48,12 @@ def append_to_file(file: Union[str, "Path"], information):
 
 def set_values_in_file(file: Union[str, "Path"], names: List[str], values: List[str]):
     new_text = []
-    uncovered_names = {name: None for name in names}
     with open(file) as f:
         for line in f:
             added_line = False
-            for index, name in enumerate(uncovered_names):
+            for index, name in enumerate(names):
                 if line.startswith(f"{name}:"):
                     new_text.append(f"{name}:{values[index]}\n")
-                    uncovered_names.pop(name)
                     added_line = True
                     break
             if not added_line:
@@ -65,21 +63,26 @@ def set_values_in_file(file: Union[str, "Path"], names: List[str], values: List[
 
 
 def add_values_in_file(file: Union[str, "Path"], names: List[str], values: List[str], value_type: Any):
-    # add values to the current values in the file
-    uncovered_names = {name: None for name in names}
+    # add values to the current values in the file or create a new antry if there is no existing one
     new_text = []
+    covered_names = names.copy()
     with open(file) as f:
         for line in f:
             added_line = False
-            for index, name in enumerate(uncovered_names):
+            for index, name in enumerate(names):
                 if line.startswith(f"{name}:"):
                     current_value = value_type(line.replace(f"{name}:", "").strip())
                     new_text.append(f"{name}:{values[index] + current_value}\n")
-                    uncovered_names.pop(name)
                     added_line = True
+                    covered_names[index] = None
                     break
             if not added_line:
                 new_text.append(line)
+
+        # add any values that are not present in file
+        for index, name in enumerate(covered_names):
+            if name is not None:
+                new_text.append(f"{name}:{values[index]}\n")
     with open(file, "w") as f:
         f.write(''.join(new_text))
 
@@ -89,7 +92,7 @@ def get_values_from_file(file: Union[str, "Path"], names: List[str]) -> List[str
     uncovered_names = {name: None for name in names}
     with open(file) as f:
         for line in f:
-            for index, name in enumerate(uncovered_names):
+            for name in uncovered_names:
                 if line.startswith(f"{name}:"):
                     values.append(line.replace(f"{name}:", "").strip())
                     uncovered_names.pop(name)

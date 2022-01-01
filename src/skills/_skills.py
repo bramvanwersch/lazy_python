@@ -39,8 +39,12 @@ def get_xp(name: str) -> int:
     return int(utility.get_values_from_file(user_dir / constants.USER_LEVEL_FILE_NAME, [name])[0])
 
 
-def get_levels() -> Dict[str, int]:
-    level_dict = get_xps()
+def get_levels(xps: Dict[str, int] = None) -> Dict[str, int]:
+    if xps is None:
+        level_dict = get_xps()
+    else:
+        # make sure not to modify the original
+        level_dict = xps.copy()
     for name in level_dict:
         level_dict[name] = xp_to_level(level_dict[name])
     return level_dict
