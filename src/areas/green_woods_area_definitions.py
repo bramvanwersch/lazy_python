@@ -43,24 +43,24 @@ _home_loots = [_1_coin_loot, _old_bread_loot, _forgotten_stuff]
 _lake_fish_loots = [_old_boot_loot, _shrimp_loot, _double_shrimp_loot, _trout_loot, _salmon_loot]
 
 # activities
-_old_tree_gather = Activity("gathering", Skills.GATHERING, 0.25, _tree_gather_loots,
+_old_tree_gather = Activity(Skills.GATHERING.name, Skills.GATHERING, 0.25, _tree_gather_loots,
                             "There might be some things left around by other people.")
-_old_tree_chopping = Activity("woodcutting", Skills.WOODCUTTING, 0.25, _tree_woodcut_loots,
+_old_tree_chopping = Activity(Skills.WOODCUTTING.name, Skills.WOODCUTTING, 0.25, _tree_woodcut_loots,
                               "The old tree can be chopped it never seems to get smaller though.")
 _old_tree_activities = [_old_tree_gather, _old_tree_chopping]
 
-_home_gather = Activity("gathering", Skills.GATHERING, 0.05, _home_loots,
+_home_gather = Activity(Skills.GATHERING.name, Skills.GATHERING, 0.05, _home_loots,
                         "There might be some supplies left, on the other hand there is a reason im leaving.")
 
-_lake_fish_activity = Activity("fishing", Skills.FISHING, 0.25, _lake_fish_loots,
+_lake_fish_activity = Activity(Skills.FISHING.name, Skills.FISHING, 0.25, _lake_fish_loots,
                                "The lake is full of fish. Not many of them are interesting though.")
 
 
 # locations
-_old_tree_location = Location("old tree", 0.4, 50, _old_tree_activities,
+_old_tree_location = Location("old_tree", 0.4, 50, _old_tree_activities,
                               "An old looking tree. Does not look like there is a lot of interesting things to "
                               "find here.")
-_small_lake = Location("small lake", 0.1, 50, [_lake_fish_activity],
+_small_lake = Location("small_lake", 0.1, 50, [_lake_fish_activity],
                        "The small lake close to town, maybe there are some fish left")
 _player_home = Location("home", 0.0, 0, [_home_gather],
                         "A place with good and bad memories")
@@ -68,5 +68,5 @@ _player_home = Location("home", 0.0, 0, [_home_gather],
 _all_locations = [_old_tree_location, _small_lake, _player_home]
 
 # area definition
-green_woods = _green_wood_area = Area("green_woods", _all_locations, 0, 0.25, 10,
-                                      "The starting are. The place I grew up in and call home.")
+green_woods = Area("green_woods", _all_locations, 0, 0.25, 10,
+                   "The starting are. The place I grew up in and call home.")

@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Set, DefaultDict, Set
+from typing import Dict, List, DefaultDict, Set
 from abc import ABC, abstractmethod
 import random
 from collections import defaultdict
@@ -32,8 +32,6 @@ class Simulation(ABC):
         item_dict = defaultdict(int)
         for _ in range(int(passed_time / self.SIMULATE_EVERY)):
             self._simulate_roll(xp_dict, item_dict)
-        skills.set_xp(xp_dict)
-        items.add_items(item_dict)
         return xp_dict, item_dict
 
     @abstractmethod
@@ -67,7 +65,7 @@ class Area:
         utility.message(description[:-1])  # remove last newline
 
     def perform_activity_rolls(self, location, activity, passed_time):
-        if activity == skills.Skills.EXPLORING.name:
+        if activity == "exploring":
             unlocked_locations = get_unlocked_location_names()
             return self._discover_areas(passed_time, unlocked_locations)
         else:
@@ -83,29 +81,28 @@ class Area:
         passed_time: int,
         unlocked_locations: Set[str]
     ):
-        # this simulation is separate but different
-        all_xp = skills.get_xp(skills.Skills.EXPLORING.name)
+        xp_dict = skills.get_xps()
         item_dict = defaultdict(int)
         locations_unlock_table = {location: location.discovery_chance for location_name, location
                                   in self._locations.items() if location_name not in unlocked_locations}
         for _ in range(int(passed_time / self.SIMULATE_EVERY)):
+            all_xp = xp_dict[skills.Skills.EXPLORING.name]
             additional_skill_chance = skills.Skills.EXPLORING.get_additional_roll_chance(all_xp)
             if random.random() < self._unlock_chance + additional_skill_chance:
                 if len(locations_unlock_table) != 0:
                     unlocked_area = random.choices(list(locations_unlock_table.keys()),
                                                    list(locations_unlock_table.values()), k=1)[0]
-                    all_xp += unlocked_area.discover_xp
-                    item_dict[unlocked_area] = 1
+                    xp_dict[skills.Skills.EXPLORING.name] += unlocked_area.discover_xp
+                    item_dict[unlocked_area.name] = 1
                     del locations_unlock_table[unlocked_area]
                     unlocked_locations.add(unlocked_area.name)
                 else:
-                    all_xp += self._no_find_xp
+                    xp_dict[skills.Skills.EXPLORING.name] += self._no_find_xp
         current_area = utility.get_values_from_file(utility.active_user_dir() /
-                                                    constants.USER_GENERAL_FILE_NAME, [constants.N_USER_AREA])[0]
-        utility.set_values_in_file(utility.active_user_area_dir() / current_area, [constants.N_AREA_UNLOCKED_LOCATIONS],
+                                                    constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+        utility.set_values_in_file(utility.active_user_area_dir() / current_area, ["unlocked_locations"],
                                    [','.join(unlocked_locations)])
-        skills.set_xp({skills.Skills.EXPLORING.name: all_xp})
-        return {skills.Skills.EXPLORING.name: all_xp}, item_dict
+        return xp_dict, item_dict
 
 
 class Location:
@@ -181,8 +178,8 @@ class Loot:
         self,
         item_rewards: Dict[items.Item, int],
         xp_rewards: Dict[skills.Skill, int],
-        weight: float = 0,
-        required_level: int = 0,
+        weight: float,
+        required_level: int,
         max_supply: int = None
     ):
         self.roll_weight = weight

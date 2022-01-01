@@ -1,6 +1,12 @@
 from pathlib import Path
+import os
+import appdirs
 
-TESTING = True
+TESTING = False
+
+# constants for tests
+TEST_FOLDER = Path(__file__).resolve().parent / "test_dump"
+TEST_FILE = TEST_FOLDER / "test_file.txt"
 
 # user warning messages
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
@@ -12,11 +18,45 @@ class LazyWarningMessages:
     NO_USER = "No user selected. Select a user with 'account load' or create a new one with 'account new'"
 
 
+# path where this project is located for git updating
+PROJECT_BASE_PATH = Path(__file__).resolve().parent
+
 # all user files
-_secret_path = Path(__file__).resolve().parent.parent / "data" / "secret"
+appdata = Path(appdirs.AppDirs().user_data_dir)  # appdata folder
+_lazy_appdata_folder = appdata / "lazy"
+if not _lazy_appdata_folder.exists():
+    os.mkdir(_lazy_appdata_folder)
+
+_data_folder = _lazy_appdata_folder / "data"
+_secret_path = _data_folder / "secret"
 GENERAL_INFO_PATH = _secret_path / "general.txt"
 ACCOUNT_PATH = _secret_path / "accounts.txt"
 USER_DIRS_PATH = _secret_path / "users"
+
+# file name varaibles
+USERFILE_GENERAL_CURRENT_AREA = "current_area"
+USERFILE_GENERAL_CURRENT_LOCATION = "current_location"
+USERFILE_GENERAL_CURRENT_ACTIVITY = "current_activity"
+USERFILE_GENERAL_TIMESTAMP = "last_time_stamp"
+FILE_GENERAL_ACTIVE_USER = "active_user"
+
+# ensure the full data folders are present
+if not _data_folder.exists():
+    os.mkdir(_data_folder)
+
+if not _secret_path.exists():
+    os.mkdir(_secret_path)
+
+if not USER_DIRS_PATH.exists():
+    os.mkdir(USER_DIRS_PATH)
+
+if not GENERAL_INFO_PATH.exists():
+    with open(GENERAL_INFO_PATH, "w") as f:
+        f.write(f"{FILE_GENERAL_ACTIVE_USER}:\n")
+
+if not ACCOUNT_PATH.exists():
+    open(ACCOUNT_PATH, "w").close()
+
 
 # user specific files
 USER_GENERAL_FILE_NAME = "general.txt"
@@ -38,10 +78,30 @@ STARTING_AREA = "green_woods"
 STARTING_LOCATION = "home"
 
 
-# file variable names --> in order to make sure that names are always consistent --> always start with N
-N_ACTIVE_USER = "active_user"
-N_USER_AREA = "current_area"
-N_USER_LOCATION = "current_location"
-N_USER_ACTIVITY = "current_activity"
-N_USER_TIME_STAMP = "last_time_stamp"
-N_AREA_UNLOCKED_LOCATIONS = "unlocked_locations"
+def set_testing_globals():
+    # adjust globals that define files and point them to different directories that are easily cleaned up
+    # this is specifically for testing
+    global TESTING, GENERAL_INFO_PATH, ACCOUNT_PATH, USER_DIRS_PATH
+    TESTING = True
+
+    _test_data_folder = TEST_FOLDER / "data"
+    _test_secret_path = _data_folder / "secret"
+    GENERAL_INFO_PATH = _secret_path / "general.txt"
+    ACCOUNT_PATH = _secret_path / "accounts.txt"
+    USER_DIRS_PATH = _secret_path / "users"
+
+    if not _data_folder.exists():
+        os.mkdir(_data_folder)
+
+    if not _secret_path.exists():
+        os.mkdir(_secret_path)
+
+    if not USER_DIRS_PATH.exists():
+        os.mkdir(USER_DIRS_PATH)
+
+    if not GENERAL_INFO_PATH.exists():
+        with open(GENERAL_INFO_PATH, "w") as f:
+            f.write(f"{FILE_GENERAL_ACTIVE_USER}:\n")
+
+    if not ACCOUNT_PATH.exists():
+        open(ACCOUNT_PATH, "w").close()

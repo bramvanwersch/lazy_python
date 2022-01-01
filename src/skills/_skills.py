@@ -63,6 +63,13 @@ def xp_to_level(xp: int) -> int:
     return len(constants.XP_ATLEVEL)
 
 
+def xp_to_next_level(xp: int) -> int:
+    for index, value in enumerate(constants.XP_ATLEVEL):
+        if value > xp:
+            return value - xp
+    return 0
+
+
 def level_to_xp(level: int) -> int:
     if level == 0:
         return 0

@@ -1,11 +1,14 @@
 from typing import Union
 import time
+import subprocess
+import os
 
 from src.commands import _commands
 from src import utility
 from src import constants
 from src import areas
 from src import skills
+from src import items
 
 
 def check():
@@ -23,26 +26,29 @@ def check():
     if constants.TESTING:
         passed_time += 3600  # 60 rolls when testing
 
-    before_xps = skills.get_xps()
-    before_check_levels = skills.get_levels(before_xps)
+    before_check_levels = skills.get_levels()
 
     # values are returned in order to report them
     utility.message(f"In total {passed_time}s passed")
     xp_dict, item_dict = area_obj.perform_activity_rolls(location, activity, passed_time)
     utility.message("The following things happened while you where away:")
 
-    current_levels = skills.get_levels()
+    current_xps = skills.get_xps()
+    skills.set_xp(xp_dict)
     for skill_name, xp in xp_dict.items():
-        if xp <= 0:
+        xp_difference = xp - current_xps[skill_name]
+        if xp_difference <= 0:
             continue
-        level_change = current_levels[skill_name] - before_check_levels[skill_name]
-        level_str = f"({before_check_levels[skill_name]}-{current_levels[skill_name]})" if level_change > 0 else ''
-        xp_change = xp - before_xps[skill_name]
-        utility.message(f"{skill_name}: +{xp_change}xp {level_str}")
-    if activity == "exploring":
+        current_level = skills.xp_to_level(xp)
+        level_change = current_level - before_check_levels[skill_name]
+        level_str = f"({before_check_levels[skill_name]}-{current_level})" if level_change > 0 else ''
+        utility.message(f"{skill_name}: +{xp_difference}xp {level_str}")
+    if activity == skills.Skills.EXPLORING.name:
         for location_name, amnt in item_dict.items():
             utility.message(f"You discovered {location_name}")
     else:
+        # exploring does not return items but locations
+        items.add_items(item_dict)
         for item_name, amnt in item_dict.items():
             if amnt == 1:
                 utility.message(f"You found {item_name}")
@@ -54,8 +60,9 @@ def check():
                                [str(time.time())])
 
 
-CHECK_COMMAND = _commands.Command("check", self_command=check, description="Check on the current activity and collect "
-                                                                           "all xp and resources. After that continue.")
+CHECK_COMMAND = _commands.Command("check", self_command=check,
+                                  description="Check on the current activity and collect all xp and resources. After"
+                                              " that continue. Example: 'lazy check'")
 
 
 def examine_area(*args):
@@ -85,12 +92,14 @@ def _examine(depth, *args):
 
 
 EXAMINE_COMMANDS = _commands.Command("examine", description="Examine an area, location or activity to get more detailed"
-                                                            "information.")
+                                                            " information.")
 EXAMINE_COMMANDS.add_command("area", examine_area, "See al the unlocked locations and what there is still to uncover in"
-                                                   "an area")
-EXAMINE_COMMANDS.add_command("location", examine_location, "See all possible activities in a location and all the "
-                                                           "level requirements")
-EXAMINE_COMMANDS.add_command("activity", examine_activity, "Check the loot that you can get from a certain activity.")
+                                                   "an area", "lazy examine area (<area name>)")
+EXAMINE_COMMANDS.add_command("location", examine_location,
+                             "See all possible activities in a location and all the level requirements",
+                             "lazy examine location (<area name> <location name>)")
+EXAMINE_COMMANDS.add_command("activity", examine_activity, "Check the loot that you can get from a certain activity.",
+                             "lazy examine location (<area name> <location name> <activity name>)")
 
 
 def _get_area(*args) -> Union[areas.Area, None]:
@@ -151,7 +160,6 @@ def move_location(*args):
 
 def _move(depth, *args):
     # TODO add a moving time or not can be quite annoying
-    # TODO make sure to set location and activity back to empty
     utility.message("First checking current activity:")
     check()
     utility.message("")
@@ -176,5 +184,23 @@ def _move(depth, *args):
 
 
 MOVE_COMMANDS = _commands.Command("move", description="Move to an area to explore or a location to perform skills.")
-MOVE_COMMANDS.add_command("area", move_area, "Move to an area in order to explore")
-MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a certain area to perform skills.")
+MOVE_COMMANDS.add_command("area", move_area, "Move to an area in order to explore", "lazy move area (<area name>)")
+MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a certain area to perform skills.",
+                          "lazy move location (<area name> <location name>)")
+
+
+def _update():
+    # save all modifications in the data folder to configured remote
+    popen = subprocess.Popen(f'git --git-dir "{constants.PROJECT_BASE_PATH / ".git"}" --work-tree '
+                             f'"{constants.PROJECT_BASE_PATH}" pull', shell=True, stdout=subprocess.PIPE)
+    stdout, _ = popen.communicate()
+    stdout_str = stdout.decode('utf-8')
+    if stdout_str.startswith("Already up to date."):
+        utility.message("Nothing to update. Everything is up to date.")
+    else:
+        utility.message("A new update has been downloaded and installed.")
+
+
+UPDATE_COMMAND = _commands.Command("update", self_command=_update,
+                                   description="Download the latest update for lazy, this requires git to be installed."
+                                               "Example: 'lazy update'")

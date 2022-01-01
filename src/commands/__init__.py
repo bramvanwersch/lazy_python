@@ -1,6 +1,7 @@
 from src.commands.account import ACCOUNT_COMMANDS
 from src.commands.train import TRAINING_COMMANDS
-from src.commands.general_commands import EXAMINE_COMMANDS, MOVE_COMMANDS, CHECK_COMMAND
+from src.commands.general_commands import EXAMINE_COMMANDS, MOVE_COMMANDS, CHECK_COMMAND, UPDATE_COMMAND
+from src.commands._commands import *
 
 
 COMMANDS = {
@@ -8,5 +9,6 @@ COMMANDS = {
     TRAINING_COMMANDS.name: TRAINING_COMMANDS,
     EXAMINE_COMMANDS.name: EXAMINE_COMMANDS,
     MOVE_COMMANDS.name: MOVE_COMMANDS,
-    CHECK_COMMAND.name: CHECK_COMMAND
+    CHECK_COMMAND.name: CHECK_COMMAND,
+    UPDATE_COMMAND.name: UPDATE_COMMAND
 }

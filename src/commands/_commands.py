@@ -11,32 +11,39 @@ class Command:
         self._subcommands = {"help": self.print_help}
         self.help_text = description
         self._helps = {}
+        self._examples = {}
 
-    def add_command(self, name, function, help_message=""):
+    def add_command(self, name, function, help_message="", example_usage=""):
         self._subcommands[name] = function
         self._helps[name] = help_message
+        self._examples[name] = example_usage
 
     def print_help(self, *args):
         if len(self._subcommands) == 1:
-            utility.message("This command has no further subcommands. The help for this command is:")
-            utility.message(self.help_text)
+            utility.message(f"This is the help message for {self.name}. This command has no further subcommands."
+                            f" The help for this command is:\n{self.help_text}")
             return
-        utility.message(f"This is the help message for {self.name}. These are the available commands:")
+        full_help_text = f"This is the help message for {self.name}. These are the available commands:\n"
         for key in self._subcommands:
             if key == "help":
                 continue
-            utility.message(f"\t- {key}: {self._helps[key]}")
+            full_help_text += f" - {key}: {self._helps[key]}. "
+            if self._examples[key] != '':
+                full_help_text += f"Example: '{self._examples[key]}'\n"
+            else:
+                full_help_text += "\n"
+        utility.message(full_help_text[:-1])
 
     def __call__(self, *args, **kwargs):
         if len(args) == 0:
             if self._own_command is not None:
-                self._own_command()
-                return
-            utility.message(f"{self.name}  expects at least any 1 of these arguments: "
+                return self._own_command()
+
+            utility.message(f"{self.name} expects at least 1 argument: Choose one of "
                             f"{', '.join(self._subcommands.keys())}")
             return
         if args[0] not in self._subcommands:
             utility.message(f"{self.name} expects at least any 1 of these arguments: "
                             f"{', '.join(self._subcommands.keys())}")
             return
-        self._subcommands[args[0]](*args[1:])  # noqa
+        return self._subcommands[args[0]](*args[1:])  # noqa
