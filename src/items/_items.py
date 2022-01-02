@@ -1,7 +1,7 @@
 from abc import ABC
 
-from src import utility
-from src import constants
+from src import lazy_utility
+from src import lazy_constants
 
 
 class Item(ABC):
@@ -73,11 +73,11 @@ class WeaponItem(Item, ABC):
 # general utility functions related to player
 
 def add_items(item_dict):
-    user_dir = utility.active_user_dir()
-    utility.add_values_in_file(user_dir / constants.USER_INVENTORY_FILE_NAME,
-                               list(item for item in item_dict.keys()), list(item_dict.values()), int)
+    user_dir = lazy_utility.active_user_dir()
+    lazy_utility.add_values_in_file(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME,
+                                    list(item for item in item_dict.keys()), list(item_dict.values()), int)
 
 
 def get_all_items():
-    user_dir = utility.active_user_dir()
-    return utility.get_all_named_values_from_file(user_dir / constants.USER_INVENTORY_FILE_NAME, int)
+    user_dir = lazy_utility.active_user_dir()
+    return lazy_utility.get_all_named_values_from_file(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME, int)

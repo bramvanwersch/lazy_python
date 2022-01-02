@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import testing_setup
 from src import skills
-from src import constants
-from src import utility
+from src import lazy_constants
+from src import lazy_utility
 
 
 class Test(TestCase):
@@ -21,16 +21,16 @@ class Test(TestCase):
     def test_add_xp(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
-        current_user_dir = utility.active_user_dir()
-        with open(current_user_dir / constants.USER_LEVEL_FILE_NAME) as f:
+        current_user_dir = lazy_utility.active_user_dir()
+        with open(current_user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             level_info = f.read()
         self.assertEqual(level_info, "exploring:0\ngathering:1000\nwoodcutting:200\nfishing:0\nnon-existing:600\n")
 
     def test_set_xp(self):
         skills.set_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
         skills.set_xp({skills.Skills.WOODCUTTING.name: 10, skills.Skills.GATHERING.name: 50, "non-existing": 300})
-        current_user_dir = utility.active_user_dir()
-        with open(current_user_dir / constants.USER_LEVEL_FILE_NAME) as f:
+        current_user_dir = lazy_utility.active_user_dir()
+        with open(current_user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             level_info = f.read()
         self.assertEqual(level_info, "exploring:0\ngathering:50\nwoodcutting:10\nfishing:0\n")
 

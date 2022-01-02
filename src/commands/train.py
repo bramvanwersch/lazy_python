@@ -1,6 +1,6 @@
 from src.commands import _commands
-from src import utility
-from src import constants
+from src import lazy_utility
+from src import lazy_constants
 from src import areas
 from src import skills
 
@@ -10,12 +10,12 @@ from src.commands import general_commands
 def explore(*_):
     # special case cant realy be done with _set_training_skill
     general_commands.check()
-    current_user_dir = utility.active_user_dir()
-    current_user_area = utility.get_values_from_file(current_user_dir / constants.USER_GENERAL_FILE_NAME,
-                                                     ["current_area"])[0]
-    utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["current_activity"],
-                               [skills.Skills.EXPLORING.name])
-    utility.message(f"Started exploring {current_user_area}...")
+    current_user_dir = lazy_utility.active_user_dir()
+    current_user_area = lazy_utility.get_values_from_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+                                                          ["current_area"])[0]
+    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["current_activity"],
+                                    [skills.Skills.EXPLORING.name])
+    lazy_utility.message(f"Started exploring {current_user_area}...")
 
 
 def _set_training_skill(skill_name):
@@ -23,18 +23,18 @@ def _set_training_skill(skill_name):
     general_commands.check()
     location_obj = areas.get_current_location_object()
     if location_obj is None:
-        utility.message("No location currently selected.")
+        lazy_utility.message("No location currently selected.")
         return
     activity_skills = {activity.main_skill.name for activity in location_obj.activities.values()}
     if skill_name not in activity_skills:
-        utility.message(f"Can not train {skill_name} at this location. Choose one of the following: "
+        lazy_utility.message(f"Can not train {skill_name} at this location. Choose one of the following: "
                         f"{','.join(activity_skills)}.")
         return
-    current_user_dir = utility.active_user_dir()
-    utility.set_values_in_file(current_user_dir / constants.USER_GENERAL_FILE_NAME, ["current_activity"],
-                               [skill_name])
+    current_user_dir = lazy_utility.active_user_dir()
+    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["current_activity"],
+                                    [skill_name])
 
-    utility.message(f"Started {skill_name} at {location_obj.name}...")
+    lazy_utility.message(f"Started {skill_name} at {location_obj.name}...")
 
 
 def gather(*_):

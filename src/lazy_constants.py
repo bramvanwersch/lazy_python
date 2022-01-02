@@ -1,6 +1,12 @@
 from pathlib import Path
 import os
 import appdirs
+import colorama
+
+colorama.init(True)  # this is important for the colouring to work
+
+WARNING_COLOR = colorama.Fore.RED
+QUESTION_COLOR = colorama.Fore.YELLOW
 
 TESTING = False
 
@@ -10,12 +16,6 @@ TEST_FILE = TEST_FOLDER / "test_file.txt"
 
 # user warning messages
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
-
-
-class LazyWarningMessages:
-    INVALID_STRING = "Invalid sequence provided. Make sure it contains at least 1 character and does not contain the " \
-                     f"following charaters: {' ,'.join(BANNED_CHARACTERS)}"
-    NO_USER = "No user selected. Select a user with 'account activate' or create a new one with 'account new'"
 
 
 # path where this project is located for git updating

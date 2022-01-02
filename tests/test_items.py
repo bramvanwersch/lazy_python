@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import testing_setup
 from src import items
-from src import constants
-from src import utility
+from src import lazy_constants
+from src import lazy_utility
 
 
 class Test(TestCase):
@@ -21,8 +21,8 @@ class Test(TestCase):
     def test_add_items(self):
         items.add_items({"item_name": 5, "other_item": 123})
         items.add_items({"item_name": 10})
-        current_user_dir = utility.active_user_dir()
-        with open(current_user_dir / constants.USER_INVENTORY_FILE_NAME) as f:
+        current_user_dir = lazy_utility.active_user_dir()
+        with open(current_user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             item_text = f.read()
 
         self.assertEqual(item_text, "item_name:15\nother_item:123\n")

@@ -1,5 +1,4 @@
 small features:
-- dont allow test user --> because of test interferance
 - make sure that the password bug is fixed
 - stop activity when succesfully moving
 - make sure that items that can be collected once are only collected once

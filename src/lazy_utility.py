@@ -1,7 +1,8 @@
 from typing import Dict, Any, List, TYPE_CHECKING, Union
 import sys
 
-from src import constants
+from src import lazy_constants
+from src import lazy_warnings
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -20,7 +21,7 @@ def ask_answer(fail_message: str, possible_answers: Dict[str, Any], case_sensiti
             answer = answer.lower()
         if answer in possible_answers:
             return possible_answers[answer]
-        message(fail_message)
+        message_question(fail_message)
 
 
 def ask_valid_string():
@@ -28,7 +29,7 @@ def ask_valid_string():
         answer = input()
         if is_valid_string(answer) is True:
             return answer
-        message(constants.LazyWarningMessages.INVALID_STRING)
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_STRING)
 
 
 def is_valid_string(string: str):
@@ -36,7 +37,7 @@ def is_valid_string(string: str):
     if len(string) == 0:
         return False
     for char in string:
-        if char in constants.BANNED_CHARACTERS:
+        if char in lazy_constants.BANNED_CHARACTERS:
             return False
     return True
 
@@ -130,20 +131,28 @@ def remove_lines_from_file(file: Union[str, "Path"], lines: List[str]):
 
 def active_user_dir(username: Union[None, str] = None) -> "Path":
     if username is None:
-        username = get_values_from_file(constants.GENERAL_INFO_PATH, [constants.FILE_GENERAL_ACTIVE_USER])[0]
+        username = get_values_from_file(lazy_constants.GENERAL_INFO_PATH, [lazy_constants.FILE_GENERAL_ACTIVE_USER])[0]
     if username == "":
-        message(constants.LazyWarningMessages.NO_USER)
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER)
         sys.exit(0)
-    return constants.USER_DIRS_PATH / username
+    return lazy_constants.USER_DIRS_PATH / username
 
 
 def active_user_area_dir(username: Union[None, str] = None) -> "Path":
-    return active_user_dir(username) / constants.USER_AREA_DIR
+    return active_user_dir(username) / lazy_constants.USER_AREA_DIR
 
 
 def message(string):
+    _message(string)
+
+
+def message_question(string):
+    _message(string, lazy_constants.QUESTION_COLOR)
+
+
+def _message(string, color=''):
     for index, line in enumerate(string.split("\n")):
         if index == 0:
-            print(f"(lazy)> {line}")
+            print(f"(lazy)> {color}{line}")
         else:
-            print(f"(....)> {line}")
+            print(f"(....)> {color}{line}")

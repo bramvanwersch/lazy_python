@@ -4,19 +4,19 @@ import random
 from collections import defaultdict
 
 # own imports
-from src import constants
+from src import lazy_constants
 from src import skills
 from src import items
-from src import utility
+from src import lazy_utility
 
 
 # general functions
 def get_unlocked_location_names(current_area: str = None) -> Set[str]:
     if current_area is None:
-        current_area = utility.get_values_from_file(utility.active_user_dir() /
-                                                    constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
-    unlocked_locations = utility.get_values_from_file(utility.active_user_area_dir() / current_area,
-                                                      ["unlocked_locations"])[0]
+        current_area = lazy_utility.get_values_from_file(lazy_utility.active_user_dir() /
+                                                         lazy_constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+    unlocked_locations = lazy_utility.get_values_from_file(lazy_utility.active_user_area_dir() / current_area,
+                                                           ["unlocked_locations"])[0]
     unlocked_locations = set(unlocked_locations.split(","))
     return unlocked_locations
 
@@ -62,7 +62,7 @@ class Area:
                 description += f"- {location_name}: {self._locations[location_name].description}\n"
             else:
                 description += f"- ???: ???\n"
-        utility.message(description[:-1])  # remove last newline
+        lazy_utility.message(description[:-1])  # remove last newline
 
     def perform_activity_rolls(self, location, activity, passed_time):
         if activity == "exploring":
@@ -98,10 +98,10 @@ class Area:
                     unlocked_locations.add(unlocked_area.name)
                 else:
                     xp_dict[skills.Skills.EXPLORING.name] += self._no_find_xp
-        current_area = utility.get_values_from_file(utility.active_user_dir() /
-                                                    constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
-        utility.set_values_in_file(utility.active_user_area_dir() / current_area, ["unlocked_locations"],
-                                   [','.join(unlocked_locations)])
+        current_area = lazy_utility.get_values_from_file(lazy_utility.active_user_dir() /
+                                                         lazy_constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+        lazy_utility.set_values_in_file(lazy_utility.active_user_area_dir() / current_area, ["unlocked_locations"],
+                                        [','.join(unlocked_locations)])
         return xp_dict, item_dict
 
 
@@ -122,7 +122,7 @@ class Location:
         for activity_name, activity in self._activities.items():
             description += f" - {activity_name} (min. lvl. {activity.level_requirement} " \
                            f"{activity.main_skill.name}): {activity.description}\n"
-        utility.message(description[:-1])  # remove last newline
+        lazy_utility.message(description[:-1])  # remove last newline
 
 
 class Activity(Simulation):
@@ -170,7 +170,7 @@ class Activity(Simulation):
         for loot in self._loot_table:
             for reward, amnt in loot.item_rewards.items():
                 description += f" - {reward.name}: {amnt}\n"
-        utility.message(description[:-1])
+        lazy_utility.message(description[:-1])
 
 
 class Loot:
