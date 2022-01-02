@@ -46,7 +46,7 @@ def new(*args):
         password = lazy_utility.ask_valid_string()
         lazy_utility.message_question("Please retype the password to confirm or type 'Cancel' to abbort "
                                       "account creation: ")
-        if _confirm_password(password) is False:
+        if _confirm_password(username, password) is False:
             return
     _create_account(username, password)
     lazy_utility.message(f"Account succesfully created. Welcome {username}!")
@@ -77,13 +77,14 @@ def _create_account(username, password):
         f.write("")
 
     os.mkdir(active_user_dir / lazy_constants.USER_AREA_DIR)
-    create_area_file(lazy_constants.STARTING_AREA, username, ["home"])
+    create_area_file(lazy_constants.STARTING_AREA, username, [lazy_constants.STARTING_LOCATION])
 
 
 def create_area_file(area_name, username=None, unlocked_areas=None):
     # put all area specific values in this file. Set expected defined values here
     with open(lazy_utility.active_user_area_dir(username) / area_name, "w") as f:
-        f.write(f"unlocked_locations:{'' if unlocked_areas is None else ','.join(unlocked_areas)}\n")
+        f.write(f"{lazy_constants.USERFILE_AREA_UNLOCKED_LOCATIONS}:"
+                f"{'' if unlocked_areas is None else ','.join(unlocked_areas)}\n")
 
 
 def activate(*args):
@@ -94,11 +95,11 @@ def activate(*args):
             lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_STRING)
             return
     else:
-        lazy_utility.message("Please provide username: ")
+        lazy_utility.message_question("Please provide username: ")
         username = lazy_utility.ask_valid_string()
     db_name, db_password = _get_username_password(username)
     if db_name is None:
-        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_STRING)
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.UNKNOWN_USERNAME, username=username)
         return
 
     input_password_provided = len(args) > 1
@@ -108,16 +109,17 @@ def activate(*args):
             lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_STRING)
             return
         if password != db_password:
-            lazy_utility.message(f"Password does not match the password for {username}")
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER_MATCHING_PASSWORD, username=username)
             return
     else:
-        lazy_utility.message("Please provide password:")
-        if _confirm_password(db_password) is False:
+        lazy_utility.message_question("Please provide password:")
+        if _confirm_password(username, db_password) is False:
             return
 
     lazy_utility.set_values_in_file(lazy_constants.GENERAL_INFO_PATH, ["active_user"], [username])
 
-    lazy_utility.message(f"Account {username} is now active!")
+    lazy_utility.message(f"Account {username} is now active! All commands that convey account specific actions now "
+                         f" are applied to this account.")
 
 
 def info(*args):
@@ -125,6 +127,7 @@ def info(*args):
                                                     [lazy_constants.FILE_GENERAL_ACTIVE_USER])[0]
     full_message = f"The current active account is: {active_user if active_user != '' else 'No active account'}\n"
     if active_user == '':
+        lazy_utility.message(full_message[:-1])
         return
     user_dir = lazy_utility.active_user_dir(active_user)
     if len(args) == 0:
@@ -132,10 +135,11 @@ def info(*args):
     else:
         if args[0] == "levels":
             _show_levels(user_dir, full_message)
-        elif args[0] == "inventory":
+        elif args[0] == "items":
             _show_inventory(user_dir, full_message)
         else:
-            lazy_utility.message("Invalid option provided for account info. Expected either 'levels' or 'inventory'.")
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_COMMAND_OPTION, command="lazy account info",
+                               options="levels, items")
 
 
 def _show_general_information(user_dir, full_message):
@@ -151,11 +155,12 @@ def _show_general_information(user_dir, full_message):
         full_message += f"at location {current_location} "
     if current_activity != '':
         full_message += f"doing activity {current_activity}.\n"
-    full_message += f"Your last activity check was performed {time_since_last_check} seconds ago"
-    lazy_utility.message(full_message[:-1])
+    full_message += f"Your last activity check was performed {time_since_last_check} seconds ago."
+    lazy_utility.message(full_message)
 
 
 def _show_levels(user_dir, full_message):
+    full_message += "Levels:\n"
     with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
         for line in f:
             name, xp = line.strip().split(":")
@@ -181,10 +186,10 @@ def delete(*args):
         return
     if not input_password_provided:
         lazy_utility.message(f"Starting the process for the deletion of the current active account {active_account}")
-        lazy_utility.message("Please provide the password for this account to confirm the deletion or type cancel "
-                             "to cancel. The deletion can not be undone!")
+        lazy_utility.message_question("Please provide the password for this account to confirm the deletion or type "
+                                      "'cancel' to cancel. The deletion can not be undone!")
 
-    _, real_pw = _get_username_password(active_account)
+    username, real_pw = _get_username_password(active_account)
 
     if input_password_provided:
         password = args[0]
@@ -192,12 +197,11 @@ def delete(*args):
             lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_STRING)
             return
         if password != real_pw:
-            lazy_utility.message(f"Password does not match the password for {active_account}")
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER_MATCHING_PASSWORD, username=username)
             return
     else:
-        if _confirm_password(real_pw) is False:
+        if _confirm_password(username, real_pw) is False:
             return
-    # TODO: fix issues with the same passwords
     lazy_utility.remove_lines_from_file(lazy_constants.ACCOUNT_PATH, [f"n:{active_account}", f"p:{real_pw}"])
     shutil.rmtree(lazy_constants.USER_DIRS_PATH / active_account)
     lazy_utility.set_values_in_file(lazy_constants.GENERAL_INFO_PATH, ["active_user"], [""])
@@ -215,14 +219,15 @@ def _get_username_password(name):
     return None, None
 
 
-def _confirm_password(real_pw):
+def _confirm_password(username, real_pw):
     while True:
         password = lazy_utility.ask_valid_string()
         if password == 'cancel':
             return False
         if password == real_pw:
             return True
-        lazy_utility.message("Invalid password provided. Please try again or type 'cancel' to abort.")
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER_MATCHING_PASSWORD, username=username)
+        lazy_utility.message_question("Please try again or type 'cancel' to abort.")
 
 
 ACCOUNT_COMMANDS = _commands.Command("account", description="Account managing functionalities. If you are new to the "
@@ -230,6 +235,6 @@ ACCOUNT_COMMANDS = _commands.Command("account", description="Account managing fu
 ACCOUNT_COMMANDS.add_command("new", new, "Create a new account", "lazy account new (<name> <password> <password>)")
 ACCOUNT_COMMANDS.add_command("activate", activate, "Load an existing account", "lazy account load (<name> <password>)")
 ACCOUNT_COMMANDS.add_command("info", info, "Show some basic information about the current account. Optionally request"
-                                           " more detailed information with inventory or levels",
-                             "lazy account info (levels | inventory)")
+                                           " more detailed information with items or levels",
+                             "lazy account info (levels | items)")
 ACCOUNT_COMMANDS.add_command("delete", delete, "Delete the current active account", "lazy account delete (<password>)")

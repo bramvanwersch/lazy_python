@@ -112,7 +112,7 @@ def get_all_named_values_from_file(file: Union[str, "Path"], value_type: Any = s
     return values
 
 
-def remove_lines_from_file(file: Union[str, "Path"], lines: List[str]):
+def remove_lines_from_file(file: Union[str, "Path"], lines: List[str], first_only=True):
     new_text = []
     uncovered_values = {value: None for value in lines}
     with open(file) as f:
@@ -120,7 +120,8 @@ def remove_lines_from_file(file: Union[str, "Path"], lines: List[str]):
             remove_line = False
             for index, value in enumerate(uncovered_values):
                 if line.strip() == value:
-                    uncovered_values.pop(value)
+                    if first_only:
+                        uncovered_values.pop(value)
                     remove_line = True
                     break
             if not remove_line:
@@ -151,8 +152,9 @@ def message_question(string):
 
 
 def _message(string, color=''):
+    reset_color = '' if color == '' else lazy_constants.RESET_COLOR
     for index, line in enumerate(string.split("\n")):
         if index == 0:
-            print(f"(lazy)> {color}{line}")
+            print(f"(lazy)> {color}{line}{reset_color}")
         else:
-            print(f"(....)> {color}{line}")
+            print(f"(....)> {color}{line}{reset_color}")

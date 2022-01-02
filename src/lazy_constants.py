@@ -3,10 +3,11 @@ import os
 import appdirs
 import colorama
 
-colorama.init(True)  # this is important for the colouring to work
+colorama.init()  # this is important for the colouring to work
 
 WARNING_COLOR = colorama.Fore.RED
 QUESTION_COLOR = colorama.Fore.YELLOW
+RESET_COLOR = colorama.Style.RESET_ALL
 
 TESTING = False
 
@@ -38,6 +39,7 @@ USERFILE_GENERAL_CURRENT_AREA = "current_area"
 USERFILE_GENERAL_CURRENT_LOCATION = "current_location"
 USERFILE_GENERAL_CURRENT_ACTIVITY = "current_activity"
 USERFILE_GENERAL_TIMESTAMP = "last_time_stamp"
+USERFILE_AREA_UNLOCKED_LOCATIONS = "unlocked_locations"
 FILE_GENERAL_ACTIVE_USER = "active_user"
 
 # ensure the full data folders are present
