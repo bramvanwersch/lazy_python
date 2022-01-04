@@ -106,25 +106,54 @@ class Test(TestCase):
         self.assertEqual(text, "")
 
     def test_examine_area(self):
-        self.fail()
+        # check normal
+        output = testing_utility.capture_print(general_commands.examine_area, "green_woods")
+        self.assertEqual(output, "(lazy)> GREEN_WOODS:\n"
+                                 "(....)> The starting are. The place I grew up in and call home.\n"
+                                 "(....)> Locations:\n"
+                                 "(....)> - ???: ???\n"
+                                 "(....)> - ???: ???\n"
+                                 "(....)> - home: A place with good and bad memories\n")
+        # check wrong name
+        output = testing_utility.capture_print(general_commands.examine_area, "green_woodse:r")
+        self.assertEqual(output, "(lazy)> No area with name green_woodse:r.\n")
 
     def test_examine_location(self):
-        self.fail()
+        # check normal
+        output = testing_utility.capture_print(general_commands.examine_location, "green_woods", "home")
+        self.assertEqual(output, "(lazy)> HOME:\n"
+                                 "(....)> A place with good and bad memories\n"
+                                 "(....)> Activities:\n"
+                                 "(....)>  - gathering (min. lvl. 0 gathering): There might be some supplies left,"
+                                 " on the other hand there is a reason im leaving.\n")
+        # check wrong name
+        output = testing_utility.capture_print(general_commands.examine_location, "green_woodse:r")
+        self.assertEqual(output, "(lazy)> No area with name green_woodse:r.\n")
+
+        output = testing_utility.capture_print(general_commands.examine_location, "green_woods", "home:r")
+        self.assertEqual(output, "(lazy)> No location with name home:r.\n")
 
     def test_examine_activity(self):
-        self.fail()
+        # check normal
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gathering")
+        self.assertEqual(output, "(lazy)> GATHERING:\n"
+                                 "(....)> There might be some supplies left, on the other hand there is a "
+                                 "reason im leaving.\n"
+                                 "(....)> Available loot:\n"
+                                 "(....)>  - coin: 1\n"
+                                 "(....)>  - old_bread: 1\n"
+                                 "(....)>  - small dagger: 1\n"
+                                 "(....)>  - black cape: 1\n"
+                                 "(....)>  - leather boots: 1\n")
+        # check wrong name
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
+        self.assertEqual(output, "(lazy)> No area with name green_woodse:r.\n")
 
-    def test__examine(self):
-        self.fail()
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
+        self.assertEqual(output, "(lazy)> No location with name home:r.\n")
 
-    def test__get_area(self):
-        self.fail()
-
-    def test__get_location(self):
-        self.fail()
-
-    def test__get_activity(self):
-        self.fail()
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gather:")
+        self.assertEqual(output, "(lazy)> No activity with name gather:.\n")
 
     def test_move_area(self):
         self.fail()
