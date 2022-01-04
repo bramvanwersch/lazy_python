@@ -1,7 +1,6 @@
 from typing import Union
 import time
 import subprocess
-import os
 
 from src.commands import _commands
 from src import lazy_utility
@@ -13,26 +12,31 @@ from src import items
 
 def check():
     current_user_dir = lazy_utility.active_user_dir()
-    area, location, activity = lazy_utility.get_values_from_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
-                                                                 ["current_area", "current_location", "current_activity"])
+    area, location, activity = lazy_utility.get_values_from_file(
+        current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+        [lazy_constants.USERFILE_GENERAL_CURRENT_AREA, lazy_constants.USERFILE_GENERAL_CURRENT_LOCATION,
+         lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY])
     if area == '' or (location == '' and activity != "exploring") or activity == '':
         lazy_utility.message("Nothing to check yet.")
         return
     area_obj = areas.AREA_MAPPING[area]
-    passed_time = int(time.time() - float(lazy_utility.get_values_from_file(lazy_utility.active_user_dir() /
-                                                                            lazy_constants.USER_GENERAL_FILE_NAME,
-                                                                            ["last_time_stamp"])[0]))
+    passed_time = int(time.time() - float(lazy_utility.get_values_from_file(
+        lazy_utility.active_user_dir() / lazy_constants.USER_GENERAL_FILE_NAME,
+        [lazy_constants.USERFILE_GENERAL_TIMESTAMP])[0]))
 
     if lazy_constants.TESTING:
         passed_time += 3600  # 60 rolls when testing
 
     before_check_levels = skills.get_levels()
 
+    check_message = ""
     # values are returned in order to report them
-    lazy_utility.message(f"In total {passed_time}s passed")
+    check_message += f"In total {passed_time}s passed\n"
     xp_dict, item_dict = area_obj.perform_activity_rolls(location, activity, passed_time)
-    lazy_utility.message("The following things happened while you where away:")
+    check_message += "The following things happened while you where away:"
+    lazy_utility.message(check_message)
 
+    gathered_message = ""
     current_xps = skills.get_xps()
     skills.set_xp(xp_dict)
     for skill_name, xp in xp_dict.items():
@@ -42,22 +46,23 @@ def check():
         current_level = skills.xp_to_level(xp)
         level_change = current_level - before_check_levels[skill_name]
         level_str = f"({before_check_levels[skill_name]}-{current_level})" if level_change > 0 else ''
-        lazy_utility.message(f"{skill_name}: +{xp_difference}xp {level_str}")
+        gathered_message += f"{skill_name}: +{xp_difference}xp {level_str}\n"
     if activity == skills.Skills.EXPLORING.name:
         for location_name, amnt in item_dict.items():
-            lazy_utility.message(f"You discovered {location_name}")
+            gathered_message += f"You discovered {location_name}\n"
     else:
         # exploring does not return items but locations
         items.add_items(item_dict)
         for item_name, amnt in item_dict.items():
             if amnt == 1:
-                lazy_utility.message(f"You found {item_name}")
+                gathered_message += f"You found {item_name}\n"
             else:
-                lazy_utility.message(f"You found {amnt} X {item_name}")
+                gathered_message += f"You found {amnt} X {item_name}\n"
 
+    lazy_utility.message_loot(gathered_message[:-1], continue_last=True)
     # set the time stamp
-    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["last_time_stamp"],
-                                    [str(time.time())])
+    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+                                    [lazy_constants.USERFILE_GENERAL_TIMESTAMP], [str(time.time())])
 
 
 CHECK_COMMAND = _commands.Command("check", self_command=check,

@@ -115,9 +115,8 @@ class Test(TestCase):
         account.activate("test", "test")
         # check with active account
         output = testing_utility.capture_print(account.info)
-        self.assertEqual(output, "(lazy)> The current active account is: test\n(....)> This account is located in "
-                                 "area green_woods at location home Your last activity check was performed 0 seconds "
-                                 "ago.\n")
+        self.assertTrue(output.startswith("(lazy)> The current active account is: test\n(....)> This account is located"
+                                          " in area green_woods at location home Your last activity check was"))
 
         # check for levels
         output = testing_utility.capture_print(account.info, "levels")

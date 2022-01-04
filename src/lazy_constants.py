@@ -6,6 +6,7 @@ import colorama
 colorama.init()  # this is important for the colouring to work
 
 WARNING_COLOR = colorama.Fore.RED
+GREEN_COLOR = colorama.Fore.GREEN
 QUESTION_COLOR = colorama.Fore.YELLOW
 RESET_COLOR = colorama.Style.RESET_ALL
 

@@ -143,18 +143,23 @@ def active_user_area_dir(username: Union[None, str] = None) -> "Path":
     return active_user_dir(username) / lazy_constants.USER_AREA_DIR
 
 
-def message(string):
-    _message(string)
+def message(string, continue_last=False):
+    _message(string, continue_last=continue_last)
 
 
-def message_question(string):
-    _message(string, lazy_constants.QUESTION_COLOR)
+def message_question(string, continue_last=False):
+    _message(string, lazy_constants.QUESTION_COLOR, continue_last)
 
 
-def _message(string, color=''):
+def message_loot(string, continue_last=False):
+    _message(string, lazy_constants.GREEN_COLOR, continue_last)
+
+
+def _message(string, color='', continue_last=False):
+    # continue_last allows to print messages with multiple message calls as if one call was made
     reset_color = '' if color == '' else lazy_constants.RESET_COLOR
     for index, line in enumerate(string.split("\n")):
-        if index == 0:
+        if index == 0 and not continue_last:
             print(f"(lazy)> {color}{line}{reset_color}")
         else:
             print(f"(....)> {color}{line}{reset_color}")
