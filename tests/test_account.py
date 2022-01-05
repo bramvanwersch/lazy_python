@@ -1,11 +1,11 @@
 from unittest import TestCase
 from pathlib import Path
 
-from src.commands import account
+from lazy_src.commands import account
 import testing_setup
 import testing_utility
-from src import lazy_constants
-from src import lazy_warnings
+from lazy_src import lazy_constants
+from lazy_src import lazy_warnings
 
 
 class Test(TestCase):

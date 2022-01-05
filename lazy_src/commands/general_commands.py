@@ -2,22 +2,22 @@ from typing import Union
 import time
 import subprocess
 
-from src.commands import _commands
-from src import lazy_utility
-from src import lazy_constants
-from src import areas
-from src import skills
-from src import items
+from lazy_src.commands import _commands
+from lazy_src import lazy_utility
+from lazy_src import lazy_constants
+from lazy_src import areas
+from lazy_src import skills
+from lazy_src import items
 
 
-def check():
+def check(continue_last=False):
     current_user_dir = lazy_utility.active_user_dir()
     area, location, activity = lazy_utility.get_values_from_file(
         current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
         [lazy_constants.USERFILE_GENERAL_CURRENT_AREA, lazy_constants.USERFILE_GENERAL_CURRENT_LOCATION,
          lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY])
     if area == '' or (location == '' and activity != "exploring") or activity == '':
-        lazy_utility.message("Nothing to check yet.")
+        lazy_utility.message("Nothing to check yet.", continue_last=continue_last)
         return
     area_obj = areas.AREA_MAPPING[area]
     passed_time = int(time.time() - float(lazy_utility.get_values_from_file(
@@ -34,7 +34,7 @@ def check():
     check_message += f"In total {passed_time}s passed\n"
     xp_dict, item_dict = area_obj.perform_activity_rolls(location, activity, passed_time)
     check_message += "The following things happened while you where away:"
-    lazy_utility.message(check_message)
+    lazy_utility.message(check_message, continue_last=continue_last)
 
     gathered_message = ""
     current_xps = skills.get_xps()
@@ -165,26 +165,30 @@ def move_location(*args):
 
 def _move(depth, *args):
     # TODO add a moving time or not can be quite annoying
-    lazy_utility.message("First checking current activity:")
+    lazy_utility.message("Before moving the current activity is checked:")
     check()
-    lazy_utility.message("")
-    lazy_utility.message("Time to move:")
+    # create some separation
+    lazy_utility.message("", continue_last=True)
+
     current_user_dir = lazy_utility.active_user_dir()
     selected_obj: Union[None, areas.Area, areas.Location] = None
     for index in range(depth):
         if index == 0:
             selected_obj = _get_area(*args)
-            if selected_obj is None:
+            if selected_obj is None:  # on fail
                 return
-            lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["current_area"],
-                                            [selected_obj.name])
+            lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+                                            [lazy_constants.USERFILE_GENERAL_CURRENT_AREA], [selected_obj.name])
         else:
             selected_obj = _get_location(selected_obj, *args)
-            if selected_obj is None:
+            if selected_obj is None:  # on fail
                 return
-            lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["current_location"],
-                                            [selected_obj.name])
+            lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+                                            [lazy_constants.USERFILE_GENERAL_CURRENT_LOCATION], [selected_obj.name])
 
+    # make sure to reset the activity after succesfull move
+    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+                                    [lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY], [""])
     lazy_utility.message(f"You moved to area {selected_obj.name}. You are ready to go do something...")
 
 
@@ -195,7 +199,6 @@ MOVE_COMMANDS.add_command("location", move_location, "Move to a location in a ce
 
 
 def _update():
-    # save all modifications in the data folder to configured remote
     popen = subprocess.Popen(f'git --git-dir "{lazy_constants.PROJECT_BASE_PATH / ".git"}" --work-tree '
                              f'"{lazy_constants.PROJECT_BASE_PATH}" pull', shell=True, stdout=subprocess.PIPE)
     stdout, _ = popen.communicate()

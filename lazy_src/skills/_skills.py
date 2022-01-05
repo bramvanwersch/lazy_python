@@ -1,8 +1,8 @@
 from typing import Dict
 from abc import ABC
 
-from src import lazy_utility
-from src import lazy_constants
+from lazy_src import lazy_utility
+from lazy_src import lazy_constants
 
 
 class Skill(ABC):

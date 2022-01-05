@@ -4,10 +4,10 @@ import random
 from collections import defaultdict
 
 # own imports
-from src import lazy_constants
-from src import skills
-from src import items
-from src import lazy_utility
+from lazy_src import lazy_constants
+from lazy_src import skills
+from lazy_src import items
+from lazy_src import lazy_utility
 
 
 # general functions

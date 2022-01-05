@@ -1,7 +1,7 @@
-from src.commands.account import ACCOUNT_COMMANDS
-from src.commands.train import TRAINING_COMMANDS
-from src.commands.general_commands import EXAMINE_COMMANDS, MOVE_COMMANDS, CHECK_COMMAND, UPDATE_COMMAND
-from src.commands._commands import *
+from lazy_src.commands.account import ACCOUNT_COMMANDS
+from lazy_src.commands.train import TRAINING_COMMANDS
+from lazy_src.commands.general_commands import EXAMINE_COMMANDS, MOVE_COMMANDS, CHECK_COMMAND, UPDATE_COMMAND
+from lazy_src.commands._commands import *
 
 
 COMMANDS = {

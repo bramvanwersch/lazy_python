@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src import commands
+from lazy_src import commands
 import testing_utility
 
 

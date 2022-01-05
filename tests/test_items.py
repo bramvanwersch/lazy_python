@@ -1,9 +1,9 @@
 from unittest import TestCase
 
 import testing_setup
-from src import items
-from src import lazy_constants
-from src import lazy_utility
+from lazy_src import items
+from lazy_src import lazy_constants
+from lazy_src import lazy_utility
 
 
 class Test(TestCase):

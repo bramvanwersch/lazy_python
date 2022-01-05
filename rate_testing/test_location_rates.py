@@ -1,8 +1,8 @@
 from sys import argv
 from collections import defaultdict
 
-from src import areas
-from src import skills
+from lazy_src import areas
+from lazy_src import skills
 
 
 def get_area_rates(requested_area, start_level):

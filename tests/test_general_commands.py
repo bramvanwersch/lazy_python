@@ -1,9 +1,9 @@
 from unittest import TestCase
 import random
 
-from src.commands import general_commands
-from src.commands import train
-from src import lazy_constants
+from lazy_src.commands import general_commands
+from lazy_src.commands import train
+from lazy_src import lazy_constants
 import testing_setup
 import testing_utility
 
@@ -156,7 +156,18 @@ class Test(TestCase):
         self.assertEqual(output, "(lazy)> No activity with name gather:.\n")
 
     def test_move_area(self):
-        self.fail()
+        random.seed(1)
+        train.gather()  # make sure this value is set to check it is reset
+        output = testing_utility.capture_print(general_commands.move_area, "green_woods:")
+
+        output = testing_utility.capture_print(general_commands.move_area, "green_woods")
+        self.assertEqual(output, "(lazy)> Before moving the current activity is checked:\n"
+                                 "(lazy)> In total 3600s passed\n"
+                                 "(....)> The following things happened while you where away:\n"
+                                 f"(....)> {lazy_constants.GREEN_COLOR}gathering: +2xp {lazy_constants.RESET_COLOR}\n"
+                                 f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X coin{lazy_constants.RESET_COLOR}\n"
+                                 "(....)>\n"
+                                 "(lazy)> You moved to area green_woods. You are ready to go do something...\n")
 
     def test_move_location(self):
         self.fail()

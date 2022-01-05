@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name='lazy.py',
+    name='lazy',
     version='0.1',
-    packages=['src', '.'],
+    packages=[],
     url='tbd',
     license='MIT',
     entry_points={

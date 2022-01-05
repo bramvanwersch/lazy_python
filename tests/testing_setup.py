@@ -1,8 +1,8 @@
 import shutil
 import os
 
-from src import lazy_constants
-from src.commands import account
+from lazy_src import lazy_constants
+from lazy_src.commands import account
 
 
 def setup_test_folder():

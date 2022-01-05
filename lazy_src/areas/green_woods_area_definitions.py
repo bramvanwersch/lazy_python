@@ -1,6 +1,6 @@
-from src.areas.locations import *
-from src.items import Items
-from src.skills import Skills
+from lazy_src.areas.locations import *
+from lazy_src.items import Items
+from lazy_src.skills import Skills
 
 # home
 _old_bread_loot = Loot({Items.OLD_BREAD: 1}, {}, weight=1, required_level=0)

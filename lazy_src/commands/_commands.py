@@ -1,6 +1,6 @@
 from typing import Callable
 
-from src import lazy_utility
+from lazy_src import lazy_utility
 
 
 class Command:

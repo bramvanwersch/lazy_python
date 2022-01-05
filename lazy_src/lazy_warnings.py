@@ -1,5 +1,5 @@
-from src import lazy_constants
-from src import lazy_utility
+from lazy_src import lazy_constants
+from lazy_src import lazy_utility
 
 
 class LazyWarningMessages:

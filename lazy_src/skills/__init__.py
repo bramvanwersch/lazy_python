@@ -1,4 +1,4 @@
-from src.skills._skills import *
+from lazy_src.skills._skills import *
 
 
 class Skills:

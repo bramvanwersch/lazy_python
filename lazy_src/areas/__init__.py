@@ -1,7 +1,7 @@
 from typing import Union
 
-from src.areas.locations import *
-from src.areas.green_woods_area_definitions import green_woods
+from lazy_src.areas.locations import *
+from lazy_src.areas.green_woods_area_definitions import green_woods
 
 
 # easy acces for all areas

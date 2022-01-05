@@ -1,8 +1,8 @@
 from typing import Dict, Any, List, TYPE_CHECKING, Union
 import sys
 
-from src import lazy_constants
-from src import lazy_warnings
+from lazy_src import lazy_constants
+from lazy_src import lazy_warnings
 
 if TYPE_CHECKING:
     from pathlib import Path

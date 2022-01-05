@@ -2,8 +2,8 @@
 from sys import argv
 
 # own imports
-from src import commands
-from src import lazy_utility
+from lazy_src import commands
+from lazy_src import lazy_utility
 
 
 def main():

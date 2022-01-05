@@ -1,10 +1,10 @@
-from src.commands import _commands
-from src import lazy_utility
-from src import lazy_constants
-from src import areas
-from src import skills
+from lazy_src.commands import _commands
+from lazy_src import lazy_utility
+from lazy_src import lazy_constants
+from lazy_src import areas
+from lazy_src import skills
 
-from src.commands import general_commands
+from lazy_src.commands import general_commands
 
 
 def explore(*_):

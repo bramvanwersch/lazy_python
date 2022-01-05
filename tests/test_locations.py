@@ -1,9 +1,9 @@
 from unittest import TestCase
 import random
 
-from src.areas import locations, green_woods_area_definitions
-from src import skills
-from src import lazy_constants
+from lazy_src.areas import locations, green_woods_area_definitions
+from lazy_src import skills
+from lazy_src import lazy_constants
 import testing_setup
 
 
