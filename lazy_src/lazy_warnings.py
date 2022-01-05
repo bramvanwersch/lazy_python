@@ -11,6 +11,9 @@ class LazyWarningMessages:
     NO_MATCHING_PASSWORDS = "Given and repeated password do not match."
     NO_USER_MATCHING_PASSWORD = "Password does not match the password for '{username}'."
     INVALID_COMMAND_OPTION = "Invalid option provided for {command}. Expected on of: {options}."
+    INVALID_AREA = "No area with name {area}."
+    INVALID_LOCATION = "No location with name {location}."
+    INVALID_ACTIVITY = "No activity with name {activity}."
 
 
 def warn(warning_string, **named_formatting):

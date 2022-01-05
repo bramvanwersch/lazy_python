@@ -5,6 +5,7 @@ import subprocess
 from lazy_src.commands import _commands
 from lazy_src import lazy_utility
 from lazy_src import lazy_constants
+from lazy_src import lazy_warnings
 from lazy_src import areas
 from lazy_src import skills
 from lazy_src import items
@@ -111,15 +112,15 @@ def _get_area(*args) -> Union[areas.Area, None]:
     current_user_dir = lazy_utility.active_user_dir()
     user_area_dir = current_user_dir / lazy_constants.USER_AREA_DIR
     area_files = user_area_dir.glob("*")
-    area_names = [p.name for p in area_files]
+    area_names = {p.name for p in area_files}
     if len(args) >= 1:
         if args[0] in area_names:
             selected_value = args[0]
         else:
-            lazy_utility.message(f"No area with name {args[0]}.")
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_AREA, area=args[0])
             return None
     else:
-        lazy_utility.message(f"Please choose one of the following areas: {', '.join(area_names)}")
+        lazy_utility.message_question(f"Please choose one of the following areas: {', '.join(area_names)}")
         selected_value = lazy_utility.ask_answer(f"Please choose one of: {', '.join(area_names)}",
                                                  {name: name for name in area_names}, False)
     return areas.AREA_MAPPING[selected_value]
@@ -131,10 +132,10 @@ def _get_location(area_obj: areas.Area, *args) -> Union[areas.Location, None]:
         if args[1] in location_names:
             selected_value = args[1]
         else:
-            lazy_utility.message(f"No location with name {args[1]}.")
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_LOCATION, location=args[1])
             return None
     else:
-        lazy_utility.message(f"Please choose one of the following locations: {', '.join(location_names)}")
+        lazy_utility.message_question(f"Please choose one of the following locations: {', '.join(location_names)}")
         selected_value = lazy_utility.ask_answer(f"Please choose one of: {', '.join(location_names)}",
                                                  {name: name for name in location_names}, False)
     return area_obj.locations[selected_value]
@@ -146,10 +147,10 @@ def _get_activity(location_obj: areas.Location, *args) -> Union[areas.Activity, 
         if args[2] in activity_names:
             selected_value = args[2]
         else:
-            lazy_utility.message(f"No activity with name {args[2]}.")
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ACTIVITY, activity=args[2])
             return None
     else:
-        lazy_utility.message(f"Please choose one of the following activities: {', '.join(activity_names)}")
+        lazy_utility.message_question(f"Please choose one of the following activities: {', '.join(activity_names)}")
         selected_value = lazy_utility.ask_answer(f"Please choose one of: {', '.join(activity_names)}",
                                                  {name: name for name in activity_names}, False)
     return location_obj.activities[selected_value]
@@ -189,7 +190,8 @@ def _move(depth, *args):
     # make sure to reset the activity after succesfull move
     lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
                                     [lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY], [""])
-    lazy_utility.message(f"You moved to area {selected_obj.name}. You are ready to go do something...")
+    lazy_utility.message(f'You moved to {["area", "location", "activity"][depth - 1]} {selected_obj.name}. '
+                         f'You are ready to go do something...')
 
 
 MOVE_COMMANDS = _commands.Command("move", description="Move to an area to explore or a location to perform skills.")

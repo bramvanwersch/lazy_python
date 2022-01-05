@@ -10,4 +10,4 @@ major:
 - add additional areas, locations and activities
 - add towns with shops
 - add an almanac to see where items are found --> makes it easier to see where certain items are located for the user
-- add a version and update file that shows what was updated
+- add a version and update file that shows what was updated --> plus version of software

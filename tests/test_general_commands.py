@@ -1,9 +1,11 @@
 from unittest import TestCase
 import random
+import re
 
 from lazy_src.commands import general_commands
 from lazy_src.commands import train
 from lazy_src import lazy_constants
+from lazy_src import lazy_utility
 import testing_setup
 import testing_utility
 
@@ -115,8 +117,9 @@ class Test(TestCase):
                                  "(....)> - ???: ???\n"
                                  "(....)> - home: A place with good and bad memories\n")
         # check wrong name
-        output = testing_utility.capture_print(general_commands.examine_area, "green_woodse:r")
-        self.assertEqual(output, "(lazy)> No area with name green_woodse:r.\n")
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
     def test_examine_location(self):
         # check normal
@@ -127,11 +130,13 @@ class Test(TestCase):
                                  "(....)>  - gathering (min. lvl. 0 gathering): There might be some supplies left,"
                                  " on the other hand there is a reason im leaving.\n")
         # check wrong name
-        output = testing_utility.capture_print(general_commands.examine_location, "green_woodse:r")
-        self.assertEqual(output, "(lazy)> No area with name green_woodse:r.\n")
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
-        output = testing_utility.capture_print(general_commands.examine_location, "green_woods", "home:r")
-        self.assertEqual(output, "(lazy)> No location with name home:r.\n")
+        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No location with name home:r."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
     def test_examine_activity(self):
         # check normal
@@ -147,33 +152,103 @@ class Test(TestCase):
                                  "(....)>  - leather boots: 1\n")
         # check wrong name
         output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
-        self.assertEqual(output, "(lazy)> No area with name green_woodse:r.\n")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
         output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
-        self.assertEqual(output, "(lazy)> No location with name home:r.\n")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No location with name home:r."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
         output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gather:")
-        self.assertEqual(output, "(lazy)> No activity with name gather:.\n")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No activity with name gather:."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
     def test_move_area(self):
+        # NOTE: not checked if area is actually written to file, only one area available at the moment
         random.seed(1)
         train.gather()  # make sure this value is set to check it is reset
-        output = testing_utility.capture_print(general_commands.move_area, "green_woods:")
 
         output = testing_utility.capture_print(general_commands.move_area, "green_woods")
-        self.assertEqual(output, "(lazy)> Before moving the current activity is checked:\n"
-                                 "(lazy)> In total 3600s passed\n"
-                                 "(....)> The following things happened while you where away:\n"
-                                 f"(....)> {lazy_constants.GREEN_COLOR}gathering: +2xp {lazy_constants.RESET_COLOR}\n"
-                                 f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X coin{lazy_constants.RESET_COLOR}\n"
-                                 "(....)>\n"
-                                 "(lazy)> You moved to area green_woods. You are ready to go do something...\n")
+        self.assertEqual(output,
+                         "(lazy)> Before moving the current activity is checked:\n"
+                         "(lazy)> In total 3600s passed\n"
+                         "(....)> The following things happened while you where away:\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}gathering: +4xp {lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old_bread{lazy_constants.RESET_COLOR}\n"                                 
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n"
+                         "(....)> \n"
+                         "(lazy)> You moved to area green_woods. You are ready to go do something...\n")
+
+        user_dir = lazy_constants.USER_DIRS_PATH / "test"
+        with open(user_dir / lazy_constants.USER_GENERAL_FILE_NAME) as f:
+            text = f.read()
+        activity_text = re.findall(f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:.*", text)
+        self.assertTrue(len(activity_text) == 1)
+        self.assertEqual(activity_text[0], f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:")
+
+        train.gather()  # make sure that the value is not reset on fail
+        output = testing_utility.capture_print(general_commands.move_area, "green_woods:")
+        self.assertEqual(output,
+                         "(lazy)> Before moving the current activity is checked:\n"
+                         "(lazy)> In total 3600s passed\n"
+                         "(....)> The following things happened while you where away:\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}gathering: +3xp {lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 3 X coin{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found old_bread{lazy_constants.RESET_COLOR}\n"
+                         "(....)> \n"
+                         f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woods:."
+                         f"{lazy_constants.RESET_COLOR}\n")
+
+        user_dir = lazy_constants.USER_DIRS_PATH / "test"
+        with open(user_dir / lazy_constants.USER_GENERAL_FILE_NAME) as f:
+            text = f.read()
+        activity_text = re.findall(f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:.*", text)
+        self.assertTrue(len(activity_text) == 1)
+        self.assertEqual(activity_text[0], f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:gathering")
 
     def test_move_location(self):
-        self.fail()
+        # NOTE: not checked if area is actually written to file, only one area available at the moment
+        random.seed(1)
+        train.gather()  # make sure this value is set to check it is reset
 
-    def test__move(self):
-        self.fail()
+        output = testing_utility.capture_print(general_commands.move_location, "green_woods", "home")
+        self.assertEqual(output,
+                         "(lazy)> Before moving the current activity is checked:\n"
+                         "(lazy)> In total 3600s passed\n"
+                         "(....)> The following things happened while you where away:\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}gathering: +4xp {lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old_bread{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n"
+                         "(....)> \n"
+                         "(lazy)> You moved to location home. You are ready to go do something...\n")
 
-    def test__update(self):
-        self.fail()
+        user_dir = lazy_constants.USER_DIRS_PATH / "test"
+        with open(user_dir / lazy_constants.USER_GENERAL_FILE_NAME) as f:
+            text = f.read()
+        activity_text = re.findall(f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:.*", text)
+        self.assertTrue(len(activity_text) == 1)
+        self.assertEqual(activity_text[0], f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:")
+
+        train.gather()  # make sure that the value is not reset on fail
+        output = testing_utility.capture_print(general_commands.move_location, "green_woods", "homer:")
+        self.assertEqual(output,
+                         "(lazy)> Before moving the current activity is checked:\n"
+                         "(lazy)> In total 3600s passed\n"
+                         "(....)> The following things happened while you where away:\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}gathering: +3xp {lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 3 X coin{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found old_bread{lazy_constants.RESET_COLOR}\n"
+                         "(....)> \n"
+                         f"(lazy)> {lazy_constants.WARNING_COLOR}No location with name homer:."
+                         f"{lazy_constants.RESET_COLOR}\n")
+
+        user_dir = lazy_constants.USER_DIRS_PATH / "test"
+        with open(user_dir / lazy_constants.USER_GENERAL_FILE_NAME) as f:
+            text = f.read()
+        activity_text = re.findall(f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:.*", text)
+        self.assertTrue(len(activity_text) == 1)
+        self.assertEqual(activity_text[0], f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:gathering")
+
+    def test_update(self):
+        # has to be extended and is kind of hard to test properly/consistently
+        pass
