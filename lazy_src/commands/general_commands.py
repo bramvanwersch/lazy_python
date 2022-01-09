@@ -84,7 +84,6 @@ def examine_activity(*args):
 
 
 def examine_item(*args):
-    # TODO add test
     if len(args) == 0:
         lazy_utility.message("Please provide an item name:")
         item_names = [lazy_utility.ask_valid_string()]

@@ -162,6 +162,13 @@ class Test(TestCase):
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No activity with name gather:."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
+    def test_examine_item(self):
+        output, _ = testing_utility.capture_print(general_commands.examine_item, "log", "logger")
+        self.assertEqual(output, "(lazy)> log: This can be used for all sorts of things\n"
+                                 f"(lazy)> {lazy_constants.WARNING_COLOR}No item with name 'logger' "
+                                 f"exists.{lazy_constants.RESET_COLOR}\n")
+
+
     def test_move_area(self):
         # NOTE: not checked if area is actually written to file, only one area available at the moment
         random.seed(1)
