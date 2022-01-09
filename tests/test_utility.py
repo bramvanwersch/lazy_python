@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 import testing_setup
+import testing_utility
 from lazy_src import lazy_utility, lazy_constants
 
 
@@ -39,8 +40,10 @@ class Test(TestCase):
         with open(lazy_constants.TEST_FILE, "w") as f:
             f.write("name1:value1\nname2:value2\n")
 
-        lazy_utility.set_values_in_file(lazy_constants.TEST_FILE, ["name2", "name3"], ["new_value2", "value3"])
-
+        output, _ = testing_utility.capture_print(lazy_utility.set_values_in_file, lazy_constants.TEST_FILE,
+                                                  ["name2", "name3"], ["new_value2", "value3"])
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Failed to set value name3. Not present in "
+                                 f"file test_file.txt.{lazy_constants.RESET_COLOR}\n")
         with open(lazy_constants.TEST_FILE) as f:
             text = f.read()
         self.assertEqual(text, "name1:value1\nname2:new_value2\n")
@@ -63,8 +66,11 @@ class Test(TestCase):
         with open(lazy_constants.TEST_FILE, "w") as f:
             f.write("name1:1\nname2:2\n")
 
-        values = lazy_utility.get_values_from_file(lazy_constants.TEST_FILE, ["name1", "name3"], int)
-
+        output, values = testing_utility.capture_print(lazy_utility.get_values_from_file, lazy_constants.TEST_FILE,
+                                                       ["name1", "name3"], int)
+        # make sure we notice that we ar eretrieving a non existant value
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Failed to retrieve value name3 from "
+                                 f"file test_file.txt.{lazy_constants.RESET_COLOR}\n")
         self.assertEqual(values, [1])
         testing_setup.clear_test_file()
 
@@ -83,7 +89,10 @@ class Test(TestCase):
         with open(lazy_constants.TEST_FILE, "w") as f:
             f.write("name1:1\nname2:2\nname3:1923")
 
-        lazy_utility.remove_lines_from_file(lazy_constants.TEST_FILE, ["name1:1"])
+        output, _ = testing_utility.capture_print(lazy_utility.remove_lines_from_file, lazy_constants.TEST_FILE,
+                                                  ["name1:1", "name4:1923"])
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Failed to remove line name4:1923. Not "
+                                 f"present in file test_file.txt.{lazy_constants.RESET_COLOR}\n")
 
         with open(lazy_constants.TEST_FILE) as f:
             text = f.read()

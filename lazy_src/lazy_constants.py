@@ -10,7 +10,12 @@ GREEN_COLOR = colorama.Fore.GREEN
 QUESTION_COLOR = colorama.Fore.YELLOW
 RESET_COLOR = colorama.Style.RESET_ALL
 
+# value set when running tests
 TESTING = False
+
+# value that can be set to get certain warnings that are not important for the user but are for me
+# also enabled during testing
+DEBUGGING = False
 
 # constants for tests
 TEST_FOLDER = Path(__file__).resolve().parent.parent / "tests" / "test_dump"
@@ -84,8 +89,9 @@ STARTING_LOCATION = "home"
 def set_testing_globals():
     # adjust globals that define files and point them to different directories that are easily cleaned up
     # this is specifically for testing
-    global TESTING, GENERAL_INFO_PATH, ACCOUNT_PATH, USER_DIRS_PATH
+    global TESTING, DEBUGGING, GENERAL_INFO_PATH, ACCOUNT_PATH, USER_DIRS_PATH
     TESTING = True
+    DEBUGGING = True
 
     _test_data_folder = TEST_FOLDER / "data"
     _test_secret_path = _test_data_folder / "secret"

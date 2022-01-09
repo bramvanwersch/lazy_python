@@ -5,7 +5,6 @@ import re
 from lazy_src.commands import general_commands
 from lazy_src.commands import train
 from lazy_src import lazy_constants
-from lazy_src import lazy_utility
 import testing_setup
 import testing_utility
 
@@ -25,10 +24,10 @@ class Test(TestCase):
     def test_check_normal(self):
         random.seed(1)
         # check without
-        output = testing_utility.capture_print(general_commands.check)
+        output, _ = testing_utility.capture_print(general_commands.check)
         self.assertEqual(output, "(lazy)> Nothing to check yet.\n")
         train.gather()  # because testing will go for 3600 seconds
-        output = testing_utility.capture_print(general_commands.check)
+        output, _ = testing_utility.capture_print(general_commands.check)
         self.assertEqual(output,
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
@@ -48,7 +47,7 @@ class Test(TestCase):
         # repeat the gathering to ensure that values are properly added and not overwritten --> because we are testing
         # this can be done by rechecking
 
-        output = testing_utility.capture_print(general_commands.check)
+        output, _ = testing_utility.capture_print(general_commands.check)
         self.assertEqual(output,
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
@@ -70,10 +69,10 @@ class Test(TestCase):
         # because exploring is handled differntly
         random.seed(1)
         # check without
-        output = testing_utility.capture_print(general_commands.check)
+        output, _ = testing_utility.capture_print(general_commands.check)
         self.assertEqual(output, "(lazy)> Nothing to check yet.\n")
         train.explore()  # because testing will go for 3600 seconds
-        output = testing_utility.capture_print(general_commands.check)
+        output, _ = testing_utility.capture_print(general_commands.check)
         self.assertEqual(output,
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
@@ -93,7 +92,7 @@ class Test(TestCase):
         # repeat the gathering to ensure that values are properly added and not overwritten --> because we are testing
         # this can be done by rechecking
 
-        output = testing_utility.capture_print(general_commands.check)
+        output, _ = testing_utility.capture_print(general_commands.check)
         self.assertEqual(output,
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
@@ -109,7 +108,7 @@ class Test(TestCase):
 
     def test_examine_area(self):
         # check normal
-        output = testing_utility.capture_print(general_commands.examine_area, "green_woods")
+        output, _ = testing_utility.capture_print(general_commands.examine_area, "green_woods")
         self.assertEqual(output, "(lazy)> GREEN_WOODS:\n"
                                  "(....)> The starting are. The place I grew up in and call home.\n"
                                  "(....)> Locations:\n"
@@ -117,30 +116,30 @@ class Test(TestCase):
                                  "(....)> - ???: ???\n"
                                  "(....)> - home: A place with good and bad memories\n")
         # check wrong name
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
     def test_examine_location(self):
         # check normal
-        output = testing_utility.capture_print(general_commands.examine_location, "green_woods", "home")
+        output, _ = testing_utility.capture_print(general_commands.examine_location, "green_woods", "home")
         self.assertEqual(output, "(lazy)> HOME:\n"
                                  "(....)> A place with good and bad memories\n"
                                  "(....)> Activities:\n"
                                  "(....)>  - gathering (min. lvl. 0 gathering): There might be some supplies left,"
                                  " on the other hand there is a reason im leaving.\n")
         # check wrong name
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No location with name home:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
     def test_examine_activity(self):
         # check normal
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gathering")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gathering")
         self.assertEqual(output, "(lazy)> GATHERING:\n"
                                  "(....)> There might be some supplies left, on the other hand there is a "
                                  "reason im leaving.\n"
@@ -151,15 +150,15 @@ class Test(TestCase):
                                  "(....)>  - black cape: 1\n"
                                  "(....)>  - leather boots: 1\n")
         # check wrong name
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No location with name home:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
-        output = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gather:")
+        output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woods", "home", "gather:")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No activity with name gather:."
                                  f"{lazy_constants.RESET_COLOR}\n")
 
@@ -168,7 +167,7 @@ class Test(TestCase):
         random.seed(1)
         train.gather()  # make sure this value is set to check it is reset
 
-        output = testing_utility.capture_print(general_commands.move_area, "green_woods")
+        output, _ = testing_utility.capture_print(general_commands.move_area, "green_woods")
         self.assertEqual(output,
                          "(lazy)> Before moving the current activity is checked:\n"
                          "(lazy)> In total 3600s passed\n"
@@ -187,7 +186,7 @@ class Test(TestCase):
         self.assertEqual(activity_text[0], f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:")
 
         train.gather()  # make sure that the value is not reset on fail
-        output = testing_utility.capture_print(general_commands.move_area, "green_woods:")
+        output, _ = testing_utility.capture_print(general_commands.move_area, "green_woods:")
         self.assertEqual(output,
                          "(lazy)> Before moving the current activity is checked:\n"
                          "(lazy)> In total 3600s passed\n"
@@ -211,7 +210,7 @@ class Test(TestCase):
         random.seed(1)
         train.gather()  # make sure this value is set to check it is reset
 
-        output = testing_utility.capture_print(general_commands.move_location, "green_woods", "home")
+        output, _ = testing_utility.capture_print(general_commands.move_location, "green_woods", "home")
         self.assertEqual(output,
                          "(lazy)> Before moving the current activity is checked:\n"
                          "(lazy)> In total 3600s passed\n"
@@ -230,7 +229,7 @@ class Test(TestCase):
         self.assertEqual(activity_text[0], f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:")
 
         train.gather()  # make sure that the value is not reset on fail
-        output = testing_utility.capture_print(general_commands.move_location, "green_woods", "homer:")
+        output, _ = testing_utility.capture_print(general_commands.move_location, "green_woods", "homer:")
         self.assertEqual(output,
                          "(lazy)> Before moving the current activity is checked:\n"
                          "(lazy)> In total 3600s passed\n"

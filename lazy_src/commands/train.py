@@ -28,7 +28,7 @@ def _set_training_skill(skill_name):
     activity_skills = {activity.main_skill.name for activity in location_obj.activities.values()}
     if skill_name not in activity_skills:
         lazy_utility.message(f"Can not train {skill_name} at this location. Choose one of the following: "
-                        f"{','.join(activity_skills)}.")
+                             f"{','.join(activity_skills)}.")
         return
     current_user_dir = lazy_utility.active_user_dir()
     lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["current_activity"],

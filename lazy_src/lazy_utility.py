@@ -61,6 +61,9 @@ def set_values_in_file(file: Union[str, "Path"], names: List[str], values: List[
                     break
             if not added_line:
                 new_text.append(line)
+    for name in uncovered_value_names:
+        lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.SETTING_UNKNOWN_FILE_VALUE, debug_warning=True, value=name,
+                           file=file.name)
     with open(file, "w") as f:
         f.write(''.join(new_text))
 
@@ -99,6 +102,10 @@ def get_values_from_file(file: Union[str, "Path"], names: List[str], value_type:
                     break
             if len(uncovered_names) == 0:
                 break
+    # there should no values be left over
+    for name in uncovered_names:
+        lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.RETRIEVING_UNKNOWN_FILE_VALUE, debug_warning=True,
+                           value=name, file=file.name)
     return values
 
 
@@ -126,6 +133,9 @@ def remove_lines_from_file(file: Union[str, "Path"], lines: List[str], first_onl
                     break
             if not remove_line:
                 new_text.append(line)
+    for value in uncovered_values:
+        lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.REMOVING_UNKNOWN_FILE_VALUE, debug_warning=True,
+                           value=value, file=file.name)
     with open(file, "w") as f:
         f.write(''.join(new_text))
 

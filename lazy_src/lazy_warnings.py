@@ -16,6 +16,16 @@ class LazyWarningMessages:
     INVALID_ACTIVITY = "No activity with name {activity}."
 
 
-def warn(warning_string, **named_formatting):
+class DevelopLazyWarning:
+    # messages not meant for users
+    RETRIEVING_UNKNOWN_FILE_VALUE = "Failed to retrieve value {value} from file {file}."
+    SETTING_UNKNOWN_FILE_VALUE = "Failed to set value {value}. Not present in file {file}."
+    REMOVING_UNKNOWN_FILE_VALUE = "Failed to remove line {value}. Not present in file {file}."
+
+
+def warn(warning_string, debug_warning=False, **named_formatting):
+    if debug_warning:
+        if not lazy_constants.DEBUGGING:
+            return
     warning_string = warning_string.format(**named_formatting)
     lazy_utility._message(warning_string, lazy_constants.WARNING_COLOR)  # noqa
