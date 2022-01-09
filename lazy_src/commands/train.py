@@ -1,6 +1,7 @@
 from lazy_src.commands import _commands
 from lazy_src import lazy_utility
 from lazy_src import lazy_constants
+from lazy_src import lazy_warnings
 from lazy_src import areas
 from lazy_src import skills
 
@@ -23,16 +24,16 @@ def _set_training_skill(skill_name):
     general_commands.check()
     location_obj = areas.get_current_location_object()
     if location_obj is None:
-        lazy_utility.message("No location currently selected.")
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.UNSELECTED_LOCATION)
         return
     activity_skills = {activity.main_skill.name for activity in location_obj.activities.values()}
     if skill_name not in activity_skills:
-        lazy_utility.message(f"Can not train {skill_name} at this location. Choose one of the following: "
-                             f"{','.join(activity_skills)}.")
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ACTIVITY_AT_LOCATION, activity=skill_name,
+                           activities=','.join(activity_skills))
         return
     current_user_dir = lazy_utility.active_user_dir()
-    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, ["current_activity"],
-                                    [skill_name])
+    lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,
+                                    [lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY], [skill_name])
 
     lazy_utility.message(f"Started {skill_name} at {location_obj.name}...")
 

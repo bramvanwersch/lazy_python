@@ -13,7 +13,10 @@ class LazyWarningMessages:
     INVALID_COMMAND_OPTION = "Invalid option provided for {command}. Expected on of: {options}."
     INVALID_AREA = "No area with name {area}."
     INVALID_LOCATION = "No location with name {location}."
+    UNSELECTED_LOCATION = "No location currently selected. Select a location with the move command."
     INVALID_ACTIVITY = "No activity with name {activity}."
+    INVALID_ACTIVITY_AT_LOCATION = "Can not train {activity} at this location. Choose one of the following: " \
+                                   "{activities}."
 
 
 class DevelopLazyWarning:
