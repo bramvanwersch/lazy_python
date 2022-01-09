@@ -83,6 +83,23 @@ def examine_activity(*args):
     _examine(3, *args)
 
 
+def examine_item(*args):
+    # TODO add test
+    if len(args) == 0:
+        lazy_utility.message("Please provide an item name:")
+        item_names = [lazy_utility.ask_valid_string()]
+    else:
+        item_names = args
+    for item in item_names:
+        try:
+            examine_text = items.ITEM_MAPPING[item].examine_text()
+            lazy_utility.message(examine_text)
+        except KeyError:
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, name=item)
+
+
+
+
 def _examine(depth, *args):
     selected_obj = None
     for index in range(depth):
@@ -106,6 +123,8 @@ EXAMINE_COMMANDS.add_command("location", examine_location,
                              "lazy examine location (<area name> <location name>)")
 EXAMINE_COMMANDS.add_command("activity", examine_activity, "Check the loot that you can get from a certain activity.",
                              "lazy examine location (<area name> <location name> <activity name>)")
+EXAMINE_COMMANDS.add_command("item", examine_item, "Examine one or more items by providing item names separated by "
+                                                   "spaces.", "lazy examine item (<item name>)")
 
 
 def _get_area(*args) -> Union[areas.Area, None]:

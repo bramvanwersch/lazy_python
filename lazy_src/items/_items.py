@@ -5,8 +5,12 @@ from lazy_src import lazy_constants
 
 
 class Item(ABC):
-    def __init__(self, name):
+    def __init__(self, name, description):
         self.name = name
+        self.description = description
+
+    def examine_text(self):
+        return f"{self.name}: {self.description}"
 
     def __hash__(self):
         return hash(self.name)
@@ -23,8 +27,8 @@ class GeneralItem(Item):
 
 class FoodItem(Item, ABC):
 
-    def __init__(self, name, health_restored):
-        super().__init__(name)
+    def __init__(self, name, description, health_restored):
+        super().__init__(name, description)
         self._health_restored = health_restored
 
     @property
@@ -34,8 +38,8 @@ class FoodItem(Item, ABC):
 
 class EquipmentItem(Item, ABC):
 
-    def __init__(self, name, armour):
-        super().__init__(name)
+    def __init__(self, name, description, armour):
+        super().__init__(name, description)
         self._armour = armour
 
     @property
@@ -45,8 +49,8 @@ class EquipmentItem(Item, ABC):
 
 class ToolItem(Item, ABC):
 
-    def __init__(self, name, time_reduction, durability):
-        super().__init__(name)
+    def __init__(self, name, description, time_reduction, durability):
+        super().__init__(name, description)
         self._time_reduction = time_reduction
         self._durability = durability
 
@@ -61,8 +65,8 @@ class ToolItem(Item, ABC):
 
 class WeaponItem(Item, ABC):
 
-    def __init__(self, name, damage):
-        super().__init__(name)
+    def __init__(self, name, description, damage):
+        super().__init__(name, description)
         self._damage = damage
 
     @property
