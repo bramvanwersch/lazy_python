@@ -24,11 +24,20 @@ def get_unlocked_location_names(current_area: str = None) -> Set[str]:
 # objects
 class Simulation(ABC):
 
-    SIMULATE_EVERY: int = 60  # seconds
+    SIMULATE_EVERY: int = 60  # always define in seconds
 
     def simulate(self, passed_time: int):
         # passed time is passed in seconds
         xp_dict = skills.get_xps()
+        item_dict = defaultdict(int)
+        for _ in range(int(passed_time / self.SIMULATE_EVERY)):
+            self._simulate_roll(xp_dict, item_dict)
+        return xp_dict, item_dict
+
+    def rate_simulate(self, passed_time: int, starting_xp: int):
+        # method specifically used for rate testing, allows to set starting level
+        xp_dict = {skill.name: starting_xp for skill in skills.Skills.all_skills()}
+
         item_dict = defaultdict(int)
         for _ in range(int(passed_time / self.SIMULATE_EVERY)):
             self._simulate_roll(xp_dict, item_dict)
@@ -46,10 +55,10 @@ class Simulation(ABC):
 class Area:
     SIMULATE_EVERY: int = 60  # seconds
 
-    def __init__(self, name, locations, level, location_discovery_chance, repeated_discover_xp, description=""):
+    def __init__(self, name, locations, required_level, location_discovery_chance, repeated_discover_xp, description=""):
         self.name = name
         self._no_find_xp = repeated_discover_xp
-        self.required_level = level
+        self.required_level = required_level
         self._locations = {location.name: location for location in locations}
         self._unlock_chance = location_discovery_chance
         self.description = description
@@ -106,10 +115,10 @@ class Area:
 
 
 class Location:
-    def __init__(self, name, chance, discover_xp, activities, description=""):
+    def __init__(self, name, discovery_chance, discover_xp, activities, description=""):
         self.name = name
         self.discover_xp = discover_xp
-        self.discovery_chance = chance
+        self.discovery_chance = discovery_chance
         self.description = description
         self._activities = {activity.name: activity for activity in activities}
     
@@ -130,13 +139,13 @@ class Activity(Simulation):
         self,
         name: str,
         main_skill: skills.Skill,
-        base_weight: float,
+        succes_chance: float,
         loot_list: List["Loot"],
         description: str = ""
     ):
         self.name = name
         self._main_skill = main_skill
-        self._succes_chance = base_weight
+        self._succes_chance = succes_chance
         self._loot_table = {loot: loot.roll_weight for loot in loot_list}
         self._level_requirements = 0  # TODO set this based on the loot to check when moving here
         self.description = description
@@ -156,7 +165,7 @@ class Activity(Simulation):
     ):
         all_xp = xp_dict[self._main_skill.name]
         additional_skill_chance = self._main_skill.get_additional_roll_chance(all_xp)
-        main_skill_level = skills.get_level(self._main_skill.name)
+        main_skill_level = skills.xp_to_level(all_xp)
         if random.random() < self._succes_chance + additional_skill_chance:
             elligable_loots = {loot: chance for loot, chance in self._loot_table.items() if
                                loot.required_level <= main_skill_level}
