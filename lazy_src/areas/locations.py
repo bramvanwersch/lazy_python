@@ -147,7 +147,7 @@ class Activity(Simulation):
         self._main_skill = main_skill
         self._succes_chance = succes_chance
         self._loot_table = {loot: loot.roll_weight for loot in loot_list}
-        self._level_requirements = 0  # TODO set this based on the loot to check when moving here
+        self._level_requirement = min([loot.required_level for loot in loot_list])  # minimum level required
         self.description = description
 
     @property
@@ -155,8 +155,8 @@ class Activity(Simulation):
         return self._main_skill
 
     @property
-    def level_requirement(self):
-        return self._level_requirements
+    def required_level(self):
+        return self._level_requirement
 
     def _simulate_roll(
         self,

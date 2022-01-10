@@ -26,10 +26,21 @@ def _set_training_skill(skill_name):
     if location_obj is None:
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.UNSELECTED_LOCATION)
         return
-    activity_skills = {activity.main_skill.name for activity in location_obj.activities.values()}
+    activity_skills = {}
+    for activity in location_obj.activities.values():
+        skill = activity.main_skill
+        if skill in activity_skills:
+            activity_skills[skill] = min(activity_skills[skill], activity.required_level)
+        else:
+            activity_skills[skill] = activity.required_level
     if skill_name not in activity_skills:
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ACTIVITY_AT_LOCATION, activity=skill_name,
-                           activities=','.join(activity_skills))
+                           activities=','.join(list(activity_skills.keys())))
+        return
+    current_skill_level = skills.get_level(skill_name)
+    if activity_skills[skill_name] > current_skill_level:
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.TO_LOW_LEVEL, level=activity_skills[skill_name],
+                           skill=skill_name, value=f"activity {skill_name}")
         return
     current_user_dir = lazy_utility.active_user_dir()
     lazy_utility.set_values_in_file(current_user_dir / lazy_constants.USER_GENERAL_FILE_NAME,

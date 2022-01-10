@@ -97,8 +97,6 @@ def examine_item(*args):
             lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, name=item)
 
 
-
-
 def _examine(depth, *args):
     selected_obj = None
     for index in range(depth):

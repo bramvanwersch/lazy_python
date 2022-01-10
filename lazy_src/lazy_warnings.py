@@ -18,6 +18,7 @@ class LazyWarningMessages:
     INVALID_ACTIVITY_AT_LOCATION = "Can not train {activity} at this location. Choose one of the following: " \
                                    "{activities}."
     INVALID_ITEM_NAME = "No item with name '{name}' exists."
+    TO_LOW_LEVEL = "Level {level} {skill} is required for {value}"
 
 
 class DevelopLazyWarning:
