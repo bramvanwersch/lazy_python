@@ -12,6 +12,7 @@ class LazyWarningMessages:
     NO_USER_MATCHING_PASSWORD = "Password does not match the password for '{username}'."
     INVALID_COMMAND_OPTION = "Invalid option provided for {command}. Expected on of: {options}."
     INVALID_AREA = "No area with name {area}."
+    UNSELECTED_AREA = "No area currently selected. Select an area with the move command."
     INVALID_LOCATION = "No location with name {location}."
     UNSELECTED_LOCATION = "No location currently selected. Select a location with the move command."
     INVALID_ACTIVITY = "No activity with name {activity}."
@@ -20,12 +21,16 @@ class LazyWarningMessages:
     INVALID_ITEM_NAME = "No item with name '{name}' exists."
     TO_LOW_LEVEL = "Level {level} {skill} is required for {value}"
 
+    INVALID_PERSON = "No person with name {name} at location {location}. Choose one of: {people}"
+
 
 class DevelopLazyWarning:
     # messages not meant for users
     RETRIEVING_UNKNOWN_FILE_VALUE = "Failed to retrieve value {value} from file {file}."
     SETTING_UNKNOWN_FILE_VALUE = "Failed to set value {value}. Not present in file {file}."
     REMOVING_UNKNOWN_FILE_VALUE = "Failed to remove line {value}. Not present in file {file}."
+    MISSING_PERSON_FILE = "Person file for {person} is not present."
+    UNKNOWN_PERSON_FILE_SECTION = "No file section with name {name} for person {person}."
 
 
 def warn(warning_string, debug_warning=False, **named_formatting):

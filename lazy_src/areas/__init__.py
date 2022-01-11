@@ -1,6 +1,6 @@
 from typing import Union
 
-from lazy_src.areas.locations import *
+from lazy_src.areas.locations_classes import *
 from lazy_src.areas.green_woods_area_definitions import green_woods
 
 
@@ -52,4 +52,4 @@ def get_current_activity_object() -> Union[None, Activity]:
     return location_obj.activities[current_activity]
 
 
-AREA_MAPPING: Dict[str, locations.Area] = {area.name: area for area in Areas.all_areas()}
+AREA_MAPPING: Dict[str, locations_classes.Area] = {area.name: area for area in Areas.all_areas()}

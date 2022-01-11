@@ -1,6 +1,7 @@
-from lazy_src.areas.locations import *
+from lazy_src.areas.locations_classes import *
 from lazy_src.items import Items
 from lazy_src.skills import Skills
+from lazy_src.people import People
 
 # home
 _old_bread_loot = Loot({Items.OLD_BREAD: 1}, {}, weight=1, required_level=0)
@@ -38,27 +39,27 @@ _home_loots = [_1_coin_loot, _old_bread_loot, _forgotten_stuff]
 _lake_fish_loots = [_old_boot_loot, _shrimp_loot, _double_shrimp_loot, _trout_loot, _salmon_loot]
 
 # activities
-_old_tree_gather = Activity(Skills.GATHERING.name, Skills.GATHERING, succes_chance=0.25, loot_list=_tree_gather_loots,
+_old_tree_gather = Activity(Skills.GATHERING, succes_chance=0.25, loot_list=_tree_gather_loots,
                             description="There might be some things left around by other people.")
-_old_tree_chopping = Activity(Skills.WOODCUTTING.name, Skills.WOODCUTTING, succes_chance=0.25,
+_old_tree_chopping = Activity(Skills.WOODCUTTING, succes_chance=0.25,
                               loot_list=_tree_woodcut_loots,
                               description="The old tree can be chopped it never seems to get smaller though.")
 _old_tree_activities = [_old_tree_gather, _old_tree_chopping]
 
-_home_gather = Activity(Skills.GATHERING.name, Skills.GATHERING, succes_chance=0.05, loot_list=_home_loots,
+_home_gather = Activity(Skills.GATHERING, succes_chance=0.05, loot_list=_home_loots,
                         description="There might be some supplies left, on the other hand there is a reason im leaving.")
 
-_lake_fish_activity = Activity(Skills.FISHING.name, Skills.FISHING, succes_chance=0.25, loot_list=_lake_fish_loots,
+_lake_fish_activity = Activity(Skills.FISHING, succes_chance=0.25, loot_list=_lake_fish_loots,
                                description="The lake is full of fish. Not many of them are interesting though.")
-
 
 # locations
 _old_tree_location = Location("old_tree", discovery_chance=0.4, discover_xp=50, activities=_old_tree_activities,
+                              people=[],
                               description="An old looking tree. Does not look like there is a lot of interesting "
                                           "things to find here.")
-_small_lake = Location("small_lake", discovery_chance=0.1, discover_xp=50, activities=[_lake_fish_activity],
+_small_lake = Location("small_lake", discovery_chance=0.1, discover_xp=50, activities=[_lake_fish_activity], people=[],
                        description="The small lake close to town, maybe there are some fish left")
-_player_home = Location("home", discovery_chance=0.0, discover_xp=0, activities=[_home_gather],
+_player_home = Location("home", discovery_chance=0.0, discover_xp=0, activities=[_home_gather], people=[People.MOM],
                         description="A place with good and bad memories")
 
 _all_locations = [_old_tree_location, _small_lake, _player_home]

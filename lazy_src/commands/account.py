@@ -79,6 +79,8 @@ def _create_account(username, password):
     os.mkdir(active_user_dir / lazy_constants.USER_AREA_DIR)
     create_area_file(lazy_constants.STARTING_AREA, username, [lazy_constants.STARTING_LOCATION])
 
+    os.mkdir(active_user_dir / lazy_constants.USER_PEOPLE_DIR)
+
 
 def create_area_file(area_name, username=None, unlocked_areas=None):
     # put all area specific values in this file. Set expected defined values here

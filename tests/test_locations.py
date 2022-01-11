@@ -1,7 +1,7 @@
 from unittest import TestCase
 import random
 
-from lazy_src.areas import locations, green_woods_area_definitions
+from lazy_src.areas import locations_classes, green_woods_area_definitions
 from lazy_src import skills
 from lazy_src import lazy_constants
 import testing_setup
@@ -20,7 +20,7 @@ class TestLocation(TestCase):
         testing_setup.remove_test_folder()
 
     def test_get_unlocked_location_names(self):
-        unlocked_set = locations.get_unlocked_location_names()
+        unlocked_set = locations_classes.get_unlocked_location_names()
         self.assertEqual({"home"}, unlocked_set)
 
     def test_area_exploration(self):

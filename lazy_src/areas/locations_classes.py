@@ -8,15 +8,17 @@ from lazy_src import lazy_constants
 from lazy_src import skills
 from lazy_src import items
 from lazy_src import lazy_utility
+from lazy_src import people
 
 
 # general functions
 def get_unlocked_location_names(current_area: str = None) -> Set[str]:
     if current_area is None:
         current_area = lazy_utility.get_values_from_file(lazy_utility.active_user_dir() /
-                                                         lazy_constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
+                                                         lazy_constants.USER_GENERAL_FILE_NAME,
+                                                         [lazy_constants.USERFILE_GENERAL_CURRENT_AREA])[0]
     unlocked_locations = lazy_utility.get_values_from_file(lazy_utility.active_user_area_dir() / current_area,
-                                                           ["unlocked_locations"])[0]
+                                                           [lazy_constants.USERFILE_AREA_UNLOCKED_LOCATIONS])[0]
     unlocked_locations = set(unlocked_locations.split(","))
     return unlocked_locations
 
@@ -55,7 +57,8 @@ class Simulation(ABC):
 class Area:
     SIMULATE_EVERY: int = 60  # seconds
 
-    def __init__(self, name, locations, required_level, location_discovery_chance, repeated_discover_xp, description=""):
+    def __init__(self, name, locations, required_level, location_discovery_chance, repeated_discover_xp,
+                 description=""):
         self.name = name
         self._no_find_xp = repeated_discover_xp
         self.required_level = required_level
@@ -74,7 +77,7 @@ class Area:
         lazy_utility.message(description[:-1])  # remove last newline
 
     def perform_activity_rolls(self, location, activity, passed_time):
-        if activity == "exploring":
+        if activity == skills.Skills.EXPLORING.name:
             unlocked_locations = get_unlocked_location_names()
             return self._discover_areas(passed_time, unlocked_locations)
         else:
@@ -108,23 +111,30 @@ class Area:
                 else:
                     xp_dict[skills.Skills.EXPLORING.name] += self._no_find_xp
         current_area = lazy_utility.get_values_from_file(lazy_utility.active_user_dir() /
-                                                         lazy_constants.USER_GENERAL_FILE_NAME, ["current_area"])[0]
-        lazy_utility.set_values_in_file(lazy_utility.active_user_area_dir() / current_area, ["unlocked_locations"],
+                                                         lazy_constants.USER_GENERAL_FILE_NAME,
+                                                         [lazy_constants.USERFILE_GENERAL_CURRENT_AREA])[0]
+        lazy_utility.set_values_in_file(lazy_utility.active_user_area_dir() / current_area,
+                                        [lazy_constants.USERFILE_AREA_UNLOCKED_LOCATIONS],
                                         [','.join(unlocked_locations)])
         return xp_dict, item_dict
 
 
 class Location:
-    def __init__(self, name, discovery_chance, discover_xp, activities, description=""):
+    def __init__(self, name, discovery_chance, discover_xp, activities, people, description=""):
         self.name = name
         self.discover_xp = discover_xp
         self.discovery_chance = discovery_chance
         self.description = description
         self._activities = {activity.name: activity for activity in activities}
+        self._people = {person.name: person for person in people}
     
     @property
     def activities(self) -> Dict[str, "Activity"]:
         return self._activities
+
+    @property
+    def people(self) -> Dict[str, "people.Person"]:
+        return self._people
 
     def examine(self):
         description = f"{self.name.upper()}:\n{self.description}\nActivities:\n"
@@ -137,18 +147,20 @@ class Location:
 class Activity(Simulation):
     def __init__(
         self,
-        name: str,
         main_skill: skills.Skill,
         succes_chance: float,
         loot_list: List["Loot"],
         description: str = ""
     ):
-        self.name = name
         self._main_skill = main_skill
         self._succes_chance = succes_chance
         self._loot_table = {loot: loot.roll_weight for loot in loot_list}
         self._level_requirement = min([loot.required_level for loot in loot_list])  # minimum level required
         self.description = description
+
+    @property
+    def name(self):
+        return self._main_skill.name
 
     @property
     def main_skill(self):

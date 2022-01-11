@@ -5,7 +5,6 @@ from lazy_src.commands import account
 import testing_setup
 import testing_utility
 from lazy_src import lazy_constants
-from lazy_src import lazy_warnings
 
 
 class Test(TestCase):
@@ -54,6 +53,8 @@ class Test(TestCase):
             self.assertEqual(text, f'unlocked_locations:{lazy_constants.STARTING_LOCATION}\n')
         except IOError:
             self.fail("starting area file is missing on new account creation")
+
+        self.assertTrue(Path(user_file_dir / lazy_constants.USER_PEOPLE_DIR).exists())
 
         # test double account name
         output, _ = testing_utility.capture_print(account.new, "test")

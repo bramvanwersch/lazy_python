@@ -161,6 +161,13 @@ def message_question(string, continue_last=False):
     _message(string, lazy_constants.QUESTION_COLOR, continue_last)
 
 
+def message_person(string, person_name, continue_last=False):
+    if person_name == "me":
+        _message(f"{person_name} say: {string}", color=lazy_constants.CONVERSATION_COLOR, continue_last=continue_last)
+    else:
+        _message(f"{person_name} sais: {string}", color=lazy_constants.CONVERSATION_COLOR, continue_last=continue_last)
+
+
 def message_loot(string, continue_last=False):
     _message(string, lazy_constants.GREEN_COLOR, continue_last)
 

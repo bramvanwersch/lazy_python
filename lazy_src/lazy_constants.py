@@ -9,9 +9,10 @@ WARNING_COLOR = colorama.Fore.RED
 GREEN_COLOR = colorama.Fore.GREEN
 QUESTION_COLOR = colorama.Fore.YELLOW
 RESET_COLOR = colorama.Style.RESET_ALL
+CONVERSATION_COLOR = colorama.Fore.LIGHTBLUE_EX
 
 # value set when running tests
-TESTING = False
+TESTING = True
 
 # value that can be set to get certain warnings that are not important for the user but are for me
 # also enabled during testing
@@ -24,23 +25,25 @@ TEST_FILE = TEST_FOLDER / "test_file.txt"
 # user warning messages
 BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
 
-
+# project related data
 # path where this project is located for git updating
 PROJECT_BASE_PATH = Path(__file__).resolve().parent
+# conversation trees of people
+PERSON_FOLDER = PROJECT_BASE_PATH / "people" / "people_files"
 
-# all user files
+
+# user related data
 appdata = Path(appdirs.AppDirs().user_data_dir)  # appdata folder
 _lazy_appdata_folder = appdata / "lazy"
 if not _lazy_appdata_folder.exists():
     os.mkdir(_lazy_appdata_folder)
 
 _data_folder = _lazy_appdata_folder / "data"
-_secret_path = _data_folder / "secret"
-GENERAL_INFO_PATH = _secret_path / "general.txt"
-ACCOUNT_PATH = _secret_path / "accounts.txt"
-USER_DIRS_PATH = _secret_path / "users"
+GENERAL_INFO_PATH = _data_folder / "general.txt"
+ACCOUNT_PATH = _data_folder / "accounts.txt"
+USER_DIRS_PATH = _data_folder / "users"
 
-# file name varaibles
+# file name variables
 USERFILE_GENERAL_CURRENT_AREA = "current_area"
 USERFILE_GENERAL_CURRENT_LOCATION = "current_location"
 USERFILE_GENERAL_CURRENT_ACTIVITY = "current_activity"
@@ -51,9 +54,6 @@ FILE_GENERAL_ACTIVE_USER = "active_user"
 # ensure the full data folders are present
 if not _data_folder.exists():
     os.mkdir(_data_folder)
-
-if not _secret_path.exists():
-    os.mkdir(_secret_path)
 
 if not USER_DIRS_PATH.exists():
     os.mkdir(USER_DIRS_PATH)
@@ -71,6 +71,7 @@ USER_GENERAL_FILE_NAME = "general.txt"
 USER_LEVEL_FILE_NAME = "levels.txt"
 USER_INVENTORY_FILE_NAME = "inventory.txt"
 USER_AREA_DIR = "areas"
+USER_PEOPLE_DIR = "people"
 
 # other
 XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299, 337, 379, 425, 476, 531, 592, 659,
@@ -94,16 +95,12 @@ def set_testing_globals():
     DEBUGGING = True
 
     _test_data_folder = TEST_FOLDER / "data"
-    _test_secret_path = _test_data_folder / "secret"
-    GENERAL_INFO_PATH = _test_secret_path / "general.txt"
-    ACCOUNT_PATH = _test_secret_path / "accounts.txt"
-    USER_DIRS_PATH = _test_secret_path / "users"
+    GENERAL_INFO_PATH = _test_data_folder / "general.txt"
+    ACCOUNT_PATH = _test_data_folder / "accounts.txt"
+    USER_DIRS_PATH = _test_data_folder / "users"
 
     if not _test_data_folder.exists():
         os.mkdir(_test_data_folder)
-
-    if not _test_secret_path.exists():
-        os.mkdir(_test_secret_path)
 
     if not USER_DIRS_PATH.exists():
         os.mkdir(USER_DIRS_PATH)

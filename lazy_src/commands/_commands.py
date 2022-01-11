@@ -21,7 +21,7 @@ class Command:
     def print_help(self, *args):
         if len(self._subcommands) == 1:
             lazy_utility.message(f"This is the help message for {self.name}. This command has no further subcommands."
-                            f" The help for this command is:\n{self.help_text}")
+                                 f" The help for this command is:\n{self.help_text}")
             return
         full_help_text = f"This is the help message for {self.name}. These are the available commands:\n"
         for key in self._subcommands:
@@ -40,10 +40,10 @@ class Command:
                 return self._own_command()
 
             lazy_utility.message(f"{self.name} expects at least 1 argument: Choose one of "
-                            f"{', '.join(self._subcommands.keys())}")
+                                 f"{', '.join(self._subcommands.keys())}")
             return
         if args[0] not in self._subcommands:
             lazy_utility.message(f"{self.name} expects at least any 1 of these arguments: "
-                            f"{', '.join(self._subcommands.keys())}")
+                                 f"{', '.join(self._subcommands.keys())}")
             return
         return self._subcommands[args[0]](*args[1:])  # noqa
