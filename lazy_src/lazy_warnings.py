@@ -29,8 +29,11 @@ class DevelopLazyWarning:
     RETRIEVING_UNKNOWN_FILE_VALUE = "Failed to retrieve value {value} from file {file}."
     SETTING_UNKNOWN_FILE_VALUE = "Failed to set value {value}. Not present in file {file}."
     REMOVING_UNKNOWN_FILE_VALUE = "Failed to remove line {value}. Not present in file {file}."
+
     MISSING_PERSON_FILE = "Person file for {person} is not present."
     UNKNOWN_PERSON_FILE_SECTION = "No file section with name {name} for person {person}."
+    INCOMPLETE_PERSON_LINE = "Person {name} encountered an invalid line: {line}."
+    INVALID_RESPONSE_TYPE = "No response with type {type} for person {name}"
 
 
 def warn(warning_string, debug_warning=False, **named_formatting):

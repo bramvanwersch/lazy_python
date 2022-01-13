@@ -1,6 +1,8 @@
 >BEHAVIOUR
-0;Hey darling how are you doing? Me and dad are so glad you are going on an adventure. Don't forget to talk to dad he has some things for you.;1
-1;Thanks mom!;END
+0;Hey darling me and dad are so glad you are going on an adventure. We realy need the money son! Don't forget to talk to dad he has some things for you.;1;;
+1;Thanks mom!|I dont want to go on and adventure.;2 3;player;ANSWER
+2;;;;
+3;Son you have to! Keep your head high and don't give up!;;;
 
 >STATS
 

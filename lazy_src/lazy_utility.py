@@ -153,8 +153,8 @@ def active_user_area_dir(username: Union[None, str] = None) -> "Path":
     return active_user_dir(username) / lazy_constants.USER_AREA_DIR
 
 
-def message(string, continue_last=False):
-    _message(string, continue_last=continue_last)
+def message(string, continue_last=False, color=''):
+    _message(string, continue_last=continue_last, color=color)
 
 
 def message_question(string, continue_last=False):
