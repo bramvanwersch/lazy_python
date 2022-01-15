@@ -50,7 +50,7 @@ def get_levels(xps: Dict[str, int] = None) -> Dict[str, int]:
     return level_dict
 
 
-def get_level(name) -> int:
+def get_level(name: str) -> int:
     user_dir = lazy_utility.active_user_dir()
     xp = lazy_utility.get_values_from_file(user_dir / lazy_constants.USER_LEVEL_FILE_NAME, [name])[0]
     return xp_to_level(int(xp))

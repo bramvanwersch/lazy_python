@@ -1,3 +1,5 @@
+import traceback
+
 from lazy_src import lazy_constants
 from lazy_src import lazy_utility
 
@@ -44,5 +46,7 @@ def warn(warning_string, debug_warning=False, **named_formatting):
     if debug_warning:
         if not lazy_constants.DEBUGGING:
             return
+        else:
+            traceback.print_stack()
     warning_string = warning_string.format(**named_formatting)
     lazy_utility._message(warning_string, lazy_constants.WARNING_COLOR)  # noqa

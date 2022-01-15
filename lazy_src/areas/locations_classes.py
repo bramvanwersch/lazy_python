@@ -139,7 +139,7 @@ class Location:
     def examine(self):
         description = f"{self.name.upper()}:\n{self.description}\nActivities:\n"
         for activity_name, activity in self._activities.items():
-            description += f" - {activity_name} (min. lvl. {activity.level_requirement} " \
+            description += f" - {activity_name} (min. lvl. {activity.required_level} " \
                            f"{activity.main_skill.name}): {activity.description}\n"
         lazy_utility.message(description[:-1])  # remove last newline
 
@@ -163,7 +163,7 @@ class Activity(Simulation):
         return self._main_skill.name
 
     @property
-    def main_skill(self):
+    def main_skill(self) -> skills.Skill:
         return self._main_skill
 
     @property

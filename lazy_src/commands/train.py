@@ -19,7 +19,8 @@ def explore(*_):
     lazy_utility.message(f"Started exploring {current_user_area}...")
 
 
-def _set_training_skill(skill_name):
+def _set_training_skill(skill_object):
+    skill_name = skill_object.name
     # make sure to check the current activity
     general_commands.check()
     location_obj = areas.get_current_location_object()
@@ -28,14 +29,14 @@ def _set_training_skill(skill_name):
         return
     activity_skills = {}
     for activity in location_obj.activities.values():
-        skill = activity.main_skill
-        if skill in activity_skills:
-            activity_skills[skill] = min(activity_skills[skill], activity.required_level)
+        skill_name = activity.main_skill.name
+        if skill_name in activity_skills:
+            activity_skills[skill_name] = min(activity_skills[skill_name], activity.required_level)
         else:
-            activity_skills[skill] = activity.required_level
+            activity_skills[skill_name] = activity.required_level
     if skill_name not in activity_skills:
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ACTIVITY_AT_LOCATION, activity=skill_name,
-                           activities=','.join(list(activity_skills.keys())))
+                           activities=','.join(list(s.name for s in activity_skills.keys())))
         return
     current_skill_level = skills.get_level(skill_name)
     if activity_skills[skill_name] > current_skill_level:
@@ -50,15 +51,15 @@ def _set_training_skill(skill_name):
 
 
 def gather(*_):
-    _set_training_skill(skills.Skills.GATHERING.name)
+    _set_training_skill(skills.Skills.GATHERING)
 
 
 def woodcut(*_):
-    _set_training_skill(skills.Skills.WOODCUTTING.name)
+    _set_training_skill(skills.Skills.WOODCUTTING)
 
 
 def fish(*_):
-    _set_training_skill(skills.Skills.FISHING.name)
+    _set_training_skill(skills.Skills.FISHING)
 
 
 TRAINING_COMMANDS = _commands.Command("train", description="The train command is used to train various skills. The "

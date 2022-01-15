@@ -1,4 +1,4 @@
-from lazy_src.people.people_class import *
+from lazy_src.people.people import *
 
 
 class People:
