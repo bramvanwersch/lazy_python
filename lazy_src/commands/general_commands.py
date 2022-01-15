@@ -269,4 +269,4 @@ def _talk(*args):
 
 INTERACT_COMMANDS = _commands.Command("interact", description="Interact with people or things in a location")
 INTERACT_COMMANDS.add_command("talk", _talk, "Talk to a person at the location you are at.",
-                              "lazy talk (<person name>)")
+                              "lazy interact talk (<person name>)")

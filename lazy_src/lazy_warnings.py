@@ -33,7 +33,11 @@ class DevelopLazyWarning:
     MISSING_PERSON_FILE = "Person file for {person} is not present."
     UNKNOWN_PERSON_FILE_SECTION = "No file section with name {name} for person {person}."
     INCOMPLETE_PERSON_LINE = "Person {name} encountered an invalid line: {line}."
-    INVALID_RESPONSE_TYPE = "No response with type {type} for person {name}"
+    INVALID_RESPONSE_TYPE = "No response with type '{type}' for person '{name}'."
+    INCOMPLETE_TIME_PATTERN_LINE = "Invalid time_pattern line '{line}' for person '{name}'."
+    INVALID_TIME = "Invalid time '{time}' for person '{name}'."
+    INCOMPLETE_PERSON_FILE = "Person file for person '{name}' is missing required information: '{info}'"
+    INVALID_LOGIC = "Person file for person '{name}' contains invalid logic for line '{line}'. {extra}"
 
 
 def warn(warning_string, debug_warning=False, **named_formatting):

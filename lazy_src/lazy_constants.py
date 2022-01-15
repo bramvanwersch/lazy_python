@@ -16,7 +16,7 @@ TESTING = True
 
 # value that can be set to get certain warnings that are not important for the user but are for me
 # also enabled during testing
-DEBUGGING = False
+DEBUGGING = True
 
 # constants for tests
 TEST_FOLDER = Path(__file__).resolve().parent.parent / "tests" / "test_dump"

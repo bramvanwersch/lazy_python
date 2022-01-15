@@ -1,9 +1,24 @@
->BEHAVIOUR
+>>>BEHAVIOUR
+IF ACTIVITY.sleeping:
+0;Mom is sleeping I better not talk to her;;player;
+ELIF ACTIVITY.cooking:
+0;I am cooking right now son, I'm very busy. Please ask your dad.;1;;
+1;Ok mom.;;;
+ELSE:
 0;Hey darling me and dad are so glad you are going on an adventure. We realy need the money son! Don't forget to talk to dad he has some things for you.;1;;
 1;Thanks mom!|I dont want to go on and adventure.;2 3;player;ANSWER
-2;;;;
+2;Bye Son.;;;
 3;Son you have to! Keep your head high and don't give up!;;;
 
->STATS
 
->TIME_PATTERNS
+>>>STATS
+health:10
+base_friendship:10
+
+>>>TIME_PATTERNS
+0:sleeping
+7:cooking
+10:cleaning
+12:cooking
+18:cooking
+22:sleeping
