@@ -18,6 +18,8 @@ TESTING = True
 # also enabled during testing
 DEBUGGING = True
 
+SHOW_WARN_TRACEBACK = True
+
 # constants for tests
 TEST_FOLDER = Path(__file__).resolve().parent.parent / "tests" / "test_dump"
 TEST_FILE = TEST_FOLDER / "test_file.txt"
@@ -90,9 +92,10 @@ STARTING_LOCATION = "home"
 def set_testing_globals():
     # adjust globals that define files and point them to different directories that are easily cleaned up
     # this is specifically for testing
-    global TESTING, DEBUGGING, GENERAL_INFO_PATH, ACCOUNT_PATH, USER_DIRS_PATH
+    global TESTING, DEBUGGING, GENERAL_INFO_PATH, ACCOUNT_PATH, USER_DIRS_PATH, SHOW_WARN_TRACEBACK
     TESTING = True
     DEBUGGING = True
+    SHOW_WARN_TRACEBACK = False  # makes it less spammy
 
     _test_data_folder = TEST_FOLDER / "data"
     GENERAL_INFO_PATH = _test_data_folder / "general.txt"

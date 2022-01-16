@@ -2,9 +2,20 @@ from unittest import TestCase
 
 from lazy_src.people import people
 from lazy_src import lazy_constants
+import testing_utility
+import testing_setup
 
 
 class TestPerson(TestCase):
+
+    @classmethod
+    def setUp(cls) -> None:
+        testing_setup.setup_test_folder()
+
+    @classmethod
+    def tearDown(cls) -> None:
+        testing_setup.remove_test_folder()
+
     def test_examine(self):
         self.fail()
 
@@ -22,6 +33,15 @@ class TestPerson(TestCase):
 
 
 class TestResponseTree(TestCase):
+
+    @classmethod
+    def setUp(cls) -> None:
+        testing_setup.setup_test_folder()
+
+    @classmethod
+    def tearDown(cls) -> None:
+        testing_setup.remove_test_folder()
+
     def test_conversate(self):
         self.fail()
 
@@ -36,28 +56,114 @@ class TestResponseTree(TestCase):
 
 
 class TestLogicStatement(TestCase):
+
+    @classmethod
+    def setUp(cls) -> None:
+        testing_setup.setup_test_folder()
+
+    @classmethod
+    def tearDown(cls) -> None:
+        testing_setup.remove_test_folder()
+
     def test_read_statement(self):
         # simple instantiation
-        statement = people._LogicStatement(1, "NOT ACTIVIES.working", "test")
+        statement = people._LogicStatement(1, "ACTIVITY.working", "test")
         self.assertEqual(statement._statement_connector, "OR")
-        self.assertEqual(statement._statement_parts, [["NOT ACTIVIES.working"]])
+        self.assertEqual(statement._statement_parts, [["ACTIVITY.working"]])
 
-        # more difficult
-        statement = people._LogicStatement(1, "NOT ACTIVIES.working AND MEMORY.time", "test")
+        # not statement
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working", "test")
         self.assertEqual(statement._statement_connector, "OR")
-        self.assertEqual(statement._statement_parts, [["NOT ACTIVIES.working"]])
+        self.assertEqual(statement._statement_parts, [["NOT", "ACTIVITY.working"]])
+
+        # use integer comparissons
+        statement = people._LogicStatement(1, "PLAYER.money > 50", "test")
+        self.assertEqual(statement._statement_connector, "OR")
+        # player money is set to 100 for testing
+        self.assertEqual(statement._statement_parts, [[100, ">", "50"]])
+
+        # and statement
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND NOT ACTIVITY.sleeping", "test")
+        self.assertEqual(statement._statement_connector, "AND")
+        self.assertEqual(statement._statement_parts, [["NOT", "ACTIVITY.working"], ["NOT", "ACTIVITY.sleeping"]])
+
+        # or statement
+        statement = people._LogicStatement(1, "NOT ACTIVITY.testing OR NOT ACTIVITY.sleeping", "test")
+        self.assertEqual(statement._statement_connector, "OR")
+        self.assertEqual(statement._statement_parts, [["NOT", "ACTIVITY.testing"], ["NOT", "ACTIVITY.sleeping"]])
+
+    def test_fail_read_statement(self):
+        # testing if incorrect logic is catched
+
+        # wrong keyword
+        output, statement = testing_utility.capture_print(people._LogicStatement, 1, "ACTIVIY.working", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains "
+                                 f"invalid logic for line 'ACTIVIY.working'. Invalid constant or integer provided"
+                                 f"{lazy_constants.RESET_COLOR}\n")
+
+        # mixing AND and OR
+        output, statement = testing_utility.capture_print(
+            people._LogicStatement, 1, "ACTIVITY.working AND ACTIVITY.testing OR NOT ACTIVITY.testing", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains "
+                                 f"invalid logic for line 'ACTIVITY.working AND ACTIVITY.testing OR NOT "
+                                 f"ACTIVITY.testing'. Cannot mix statement connectors{lazy_constants.RESET_COLOR}\n")
+
+        # wrong integer comparisson
+        output, statement = testing_utility.capture_print(
+            people._LogicStatement, 1, "PLAYER.money > test", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains "
+                                 f"invalid logic for line 'PLAYER.money > test'. Invalid constant or integer provided"
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
     def test_get_behaviour_tree(self):
-        self.fail()
+        # simple test succes
+        statement = people._LogicStatement(1, "ACTIVITY.working", "test")
+        response = people._ReplyResponse(1, ["hey"], "", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("working")
+        self.assertEqual(behaviour_tree, {1: response})
 
-    def test_set_behaviour_tree(self):
-        self.fail()
+        # make sure nothing is returned
+        statement = people._LogicStatement(1, "ACTIVITY.working", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, None)
 
-    def test_set_next_statement(self):
-        self.fail()
+        # make sure simple inverse works
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, {1: response})
+
+        # make sure nothing is returned
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("working")
+        self.assertEqual(behaviour_tree, None)
+
+        # use of or
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working OR ACTIVITY.walking", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, {1: response})
+
+        # also make sure it fails
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working OR ACTIVITY.walking", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("working")
+        self.assertEqual(behaviour_tree, None)
 
 
 class TestTimeActivities(TestCase):
+
+    @classmethod
+    def setUp(cls) -> None:
+        testing_setup.setup_test_folder()
+
+    @classmethod
+    def tearDown(cls) -> None:
+        testing_setup.remove_test_folder()
+
     def test_get_current_activity(self):
         self.fail()
 

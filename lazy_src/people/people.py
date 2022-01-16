@@ -9,6 +9,34 @@ from lazy_src import lazy_warnings
 
 
 # TODO add tests
+#  Add player stats where player specific values can be requested
+
+class PlayerValues:
+    # convenience functions for getting player specific values
+
+    @classmethod
+    def name(cls):
+        active_user = lazy_utility.get_values_from_file(lazy_constants.GENERAL_INFO_PATH,
+                                                        [lazy_constants.FILE_GENERAL_ACTIVE_USER])[0]
+        return active_user
+
+    @classmethod
+    def money(cls):
+        # TODO make actual implementation
+        if lazy_constants.TESTING:
+            return 100
+        raise NotImplemented()
+
+    @classmethod
+    def ask_value(cls, value: str):
+        if value == "money":
+            return cls.money()
+        elif value == "name":
+            return cls.name()
+        else:
+            lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.UNKNOWN_PLAYER_VALUE, debug_warning=True, name=value)
+        return None
+
 
 class Person:
     # person located at a location, can be used to talk to or sell stuff
@@ -39,7 +67,7 @@ class Person:
     def talk(self):
         now = datetime.datetime.now()
         activity = self._time_activity_table.get_current_activity(now.hour)
-        self._response_tree.conversate(activity, None)
+        self._response_tree.conversate(activity)
 
     def _read_person_file(self):
         person_file = lazy_constants.PERSON_FOLDER / self.name
@@ -90,15 +118,16 @@ class _ResponseTree:
         # possible behaviour trees chosen based on a statement that is tested based on memory and activity
         self.logic_paths = self._read_behavior(text)
 
-    def conversate(self, activity, memory):
+    def conversate(self, activity):
+        # TODO implement player specific values
         # all separate paths all are tested consecutively
         for logic_path in self.logic_paths:
-            behaviour_tree = logic_path.get_behaviour_tree(activity, memory)
+            behaviour_tree = logic_path.get_behaviour_tree(activity)
             # no statement in path satisfied
             if behaviour_tree is None:
                 continue
             response_id = "0"
-            while response_id != -1:
+            while response_id != _Response.END_CONVERSATION_ID:
                 response_id = behaviour_tree[response_id].trigger()
 
     def _read_behavior(self, text):
@@ -185,82 +214,125 @@ class _LogicStatement:
     # saves chains of elif logic pushing to the next statement if statement evaluates to false
     person: str
     id: int
-    _statement_connector: str
+    _statement_connector: Union[str, None]
     _statement_parts: List[List[str]]
     _next_statement: Union[None, "_LogicStatement"]
     _behaviour_tree: Union[None, Dict[int, "_Response"]]
 
-    __ACTIVITY_NAME = "ACTIVITY"
-    __MEMORY_NAME = "MEMORY"
+    __ACTIVITY_NAME = "ACTIVITY"  # statements that are replaced with a boolean relating to activity
+    __PLAYER_NAME = "PLAYER"  # statements that are replaced with player specific stats
 
     __INVERSE = "NOT"
     __AND = "AND"
     __OR = "OR"
     __BIGGER_THEN = ">"
     __SMALLER_THEN = "<"
+    __EQUALS = "=="
+
+    __ALL_ALLOWED_CONSTANTS = {__ACTIVITY_NAME, __INVERSE, __BIGGER_THEN, __SMALLER_THEN, __EQUALS}
+    __COMPARISSON_OPERATORS = {__EQUALS, __BIGGER_THEN, __SMALLER_THEN}
 
     def __init__(self, id_, statement, person):
         self.person = person
         self.id = id_
-        self._statement_connector = self.__OR
-        self._statement_parts = self._read_statement(statement)
+        self._statement_connector = None  # defaults to OR if no further info is provided
+        self._statement_parts = self._read_statements(statement)
 
-        self._next_statement = None  # next logic statment on evaluating false, degfault is no next statement
+        self._next_statement = None  # next logic statment on evaluating false, default is no next statement
         self._behaviour_tree = None
 
-    def _read_statement(self, statement: str):
-        statment_values = statement.strip().split()
-        statement_parts = []
+    def _read_statements(self, statements: str):
+        statments_values = statements.strip().split()
+        statements_parts = []
         current_statement = []
-        for value in statment_values:
+        for value in statments_values:
             if value in (self.__AND, self.__OR):
                 if self._statement_connector is None:
                     self._statement_connector = value
                 elif self._statement_connector != value:
                     lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_LOGIC, debug_warning=True,
-                                       name=self.person, line=statement, extra="Cannot mix statement connectors")
+                                       name=self.person, line=statements, extra="Cannot mix statement connectors")
                     break
-                if len(current_statement) > 0:
-                    statement_parts.append(current_statement)
-                    current_statement = []
+                self.__add_statement(current_statement, statements_parts)
+                current_statement = []
+            elif value.startswith(self.__PLAYER_NAME):
+                value = value.split(".")[1]
+                value = PlayerValues.ask_value(value)
+                if value is not None:
+                    current_statement.append(value)
             else:
+                if value.split('.')[0] not in self.__ALL_ALLOWED_CONSTANTS:
+                    if not value.isdigit():
+                        lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_LOGIC, debug_warning=True,
+                                           name=self.person, line=statements,
+                                           extra="Invalid constant or integer provided")
+                        continue
                 current_statement.append(value)
-        if len(current_statement) > 0:
-            statement_parts.append(current_statement)
-        return statement_parts
+        self.__add_statement(current_statement, statements_parts)
+        if self._statement_connector is None:
+            self._statement_connector = self.__OR
+        return statements_parts
 
-    def get_behaviour_tree(self, activity, memory) -> Union[Dict[int, "_Response"], None]:
+    def __add_statement(self, statement_values, statements_parts):
+        if len(statement_values) > 0:
+            if len(set(statement_values) & self.__COMPARISSON_OPERATORS) > 1:
+                if len(statement_values) != 3:
+                    lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_LOGIC, debug_warning=True,
+                                       name=self.person, line=' '.join(statement_values),
+                                       extra="Numerical comparissons must consist of value1 operator value2.")
+                    return
+            statements_parts.append(statement_values)
+
+    def get_behaviour_tree(self, activity) -> Union[Dict[int, "_Response"], None]:
         if len(self._statement_parts) == 0:  # the else statemnt
             return self._behaviour_tree
 
         for statement in self._statement_parts:
             invert_statement = False
             statement_value = False
-            for statement_part in statement:
-                if statement_part == self.__INVERSE:
-                    invert_statement = not invert_statement
-                elif statement_part.startswith(self.__ACTIVITY_NAME):
-                    statement_value = statement_part.split(".")[1] == activity
-                elif statement_part.startswith(self.__MEMORY_NAME):
-                    pass  # needs implementation depending on memory
+            # we have an integer comparisson
+            if len(set(statement) & self.__COMPARISSON_OPERATORS) > 1:
+                statement_value = self._do_integer_comparisson(statement)
+            else:
+                for statement_part in statement:
+                    if statement_part == self.__INVERSE:
+                        invert_statement = not invert_statement
+                    elif statement_part.startswith(self.__ACTIVITY_NAME):
+                        statement_value = statement_part.split(".")[1] == activity
             if invert_statement:
                 statement_value = not statement_value
             if self._statement_connector == self.__OR:
                 if statement_value:
                     return self._behaviour_tree
                 elif self._next_statement is not None:
-                    return self._next_statement.get_behaviour_tree(activity, memory)
+                    return self._next_statement.get_behaviour_tree(activity)
                 else:
                     return None
             else:
                 if not statement_value:
                     if self._next_statement is not None:
-                        return self._next_statement.get_behaviour_tree(activity, memory)
+                        return self._next_statement.get_behaviour_tree(activity)
                     else:
                         return None
         if self._statement_connector == self.__AND:
             return self._behaviour_tree
         return None
+
+    def _do_integer_comparisson(self, statement_values: List[str]):
+        try:
+            val1 = int(statement_values[0])
+            val2 = int(statement_values[2])
+        except ValueError:
+            lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_LOGIC, debug_warning=True, name=self.person,
+                               line=' '.join(statement_values), extra="Values around operator are not integers")
+            return False
+        operator = statement_values[1]
+        if operator == self.__SMALLER_THEN:
+            return val1 < val2
+        if operator == self.__BIGGER_THEN:
+            return val1 > val2
+        if operator == self.__EQUALS:
+            return val1 == val2
 
     def set_behaviour_tree(self, behaviour_tree: Dict[int, "_Response"]):
         self._behaviour_tree = behaviour_tree
@@ -271,38 +343,45 @@ class _LogicStatement:
 
 class _Response(ABC):
 
-    def __init__(self, id_, talk_lines, responses, person):
+    END_CONVERSATION_ID = "-1"
+
+    id: int
+    next_ids: Union[List[str], None]
+    text: str
+    person: str
+
+    def __init__(self, id_: int, talk_lines: List[str], responses: str, person: str):
         self.id = id_
         self.next_ids = self._disect_response_ids(responses)
         self.text = self._prepare_lines(talk_lines)
         self.person = person
 
-    def _prepare_lines(self, lines: str) -> str:
+    def _prepare_lines(self, lines: List[str]) -> str:
         return '\n'.join(lines)
 
-    def _disect_response_ids(self, responses):
+    def _disect_response_ids(self, responses: str) -> Union[List[str], None]:
         if responses == "":
             return None
         numbers = responses.split()
         return numbers
 
-    def trigger(self) -> int:
+    def trigger(self) -> str:
         continue_last = False if self.id == 0 else True
         if self.text != "":
             lazy_utility.message_person(self.text, self.person, continue_last=continue_last)
         return self.get_response_id()
 
     @abstractmethod
-    def get_response_id(self) -> int:
+    def get_response_id(self) -> str:
         pass
 
 
 class _ReplyResponse(_Response):
     # simply reply one or more options without further input
 
-    def get_response_id(self) -> int:
+    def get_response_id(self) -> str:
         if self.next_ids is None:
-            return -1  # end of conversation
+            return self.END_CONVERSATION_ID  # end of conversation
         return random.choice(self.next_ids)
 
 

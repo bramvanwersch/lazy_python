@@ -41,12 +41,14 @@ class DevelopLazyWarning:
     INCOMPLETE_PERSON_FILE = "Person file for person '{name}' is missing required information: '{info}'"
     INVALID_LOGIC = "Person file for person '{name}' contains invalid logic for line '{line}'. {extra}"
 
+    UNKNOWN_PLAYER_VALUE = "No value with name '{name}' defined for player."
+
 
 def warn(warning_string, debug_warning=False, **named_formatting):
     if debug_warning:
         if not lazy_constants.DEBUGGING:
             return
-        else:
+        elif lazy_constants.SHOW_WARN_TRACEBACK:
             traceback.print_stack()
     warning_string = warning_string.format(**named_formatting)
     lazy_utility._message(warning_string, lazy_constants.WARNING_COLOR)  # noqa

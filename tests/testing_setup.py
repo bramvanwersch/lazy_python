@@ -10,7 +10,7 @@ def setup_test_folder():
     if not lazy_constants.TEST_FOLDER.exists():
         os.mkdir(lazy_constants.TEST_FOLDER)
 
-    # very important this happens --> might not work with importing we will see
+    # very important this happens
     lazy_constants.set_testing_globals()
 
     # reset / create the test_file
