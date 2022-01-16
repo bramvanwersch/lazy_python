@@ -1,6 +1,6 @@
 import random
 from abc import ABC, abstractmethod
-from typing import Union, Type, Dict
+from typing import Union, Type, Dict, List
 import datetime
 
 from lazy_src import lazy_constants
@@ -183,6 +183,12 @@ class _ResponseTree:
 
 class _LogicStatement:
     # saves chains of elif logic pushing to the next statement if statement evaluates to false
+    person: str
+    id: int
+    _statement_connector: str
+    _statement_parts: List[List[str]]
+    _next_statement: Union[None, "_LogicStatement"]
+    _behaviour_tree: Union[None, Dict[int, "_Response"]]
 
     __ACTIVITY_NAME = "ACTIVITY"
     __MEMORY_NAME = "MEMORY"
@@ -197,7 +203,7 @@ class _LogicStatement:
         self.person = person
         self.id = id_
         self._statement_connector = self.__OR
-        self._statements = self._read_statement(statement)
+        self._statement_parts = self._read_statement(statement)
 
         self._next_statement = None  # next logic statment on evaluating false, degfault is no next statement
         self._behaviour_tree = None
@@ -224,10 +230,10 @@ class _LogicStatement:
         return statement_parts
 
     def get_behaviour_tree(self, activity, memory) -> Union[Dict[int, "_Response"], None]:
-        if len(self._statements) == 0:  # the else statemnt
+        if len(self._statement_parts) == 0:  # the else statemnt
             return self._behaviour_tree
 
-        for statement in self._statements:
+        for statement in self._statement_parts:
             invert_statement = False
             statement_value = False
             for statement_part in statement:
