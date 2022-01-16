@@ -80,7 +80,7 @@ class TestLogicStatement(TestCase):
         statement = people._LogicStatement(1, "PLAYER.money > 50", "test")
         self.assertEqual(statement._statement_connector, "OR")
         # player money is set to 100 for testing
-        self.assertEqual(statement._statement_parts, [[100, ">", "50"]])
+        self.assertEqual(statement._statement_parts, [["100", ">", "50"]])
 
         # and statement
         statement = people._LogicStatement(1, "NOT ACTIVITY.working AND NOT ACTIVITY.sleeping", "test")
@@ -115,6 +115,12 @@ class TestLogicStatement(TestCase):
                                  f"invalid logic for line 'PLAYER.money > test'. Invalid constant or integer provided"
                                  f"{lazy_constants.RESET_COLOR}\n")
 
+        output, statement = testing_utility.capture_print(
+            people._LogicStatement, 1, "PLAYER.money >", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains "
+                                 f"invalid logic for line '100 >'. Numerical comparissons must consist of value1 "
+                                 f"operator value2.{lazy_constants.RESET_COLOR}\n")
+
     def test_get_behaviour_tree(self):
         # simple test succes
         statement = people._LogicStatement(1, "ACTIVITY.working", "test")
@@ -141,17 +147,78 @@ class TestLogicStatement(TestCase):
         behaviour_tree = statement.get_behaviour_tree("working")
         self.assertEqual(behaviour_tree, None)
 
-        # use of or
+        # use of OR
         statement = people._LogicStatement(1, "NOT ACTIVITY.working OR ACTIVITY.walking", "test")
         statement.set_behaviour_tree({1: response})
         behaviour_tree = statement.get_behaviour_tree("walking")
         self.assertEqual(behaviour_tree, {1: response})
 
-        # also make sure it fails
+        # also make sure nothing is returned
         statement = people._LogicStatement(1, "NOT ACTIVITY.working OR ACTIVITY.walking", "test")
         statement.set_behaviour_tree({1: response})
         behaviour_tree = statement.get_behaviour_tree("working")
         self.assertEqual(behaviour_tree, None)
+
+        # use of AND
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND NOT ACTIVITY.walking", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("cooking")
+        self.assertEqual(behaviour_tree, {1: response})
+
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND NOT ACTIVITY.walking", "test")
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, None)
+
+        # check with integer checks
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money > 50", "test")  # testing value 100
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, {1: response})
+
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")  # testing value 100
+        statement.set_behaviour_tree({1: response})
+        behaviour_tree = statement.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, None)
+
+    def test_get_behaviour_tree_chained(self):
+        # test if works with elif/ else statements
+        response1 = people._ReplyResponse(1, ["hey1"], "", "test")
+        response2 = people._ReplyResponse(1, ["hey2"], "", "tost")
+        response3 = people._ReplyResponse(1, ["hey3"], "", "tast")
+
+        # check with else
+        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")  # is false
+        statement1.set_behaviour_tree({1: response1})
+        statement2 = people._LogicStatement(2, "", "tost")
+        statement2.set_behaviour_tree({1: response2})
+        statement1.set_next_statement(statement2)
+        behaviour_tree = statement1.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, {1: response2})
+
+        # check with elif on true
+        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")
+        statement1.set_behaviour_tree({1: response1})
+        statement2 = people._LogicStatement(2, "ACTIVITY.walking", "tost")
+        statement2.set_behaviour_tree({1: response2})
+        statement1.set_next_statement(statement2)
+        statement3 = people._LogicStatement(3, "", "tost")
+        statement3.set_behaviour_tree({1: response3})
+        statement2.set_next_statement(statement3)
+        behaviour_tree = statement1.get_behaviour_tree("walking")
+        self.assertEqual(behaviour_tree, {1: response2})
+
+        # check with elif on false
+        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")
+        statement1.set_behaviour_tree({1: response1})
+        statement2 = people._LogicStatement(2, "ACTIVITY.walking", "tost")
+        statement2.set_behaviour_tree({1: response2})
+        statement1.set_next_statement(statement2)
+        statement3 = people._LogicStatement(3, "", "tost")
+        statement3.set_behaviour_tree({1: response3})
+        statement2.set_next_statement(statement3)
+        behaviour_tree = statement1.get_behaviour_tree("cooking")
+        self.assertEqual(behaviour_tree, {1: response3})
 
 
 class TestTimeActivities(TestCase):

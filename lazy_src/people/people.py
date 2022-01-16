@@ -257,7 +257,7 @@ class _LogicStatement:
                 current_statement = []
             elif value.startswith(self.__PLAYER_NAME):
                 value = value.split(".")[1]
-                value = PlayerValues.ask_value(value)
+                value = str(PlayerValues.ask_value(value))
                 if value is not None:
                     current_statement.append(value)
             else:
@@ -266,7 +266,6 @@ class _LogicStatement:
                         lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_LOGIC, debug_warning=True,
                                            name=self.person, line=statements,
                                            extra="Invalid constant or integer provided")
-                        continue
                 current_statement.append(value)
         self.__add_statement(current_statement, statements_parts)
         if self._statement_connector is None:
@@ -274,8 +273,9 @@ class _LogicStatement:
         return statements_parts
 
     def __add_statement(self, statement_values, statements_parts):
+
         if len(statement_values) > 0:
-            if len(set(statement_values) & self.__COMPARISSON_OPERATORS) > 1:
+            if len(set(statement_values) & self.__COMPARISSON_OPERATORS) > 0:
                 if len(statement_values) != 3:
                     lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_LOGIC, debug_warning=True,
                                        name=self.person, line=' '.join(statement_values),
@@ -291,7 +291,7 @@ class _LogicStatement:
             invert_statement = False
             statement_value = False
             # we have an integer comparisson
-            if len(set(statement) & self.__COMPARISSON_OPERATORS) > 1:
+            if len(set(statement) & self.__COMPARISSON_OPERATORS) > 0:
                 statement_value = self._do_integer_comparisson(statement)
             else:
                 for statement_part in statement:
