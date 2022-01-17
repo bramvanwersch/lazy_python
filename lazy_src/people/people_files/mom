@@ -3,7 +3,7 @@ IF ACTIVITY.sleeping:
 0;Mom is sleeping I better not talk to her;;player;
 ELIF ACTIVITY.cooking:
 0;I am cooking right now son, I'm very busy. Please ask your dad.;1;;
-1;Ok mom.;;;
+1;Ok mom.;;player;
 ELSE:
 0;Hey darling me and dad are so glad you are going on an adventure. We realy need the money son! Don't forget to talk to dad he has some things for you.;1;;
 1;Thanks mom!|I dont want to go on and adventure.;2 3;player;ANSWER
@@ -20,4 +20,5 @@ base_friendship:10
 10:cleaning
 12:resting
 18:cooking
-22:sleeping
+20:resting
+23:sleeping

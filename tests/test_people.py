@@ -6,32 +6,6 @@ import testing_utility
 import testing_setup
 
 
-class TestPerson(TestCase):
-
-    @classmethod
-    def setUp(cls) -> None:
-        testing_setup.setup_test_folder()
-
-    @classmethod
-    def tearDown(cls) -> None:
-        testing_setup.remove_test_folder()
-
-    def test_examine(self):
-        self.fail()
-
-    def test_talk(self):
-        self.fail()
-
-    def test__read_person_file(self):
-        self.fail()
-
-    def test__read_stats(self):
-        self.fail()
-
-    def test__read_memory(self):
-        self.fail()
-
-
 class TestResponseTree(TestCase):
 
     @classmethod
@@ -43,16 +17,139 @@ class TestResponseTree(TestCase):
         testing_setup.remove_test_folder()
 
     def test_conversate(self):
-        self.fail()
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "0;Sup test;1;player;\n"
+            "1;Sup Son;;;\n",
+            "test")
+        output, _ = testing_utility.capture_print(tree.conversate, "")
+        self.assertEqual(output,
+                f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+                f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
-    def test__read_behavior(self):
-        self.fail()
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "IF ACTIVITY.sleeping:\n"
+            "0;test is sleeping I better not talk to her;;player;\n"
+            "ELSE:\n"
+            "0;Sup test;1;player;\n"
+            "1;Sup Son;;;\n",
+            "test")
+        output, _ = testing_utility.capture_print(tree.conversate, "sleeping")
+        self.assertEqual(output,
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
+                         f"talk to her{lazy_constants.RESET_COLOR}\n")
+        output, _ = testing_utility.capture_print(tree.conversate, "")
+        self.assertEqual(output,
+                f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+                f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
-    def test__read_logic_statement(self):
-        self.fail()
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "IF ACTIVITY.sleeping:\n"
+            "0;test is sleeping I better not talk to her;;player;\n"
+            "ELIF ACTIVITY.cooking:\n"
+            "0;cooking coenkies!!;;;\n"
+            "ELSE:\n"
+            "0;Sup test;1;player;\n"
+            "1;Sup Son;;;\n",
+            "test")
 
-    def test__get_response_class(self):
-        self.fail()
+        output, _ = testing_utility.capture_print(tree.conversate, "sleeping")
+        self.assertEqual(output,
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
+                         f"talk to her{lazy_constants.RESET_COLOR}\n")
+
+        output, _ = testing_utility.capture_print(tree.conversate, "cooking")
+        self.assertEqual(output,
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: cooking coenkies!!"
+                         f"{lazy_constants.RESET_COLOR}\n")
+
+        output, _ = testing_utility.capture_print(tree.conversate, "anything else")
+        self.assertEqual(output,
+                f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+                f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+
+    def test_read_behavior(self):
+        # test no logic statements
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "0;Sup test;1;player;\n"
+            "1;Sup Son;;;\n",
+            "test")
+        all_statements = []
+        all_behaviour_trees = []
+        for logic_path in tree.logic_paths:
+            while logic_path is not None:
+                all_statements.append(logic_path._statement_parts)
+                all_behaviour_trees.append(str(logic_path._behaviour_tree))
+                logic_path = logic_path._next_statement
+        self.assertEqual(all_statements, [[]])
+        self.assertEqual(all_behaviour_trees,
+                         ["{'0': <ReplyResponse object[id: 0, next_ids: ['1'], text: Sup test]>, '1': "
+                          '<ReplyResponse object[id: 1, next_ids: None, text: Sup Son]>}'])
+
+        # test simple if else statement
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "IF ACTIVITY.sleeping:\n"
+            "0;test is sleeping I better not talk to her;;player;\n"
+            "ELSE:\n"
+            "0;Sup test;1;player;\n"
+            "1;Sup Son;;;\n",
+            "test")
+        all_statements = []
+        all_behaviour_trees = []
+        for logic_path in tree.logic_paths:
+            while logic_path is not None:
+                all_statements.append(logic_path._statement_parts)
+                all_behaviour_trees.append(str(logic_path._behaviour_tree))
+                logic_path = logic_path._next_statement
+        self.assertEqual(all_statements, [[['ACTIVITY.sleeping']], []])
+        self.assertEqual(all_behaviour_trees,
+                         ["{'0': <ReplyResponse object[id: 0, next_ids: None, text: test is sleeping I better "
+                          "not talk to her]>}",
+                          "{'0': <ReplyResponse object[id: 0, next_ids: ['1'], text: Sup test]>, '1': "
+                          "<ReplyResponse object[id: 1, next_ids: None, text: Sup Son]>}"])
+
+        # test simple if elif else statement
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "IF ACTIVITY.sleeping:\n"
+            "0;test is sleeping I better not talk to her;;player;\n"
+            "ELIF PLAYER.money > 50:\n"
+            "0;Me rich baby!!;;player;\n"
+            "ELSE:\n"
+            "0;Sup test;1;player;\n"
+            "1;Sup Son;;;\n",
+            "test")
+        all_statements = []
+        all_behaviour_trees = []
+        for logic_path in tree.logic_paths:
+            while logic_path is not None:
+                all_statements.append(logic_path._statement_parts)
+                all_behaviour_trees.append(str(logic_path._behaviour_tree))
+                logic_path = logic_path._next_statement
+        self.assertEqual(all_statements, [[['ACTIVITY.sleeping']], [['100', '>', '50']], []])
+        self.assertEqual(all_behaviour_trees,
+                         ["{'0': <ReplyResponse object[id: 0, next_ids: None, text: test is sleeping I "
+                          'better not talk to her]>}',
+                          "{'0': <ReplyResponse object[id: 0, next_ids: None, text: Me rich baby!!]>}",
+                          "{'0': <ReplyResponse object[id: 0, next_ids: ['1'], text: Sup test]>, '1': "
+                          '<ReplyResponse object[id: 1, next_ids: None, text: Sup Son]>}'])
+
+    def test_read_behavior_fail(self):
+        # invalid file line
+        output, tree = testing_utility.capture_print(people._ResponseTree, ">>>BEHAVIOUR\n1;col;ops;", "test")
+        self.assertEqual(output,
+                         f"(lazy)> {lazy_constants.WARNING_COLOR}Person test encountered an invalid line: 1;col;ops;"
+                         f".{lazy_constants.RESET_COLOR}\n")
+
+        # empty elif statement
+        output, tree = testing_utility.capture_print(people._ResponseTree, ">>>BEHAVIOUR\nELIF:\n1;col;ops;;", "test")
+        self.assertEqual(output,
+                         f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains invalid logic "
+                         f"for line 'ELIF:'. no statement for elif{lazy_constants.RESET_COLOR}\n")
 
 
 class TestLogicStatement(TestCase):
@@ -231,8 +328,38 @@ class TestTimeActivities(TestCase):
     def tearDown(cls) -> None:
         testing_setup.remove_test_folder()
 
-    def test_get_current_activity(self):
-        self.fail()
+    def test_read_pattern_lines(self):
+        # simple version
+        time_activities = people._TimeActivities(">>>TIME_PATTERNS\n0:sleeping\n7:cooking\n10:cleaning", "test")
+        self.assertEqual(time_activities.get_current_activity(0), "sleeping")
+        self.assertEqual(time_activities.get_current_activity(8), "cooking")
+        self.assertEqual(time_activities.get_current_activity(23), "cleaning")
 
-    def test__read_pattern_lines(self):
-        self.fail()
+        # certain values unfilled
+        time_activities = people._TimeActivities(">>>TIME_PATTERNS\n10:cleaning", "test")
+        self.assertEqual(time_activities.get_current_activity(0), None)
+        self.assertEqual(time_activities.get_current_activity(8), None)
+        self.assertEqual(time_activities.get_current_activity(23), "cleaning")
+
+    def test_read_pattern_lines_fail(self):
+        # simple version
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n0", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0' for person "
+                                 f"'test'.{lazy_constants.RESET_COLOR}\n")
+
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n0:", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0:' for person "
+                                 f"'test'.{lazy_constants.RESET_COLOR}\n")
+
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\nga:cooling", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time 'ga' for person "
+                                 f"'test'.{lazy_constants.RESET_COLOR}\n")
+
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n24:cooling", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '24' for person "
+                                 f"'test'.{lazy_constants.RESET_COLOR}\n")
+
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n2:cooling\n2:cooking",
+                                                  "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '24' for person "
+                                 f"'test'.{lazy_constants.RESET_COLOR}\n")

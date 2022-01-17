@@ -64,7 +64,7 @@ class Person:
     def examine(self):
         lazy_utility.message(f"{self.name}: {self.description}")
 
-    def talk(self):
+    def talk(self, *args):
         now = datetime.datetime.now()
         activity = self._time_activity_table.get_current_activity(now.hour)
         self._response_tree.conversate(activity)
@@ -135,19 +135,25 @@ class _ResponseTree:
         lines = text.strip().splitlines()[1:]
         behaviour_tree = {}
         logic_paths = []
-        current_logic_statement = None
+        previous_logic_statement = None
         for line in lines:
             # skip empty lines
             if len(line) == 0:
                 continue
             values = line.split(self.__SEP)
             if len(values) == 1:
-                if current_logic_statement is not None:
-                    current_logic_statement.set_behaviour_tree(behaviour_tree)
-                    if current_logic_statement.id == 0:
-                        logic_paths.append(current_logic_statement)
-                        behaviour_tree = {}
-                current_logic_statement = self._read_logic_statement(line, current_logic_statement)
+                if previous_logic_statement is None:
+                    previous_logic_statement = self._read_logic_statement(line, previous_logic_statement)
+                    logic_paths.append(previous_logic_statement)
+                else:
+                    previous_logic_statement.set_behaviour_tree(behaviour_tree)
+                    behaviour_tree = {}
+                    new_logic_statement = self._read_logic_statement(line, previous_logic_statement)
+                    if new_logic_statement.id == 0:
+                        logic_paths.append(new_logic_statement)
+                    else:
+                        previous_logic_statement.set_next_statement(new_logic_statement)
+                    previous_logic_statement = new_logic_statement
                 continue
             elif len(values) == 5:
                 number, talk_text, responses, talking_person, response_type = values
@@ -163,11 +169,13 @@ class _ResponseTree:
                 continue
             behaviour_tree[number] = response_class(number, talk_lines, responses, talking_person)
 
-        # make sure to save the last statement
-        if current_logic_statement is not None:
-            if current_logic_statement.id == 0:
-                logic_paths.append({current_logic_statement: behaviour_tree})
-            current_logic_statement.set_behaviour_tree(behaviour_tree)
+        # make sure to add the last behaviour tree
+        if previous_logic_statement is not None:
+            previous_logic_statement.set_behaviour_tree(behaviour_tree)
+        # ensure that on empty statements a tree is added as well
+        else:
+            logic_paths.append(_LogicStatement(0, "", self._name))
+            logic_paths[-1].set_behaviour_tree(behaviour_tree)
         return logic_paths
 
     def _read_logic_statement(
@@ -273,7 +281,6 @@ class _LogicStatement:
         return statements_parts
 
     def __add_statement(self, statement_values, statements_parts):
-
         if len(statement_values) > 0:
             if len(set(statement_values) & self.__COMPARISSON_OPERATORS) > 0:
                 if len(statement_values) != 3:
@@ -283,7 +290,7 @@ class _LogicStatement:
                     return
             statements_parts.append(statement_values)
 
-    def get_behaviour_tree(self, activity) -> Union[Dict[int, "_Response"], None]:
+    def get_behaviour_tree(self, activity) -> Union[Dict[str, "_Response"], None]:
         if len(self._statement_parts) == 0:  # the else statemnt
             return self._behaviour_tree
 
@@ -375,6 +382,12 @@ class _Response(ABC):
     def get_response_id(self) -> str:
         pass
 
+    def __str__(self):
+        return f"<Response object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
+
+    def __repr__(self):
+        return str(self)
+
 
 class _ReplyResponse(_Response):
     # simply reply one or more options without further input
@@ -383,6 +396,9 @@ class _ReplyResponse(_Response):
         if self.next_ids is None:
             return self.END_CONVERSATION_ID  # end of conversation
         return random.choice(self.next_ids)
+
+    def __str__(self):
+        return f"<ReplyResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
 
 
 class _AnswerResponse(_Response):
@@ -411,6 +427,9 @@ class _AnswerResponse(_Response):
             formatted_text += f"  [{index + 1}] {response}\n"
         return formatted_text[:-1]  # remove last newline
 
+    def __str__(self):
+        return f"<AnswerResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
+
 
 class _TimeActivities:
     # track what activity is being performed at a given time by the person
@@ -438,6 +457,10 @@ class _TimeActivities:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_TIME_PATTERN_LINE, debug_warning=True,
                                    line=line, name=self.person)
                 continue
+            if values[1] == "":
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_TIME_PATTERN_LINE, debug_warning=True,
+                                   line=line, name=self.person)
+                continue
             time, activity = values
             try:
                 time = int(time)
@@ -449,6 +472,7 @@ class _TimeActivities:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_TIME, debug_warning=True, time=time,
                                    name=self.person)
                 continue
+            prev_time = time
 
             # since time goes from low to high
             for time in range(time, self.__HOURS_IN_DAY):
