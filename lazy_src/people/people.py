@@ -241,6 +241,7 @@ class _ResponseTree:
         return statement
 
     def _substitute_data(self, line, character_specific_data: "_CharacteSpecificData") -> str:
+        # TODO add tests for missing values of memory and inventory
         # substitute values in a line that are requested with { }
         substiute_values = re.findall("\{.+?\}", line)  # noqa
         for value in substiute_values:
@@ -260,7 +261,7 @@ class _ResponseTree:
                     replace_value = player_value
             else:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.UNKNOWN_SUBSTITUTE_CONSTANT, debug_warning=True,
-                                   constant=value.removeprefix("}").split(".")[0])
+                                   constant=value.removeprefix("{").split(".")[0])
                 continue
             line = line.replace(value, replace_value)
         return line
@@ -483,7 +484,6 @@ class _AnswerResponse(_Response):
 
 
 class _CharacteSpecificData:
-    # TODO add tests
 
     def __init__(self, starting_data, name):
         self.name = name
@@ -504,7 +504,6 @@ class _CharacteSpecificData:
     def _read_character_data(self, starting_data):
         active_user_dir = lazy_utility.active_user_dir()
         person_file_name = active_user_dir / lazy_constants.USER_PEOPLE_DIR / self.name
-
         # first time setup
         if not person_file_name.exists():
             self.__init_character_specific_data(person_file_name, starting_data)
@@ -514,18 +513,18 @@ class _CharacteSpecificData:
         for component in components:
             if component == "":
                 continue
-            if component.startswith(MEMORY_CONST):
+            if component.startswith(INVENTORY_CONST):
                 self._inventory = self._read_specific_data(component, is_item=True)
-            elif component.startswith(INVENTORY_CONST):
+            elif component.startswith(MEMORY_CONST):
                 self._memory = self._read_specific_data(component)
             else:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_START_IDENTIFIER, debug_warning=True,
-                                   name=self.name)
+                                   name=component.split(";")[0])
 
     def __init_character_specific_data(self, person_file_name, starting_data):
         # function called if the file is not present. Will innitialize values based on character file
-        inv_text_list = [f"{COMPONENT_SPLITTER}{MEMORY_CONST}"]
-        mem_text_list = [f"{COMPONENT_SPLITTER}{INVENTORY_CONST}"]
+        inv_text_list = [f"{COMPONENT_SPLITTER}{INVENTORY_CONST}"]
+        mem_text_list = [f"{COMPONENT_SPLITTER}{MEMORY_CONST}"]
         for line in component_lines(starting_data):
             values = line.strip().split(STATEMENT_SEP)
             if len(values) != 3:
@@ -539,10 +538,11 @@ class _CharacteSpecificData:
                 mem_text_list.append(f"{name};{value}")
             else:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_START_IDENTIFIER, debug_warning=True,
-                                   name=self.name)
+                                   identifier=identifier)
 
         with open(person_file_name, "w") as f:
             f.write('\n'.join(inv_text_list))
+            f.write("\n")
             f.write('\n'.join(mem_text_list))
 
     def _read_specific_data(self, data, is_item=False):
@@ -560,7 +560,7 @@ class _CharacteSpecificData:
             if is_item:
                 if identifier not in items.ITEM_MAPPING:
                     lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, debug_warning=True,
-                                       item=identifier)
+                                       name=identifier)
                     continue
                 elif not value.isdigit():
                     lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_ITEM_QUANTITY, debug_warning=True)

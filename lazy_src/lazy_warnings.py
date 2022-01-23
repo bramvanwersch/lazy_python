@@ -43,7 +43,7 @@ class DevelopLazyWarning:
 
     UNKNOWN_PLAYER_VALUE = "No value with name '{name}' defined for player."
 
-    INVALID_START_IDENTIFIER = "No identifier with name '{name}' allowed as start identifier."
+    INVALID_START_IDENTIFIER = "No identifier with name '{identifier}' allowed as start identifier."
     DOUBLE_DATA_ENTRY = "Double data entry with identifier '{identifier}' for person {name}."
 
     INVALID_ITEM_QUANTITY = "Expected an integer as item quantitiy."

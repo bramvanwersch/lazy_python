@@ -165,8 +165,6 @@ class TestResponseTree(TestCase):
                          f"for line 'ELIF:'. no statement for elif{lazy_constants.RESET_COLOR}\n")
 
     def test_read_behaviour_inv_memory_substitutions(self):
-        testing_setup.create_test_account()
-
         character_data = people._CharacteSpecificData(">>>START\n"
                                                       "INVENTORY;coin;5\n"
                                                       "MEMORY;test;this is a testing message", "test")
@@ -185,10 +183,20 @@ class TestResponseTree(TestCase):
                          f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Bro. I have 5 money. I like "
                          f"to say this is a testing message{lazy_constants.RESET_COLOR}\n")
 
-        testing_setup.remove_test_account()
-
     def test_read_behaviour_inv_memory_substitutions_fail(self):
-        self.fail()
+        character_data = people._CharacteSpecificData(">>>START\n"
+                                                      "INVENTORY;coin;5\n"
+                                                      "MEMORY;test;this is a testing message", "test")
+
+        output, tree = testing_utility.capture_print(
+            people._ResponseTree,
+            ">>>BEHAVIOUR\n"
+            "0;Sup test. I have {KLAYERONI.money} coins. WBU?;1;player;\n"
+            "1;Sup Bro. I have {INVENTORY.coin} money. I like to say {MEMORY.test};;;\n",
+            "test", character_data)
+
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Can not substitute with constant 'KLAYERONI'."
+                                 f"{lazy_constants.RESET_COLOR}\n")
 
 
 class TestLogicStatement(TestCase):
@@ -380,24 +388,28 @@ class TestTimeActivities(TestCase):
         self.assertEqual(time_activities.get_current_activity(8), None)
         self.assertEqual(time_activities.get_current_activity(23), "cleaning")
 
-    def test_read_pattern_lines_fail(self):
+    def test_read_pattern_lines_fail1(self):
         # simple version
         output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n0", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
+    def test_read_pattern_lines_fail2(self):
         output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n0;", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0;' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
+    def test_read_pattern_lines_fail3(self):
         output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\nga;cooling", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time 'ga' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
+    def test_read_pattern_lines_fail4(self):
         output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n24;cooling", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '24' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
+    def test_read_pattern_lines_fail5(self):
         output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n2;cooling\n2;cooking",
                                                   "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '2' for person "
@@ -417,11 +429,60 @@ class TestCharacteSpecificData(TestCase):
         testing_setup.remove_test_folder()
 
     def test_read_character_data(self):
-        character_data = people._CharacteSpecificData("# general_separator, item_name, quantity\n"
+        character_data = people._CharacteSpecificData(">>>START\n"
+                                                      "# general_separator, item_name, quantity\n"
                                                       "INVENTORY;coin;5\n"
                                                       "MEMORY;test;this is a testing message", "test")
         self.assertEqual(character_data._memory, {'test': 'this is a testing message'})
         self.assertEqual(character_data._inventory, {"coin": "5"})
 
-    def test_read_character_data_fail(self):
-        self.fail()
+    def test_read_character_data_fail1(self):
+        output, _ = testing_utility.capture_print(people._CharacteSpecificData,
+                                                  ">>>START\n"
+                                                  "# general_separator, item_name, quantity\n"
+                                                  "INVORY;coin;5\n"
+                                                  "MEMORY;test;this is a testing message",
+                                                  "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No identifier with name 'INVORY' allowed as "
+                                 f"start identifier.{lazy_constants.RESET_COLOR}\n")
+
+    def test_read_character_data_fail2(self):
+        output, _ = testing_utility.capture_print(people._CharacteSpecificData,
+                                                  ">>>START\n"
+                                                  "# general_separator, item_name, quantity\n"
+                                                  "INVENTORY;coin\n"
+                                                  "MEMORY;test;this is a testing message",
+                                                  "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person test encountered an invalid line: "
+                                 f"INVENTORY;coin.{lazy_constants.RESET_COLOR}\n")
+
+    def test_read_character_data_fail3(self):
+        output, _ = testing_utility.capture_print(people._CharacteSpecificData,
+                                                  ">>>START\n"
+                                                  "# general_separator, item_name, quantity\n"
+                                                  "INVENTORY;coin;test\n"
+                                                  "MEMORY;test;this is a testing message",
+                                                  "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Expected an integer as item quantitiy"
+                                 f".{lazy_constants.RESET_COLOR}\n")
+
+    def test_read_character_data_fail4(self):
+        output, _ = testing_utility.capture_print(people._CharacteSpecificData,
+                                                  ">>>START\n"
+                                                  "# general_separator, item_name, quantity\n"
+                                                  "INVENTORY;cron;1\n"
+                                                  "MEMORY;test;this is a testing message",
+                                                  "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No item with name 'cron' exists"
+                                 f".{lazy_constants.RESET_COLOR}\n")
+
+    def test_read_character_data_fail5(self):
+        output, _ = testing_utility.capture_print(people._CharacteSpecificData,
+                                                  ">>>START\n"
+                                                  "# general_separator, item_name, quantity\n"
+                                                  "INVENTORY;coin;1\n"
+                                                  "INVENTORY;coin;60\n"
+                                                  "MEMORY;test;this is a testing message",
+                                                  "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Double data entry with identifier 'coin' for "
+                                 f"person test.{lazy_constants.RESET_COLOR}\n")
