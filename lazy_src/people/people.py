@@ -1,4 +1,5 @@
 import random
+import re
 from abc import ABC, abstractmethod
 from typing import Union, Type, Dict, List
 import datetime
@@ -6,10 +7,30 @@ import datetime
 from lazy_src import lazy_constants
 from lazy_src import lazy_utility
 from lazy_src import lazy_warnings
+from lazy_src import items
 
 
 # TODO add tests
 #  Add player stats where player specific values can be requested
+
+
+STATEMENT_SEP = ";"
+COMPONENT_SPLITTER = ">>>"
+IGNORE_SYMBOL = "#"
+
+PLAYER_CONST = "PLAYER"
+MEMORY_CONST = "MEMORY"
+INVENTORY_CONST = "INVENTORY"
+
+
+def component_lines(data):
+    for line in data.strip().splitlines()[1:]:
+        if len(line) == 0:
+            continue
+        if line.startswith(IGNORE_SYMBOL):
+            continue
+        yield line
+
 
 class PlayerValues:
     # convenience functions for getting player specific values
@@ -40,17 +61,24 @@ class PlayerValues:
 
 class Person:
     # person located at a location, can be used to talk to or sell stuff
-    __COMPONENT_SPLITTER = ">>>"
+    name: str
+    description: str
+    _response_tree: Union["_ResponseTree", None]
+    _time_activity_table: Union["_TimeActivities", None]
+    _character_specific_data: Union["_CharacteSpecificData", None]
 
+    # general defined person behaviour file values
     __BEHAVIOUR_NAME = "BEHAVIOUR"
     __STATS_NAME = "STATS"
+    __START_VALUES_NAME = "START"
     __TIME_PATTERNS_NAME = "TIME_PATTERNS"
 
-    def __init__(self, name, description):
+    def __init__(self, name: str, description: str):
         self.name = name
         self.description = description
         self._response_tree = None  # set while reading person file
         self._time_activity_table = None  # set while reading person file
+        self._character_specific_data = None  # set while reading person file
         self._read_person_file()
 
         # make sure that all information was defined or certain issues can happen
@@ -65,6 +93,7 @@ class Person:
         lazy_utility.message(f"{self.name}: {self.description}")
 
     def talk(self, *args):
+        # TODO implement args for non input conversations
         now = datetime.datetime.now()
         activity = self._time_activity_table.get_current_activity(now.hour)
         self._response_tree.conversate(activity)
@@ -77,32 +106,39 @@ class Person:
             return
         with open(person_file) as f:
             text = f.read()
-        components = text.split(self.__COMPONENT_SPLITTER)
-        self._read_memory()
+        components = text.split(COMPONENT_SPLITTER)
+        # first collect all information
+        response_data = ""
+        stats_data = ""
+        time_activity_data = ""
+        starting_data = ""
         for component in components:
             if component == "":
                 continue
             elif component.startswith(self.__BEHAVIOUR_NAME):
-                self._response_tree = _ResponseTree(component, self.name)
+                response_data = component
             elif component.startswith(self.__STATS_NAME):
-                self._read_stats(component)
+                stats_data = component
             elif component.startswith(self.__TIME_PATTERNS_NAME):
-                self._time_activity_table = _TimeActivities(component, self.name)
+                time_activity_data = component
+            elif component.startswith(self.__START_VALUES_NAME):
+                starting_data = component
             else:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.UNKNOWN_PERSON_FILE_SECTION, debug_warning=True,
                                    person=self.name, name=component.split("\n")[0])
+        self._character_specific_data = _CharacteSpecificData(starting_data, self.name)
+
+        self._response_tree = _ResponseTree(response_data, self.name, self._character_specific_data)
+        self._read_stats(stats_data)
+        self._time_activity_table = _TimeActivities(time_activity_data, self.name)
 
     def _read_stats(self, text):
-        pass
-
-    def _read_memory(self):
-        # user dependant
+        # TODO: implement this
         pass
 
 
 class _ResponseTree:
     # response types
-    __SEP = ";"
     __LINE_SEP = "|"
 
     __ANSWER = "ANSWER"  # user is expected to choose an answer
@@ -112,14 +148,13 @@ class _ResponseTree:
     __CONDITION_ELIF = "ELIF"
     __CONDITION_ELSE = "ELSE"
 
-    def __init__(self, text, name):
+    def __init__(self, text, name, character_specific_data: "_CharacteSpecificData"):
         self._name = name  # for debugging purposes
 
         # possible behaviour trees chosen based on a statement that is tested based on memory and activity
-        self.logic_paths = self._read_behavior(text)
+        self.logic_paths = self._read_behavior(text, character_specific_data)
 
     def conversate(self, activity):
-        # TODO implement player specific values
         # all separate paths all are tested consecutively
         for logic_path in self.logic_paths:
             behaviour_tree = logic_path.get_behaviour_tree(activity)
@@ -130,17 +165,14 @@ class _ResponseTree:
             while response_id != _Response.END_CONVERSATION_ID:
                 response_id = behaviour_tree[response_id].trigger()
 
-    def _read_behavior(self, text):
+    def _read_behavior(self, text, character_specific_data):
         # remove the name line
-        lines = text.strip().splitlines()[1:]
         behaviour_tree = {}
         logic_paths = []
         previous_logic_statement = None
-        for line in lines:
-            # skip empty lines
-            if len(line) == 0:
-                continue
-            values = line.split(self.__SEP)
+        for line in component_lines(text):
+            line = self._substitute_data(line, character_specific_data)
+            values = line.split(STATEMENT_SEP)
             if len(values) == 1:
                 if previous_logic_statement is None:
                     previous_logic_statement = self._read_logic_statement(line, previous_logic_statement)
@@ -208,6 +240,31 @@ class _ResponseTree:
             return None
         return statement
 
+    def _substitute_data(self, line, character_specific_data: "_CharacteSpecificData") -> str:
+        # substitute values in a line that are requested with { }
+        substiute_values = re.findall("\{.+?\}", line)  # noqa
+        for value in substiute_values:
+            replace_value = "<NOT FOUND>"
+            value_name = value.removesuffix("}").split(".")[1]
+            if INVENTORY_CONST in value:
+                item_dict = character_specific_data.get_item(value_name)
+                if item_dict is not None:
+                    replace_value = str(next(iter(item_dict.values())))
+            elif MEMORY_CONST in value:
+                memory_value = character_specific_data.get_memory(value_name)
+                if memory_value is not None:
+                    replace_value = memory_value
+            elif PLAYER_CONST in value:
+                player_value = str(PlayerValues.ask_value(value_name))
+                if player_value is not None:
+                    replace_value = player_value
+            else:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.UNKNOWN_SUBSTITUTE_CONSTANT, debug_warning=True,
+                                   constant=value.removeprefix("}").split(".")[0])
+                continue
+            line = line.replace(value, replace_value)
+        return line
+
     def _get_response_class(self, response_type) -> Union[Type["_Response"], None]:
         if response_type == self.__ANSWER:
             return _AnswerResponse
@@ -228,7 +285,6 @@ class _LogicStatement:
     _behaviour_tree: Union[None, Dict[int, "_Response"]]
 
     __ACTIVITY_NAME = "ACTIVITY"  # statements that are replaced with a boolean relating to activity
-    __PLAYER_NAME = "PLAYER"  # statements that are replaced with player specific stats
 
     __INVERSE = "NOT"
     __AND = "AND"
@@ -263,11 +319,6 @@ class _LogicStatement:
                     break
                 self.__add_statement(current_statement, statements_parts)
                 current_statement = []
-            elif value.startswith(self.__PLAYER_NAME):
-                value = value.split(".")[1]
-                value = str(PlayerValues.ask_value(value))
-                if value is not None:
-                    current_statement.append(value)
             else:
                 if value.split('.')[0] not in self.__ALL_ALLOWED_CONSTANTS:
                     if not value.isdigit():
@@ -373,7 +424,7 @@ class _Response(ABC):
         return numbers
 
     def trigger(self) -> str:
-        continue_last = False if self.id == 0 else True
+        continue_last = False if self.id == "0" else True
         if self.text != "":
             lazy_utility.message_person(self.text, self.person, continue_last=continue_last)
         return self.get_response_id()
@@ -431,6 +482,93 @@ class _AnswerResponse(_Response):
         return f"<AnswerResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
 
 
+class _CharacteSpecificData:
+    # TODO add tests
+
+    def __init__(self, starting_data, name):
+        self.name = name
+        self._inventory = {}
+        self._memory = {}
+        self._read_character_data(starting_data)
+
+    def get_item(self, name) -> Union[Dict[items.Item, int], None]:
+        if name in self._inventory:
+            return {items.ITEM_MAPPING[name]: int(self._inventory[name])}
+        return None
+
+    def get_memory(self, name) -> Union[str, None]:
+        if name in self._memory:
+            return self._memory[name]
+        return None
+
+    def _read_character_data(self, starting_data):
+        active_user_dir = lazy_utility.active_user_dir()
+        person_file_name = active_user_dir / lazy_constants.USER_PEOPLE_DIR / self.name
+
+        # first time setup
+        if not person_file_name.exists():
+            self.__init_character_specific_data(person_file_name, starting_data)
+        with open(person_file_name) as f:
+            text = f.read()
+        components = text.split(COMPONENT_SPLITTER)
+        for component in components:
+            if component == "":
+                continue
+            if component.startswith(MEMORY_CONST):
+                self._inventory = self._read_specific_data(component, is_item=True)
+            elif component.startswith(INVENTORY_CONST):
+                self._memory = self._read_specific_data(component)
+            else:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_START_IDENTIFIER, debug_warning=True,
+                                   name=self.name)
+
+    def __init_character_specific_data(self, person_file_name, starting_data):
+        # function called if the file is not present. Will innitialize values based on character file
+        inv_text_list = [f"{COMPONENT_SPLITTER}{MEMORY_CONST}"]
+        mem_text_list = [f"{COMPONENT_SPLITTER}{INVENTORY_CONST}"]
+        for line in component_lines(starting_data):
+            values = line.strip().split(STATEMENT_SEP)
+            if len(values) != 3:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_PERSON_LINE, debug_warning=True,
+                                   name=self.name, line=line)
+                continue
+            identifier, name, value = values
+            if identifier == INVENTORY_CONST:
+                inv_text_list.append(f"{name};{value}")
+            elif identifier == MEMORY_CONST:
+                mem_text_list.append(f"{name};{value}")
+            else:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_START_IDENTIFIER, debug_warning=True,
+                                   name=self.name)
+
+        with open(person_file_name, "w") as f:
+            f.write('\n'.join(inv_text_list))
+            f.write('\n'.join(mem_text_list))
+
+    def _read_specific_data(self, data, is_item=False):
+        value_mapping = {}
+        for line in component_lines(data):
+            values = line.strip().split(STATEMENT_SEP)
+            if len(values) != 2:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_PERSON_LINE, debug_warning=True,
+                                   name=self.name, line=line)
+                continue
+            identifier, value = values
+            if identifier in value_mapping:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.DOUBLE_DATA_ENTRY, debug_warning=True,
+                                   name=self.name, identifier=identifier)
+            if is_item:
+                if identifier not in items.ITEM_MAPPING:
+                    lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, debug_warning=True,
+                                       item=identifier)
+                    continue
+                elif not value.isdigit():
+                    lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_ITEM_QUANTITY, debug_warning=True)
+                    continue
+            value_mapping[identifier] = value
+        return value_mapping
+
+
 class _TimeActivities:
     # track what activity is being performed at a given time by the person
 
@@ -452,7 +590,9 @@ class _TimeActivities:
         time_dictionary = {}
         prev_time = -1
         for line in lines:
-            values = line.strip().split(":")
+            if line.startswith(IGNORE_SYMBOL):
+                continue
+            values = line.strip().split(STATEMENT_SEP)
             if len(values) != 2:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_TIME_PATTERN_LINE, debug_warning=True,
                                    line=line, name=self.person)

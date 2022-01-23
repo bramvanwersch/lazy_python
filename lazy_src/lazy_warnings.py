@@ -43,12 +43,19 @@ class DevelopLazyWarning:
 
     UNKNOWN_PLAYER_VALUE = "No value with name '{name}' defined for player."
 
+    INVALID_START_IDENTIFIER = "No identifier with name '{name}' allowed as start identifier."
+    DOUBLE_DATA_ENTRY = "Double data entry with identifier '{identifier}' for person {name}."
 
-def warn(warning_string, debug_warning=False, **named_formatting):
+    INVALID_ITEM_QUANTITY = "Expected an integer as item quantitiy."
+
+    UNKNOWN_SUBSTITUTE_CONSTANT = "Can not substitute with constant '{constant}'."
+
+
+def warn(warning_string, debug_warning=False, extra_info="", **named_formatting):
     if debug_warning:
         if not lazy_constants.DEBUGGING:
             return
         elif lazy_constants.SHOW_WARN_TRACEBACK:
             traceback.print_stack()
-    warning_string = warning_string.format(**named_formatting)
+    warning_string = warning_string.format(**named_formatting) + extra_info
     lazy_utility._message(warning_string, lazy_constants.WARNING_COLOR)  # noqa

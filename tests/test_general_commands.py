@@ -32,7 +32,7 @@ class Test(TestCase):
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +4xp {lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old_bread{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old bread{lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
         user_dir = lazy_constants.USER_DIRS_PATH / "test"
@@ -42,7 +42,7 @@ class Test(TestCase):
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
-        self.assertEqual(text, "old_bread:2\ncoin:4\n")
+        self.assertEqual(text, "old bread:2\ncoin:4\n")
 
         # repeat the gathering to ensure that values are properly added and not overwritten --> because we are testing
         # this can be done by rechecking
@@ -53,7 +53,7 @@ class Test(TestCase):
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +3xp {lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 3 X coin{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found old_bread{lazy_constants.RESET_COLOR}\n")
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found old bread{lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             text = f.read()
@@ -61,7 +61,7 @@ class Test(TestCase):
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
-        self.assertEqual(text, "old_bread:3\ncoin:7\n")
+        self.assertEqual(text, "old bread:3\ncoin:7\n")
 
         # NOTE: there is no real way to asser that the time stamp is written
 
@@ -145,7 +145,7 @@ class Test(TestCase):
                                  "reason im leaving.\n"
                                  "(....)> Available loot:\n"
                                  "(....)>  - coin: 1\n"
-                                 "(....)>  - old_bread: 1\n"
+                                 "(....)>  - old bread: 1\n"
                                  "(....)>  - small dagger: 1\n"
                                  "(....)>  - black cape: 1\n"
                                  "(....)>  - leather boots: 1\n")
@@ -180,7 +180,7 @@ class Test(TestCase):
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +4xp {lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old_bread{lazy_constants.RESET_COLOR}\n"                                 
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old bread{lazy_constants.RESET_COLOR}\n"                                 
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n"
                          "(....)> \n"
                          "(lazy)> You moved to area green_woods. You are ready to go do something...\n")
@@ -200,7 +200,7 @@ class Test(TestCase):
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +3xp {lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 3 X coin{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found old_bread{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found old bread{lazy_constants.RESET_COLOR}\n"
                          "(....)> \n"
                          f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woods:."
                          f"{lazy_constants.RESET_COLOR}\n")
@@ -223,7 +223,7 @@ class Test(TestCase):
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +4xp {lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old_bread{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old bread{lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n"
                          "(....)> \n"
                          "(lazy)> You moved to location home. You are ready to go do something...\n")
@@ -243,7 +243,7 @@ class Test(TestCase):
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +3xp {lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 3 X coin{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found old_bread{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found old bread{lazy_constants.RESET_COLOR}\n"
                          "(....)> \n"
                          f"(lazy)> {lazy_constants.WARNING_COLOR}No location with name homer:."
                          f"{lazy_constants.RESET_COLOR}\n")

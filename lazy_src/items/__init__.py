@@ -15,7 +15,7 @@ class Items:
     R_MUSHROOM = FoodItem("red mushroom", "I realy hope this one is edible. I am afraid my friend hoped the same. "
                                           "RIP james :(.", -1)
     Y_MUSHROOM = FoodItem("yellow mushroom", "A quite rare find, but very delicious.", 5)
-    OLD_BREAD = FoodItem("old_bread", "Stale without fail.", 1)
+    OLD_BREAD = FoodItem("old bread", "Stale without fail.", 1)
     SMALL_DAGGER = WeaponItem("small dagger", "Small stabber.", 2)
     LEATHER_BOOTS = EquipmentItem("leather boots", "Durable protectors of feat.", 1)
     BLACK_CAPE = EquipmentItem("black cape", "Look mom, I AM BATMAN", 1)

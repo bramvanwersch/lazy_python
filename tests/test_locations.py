@@ -36,4 +36,4 @@ class TestLocation(TestCase):
         xp_dict, item_dict = area.perform_activity_rolls(lazy_constants.STARTING_LOCATION, skills.Skills.GATHERING.name,
                                                          3600)
         self.assertEqual(xp_dict, {'exploring': 0, 'gathering': 4, 'woodcutting': 0, 'fishing': 0})
-        self.assertEqual(item_dict, {'old_bread': 2, 'coin': 4})
+        self.assertEqual(item_dict, {'old bread': 2, 'coin': 4})

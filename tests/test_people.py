@@ -11,38 +11,44 @@ class TestResponseTree(TestCase):
     @classmethod
     def setUp(cls) -> None:
         testing_setup.setup_test_folder()
+        testing_setup.create_test_account()
 
     @classmethod
     def tearDown(cls) -> None:
+        testing_setup.remove_test_account()
         testing_setup.remove_test_folder()
 
     def test_conversate(self):
+
+        empty_character_data = people._CharacteSpecificData("", "test")
+
         tree = people._ResponseTree(
             ">>>BEHAVIOUR\n"
             "0;Sup test;1;player;\n"
             "1;Sup Son;;;\n",
-            "test")
+            "test", empty_character_data)
         output, _ = testing_utility.capture_print(tree.conversate, "")
         self.assertEqual(output,
-                f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
-                f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
         tree = people._ResponseTree(
             ">>>BEHAVIOUR\n"
+            "#ignore this\n"
             "IF ACTIVITY.sleeping:\n"
             "0;test is sleeping I better not talk to her;;player;\n"
             "ELSE:\n"
             "0;Sup test;1;player;\n"
             "1;Sup Son;;;\n",
-            "test")
+            "test", empty_character_data)
         output, _ = testing_utility.capture_print(tree.conversate, "sleeping")
         self.assertEqual(output,
-                         f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
                          f"talk to her{lazy_constants.RESET_COLOR}\n")
         output, _ = testing_utility.capture_print(tree.conversate, "")
         self.assertEqual(output,
-                f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
-                f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
         tree = people._ResponseTree(
             ">>>BEHAVIOUR\n"
@@ -53,30 +59,33 @@ class TestResponseTree(TestCase):
             "ELSE:\n"
             "0;Sup test;1;player;\n"
             "1;Sup Son;;;\n",
-            "test")
+            "test", empty_character_data)
 
         output, _ = testing_utility.capture_print(tree.conversate, "sleeping")
         self.assertEqual(output,
-                         f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
                          f"talk to her{lazy_constants.RESET_COLOR}\n")
 
         output, _ = testing_utility.capture_print(tree.conversate, "cooking")
         self.assertEqual(output,
-                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: cooking coenkies!!"
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}test sais: cooking coenkies!!"
                          f"{lazy_constants.RESET_COLOR}\n")
 
         output, _ = testing_utility.capture_print(tree.conversate, "anything else")
         self.assertEqual(output,
-                f"(....)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
-                f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
     def test_read_behavior(self):
         # test no logic statements
+
+        empty_character_data = people._CharacteSpecificData("", "test")
+
         tree = people._ResponseTree(
             ">>>BEHAVIOUR\n"
             "0;Sup test;1;player;\n"
             "1;Sup Son;;;\n",
-            "test")
+            "test", empty_character_data)
         all_statements = []
         all_behaviour_trees = []
         for logic_path in tree.logic_paths:
@@ -97,7 +106,7 @@ class TestResponseTree(TestCase):
             "ELSE:\n"
             "0;Sup test;1;player;\n"
             "1;Sup Son;;;\n",
-            "test")
+            "test", empty_character_data)
         all_statements = []
         all_behaviour_trees = []
         for logic_path in tree.logic_paths:
@@ -117,12 +126,12 @@ class TestResponseTree(TestCase):
             ">>>BEHAVIOUR\n"
             "IF ACTIVITY.sleeping:\n"
             "0;test is sleeping I better not talk to her;;player;\n"
-            "ELIF PLAYER.money > 50:\n"
+            "ELIF {PLAYER.money} > 50:\n"
             "0;Me rich baby!!;;player;\n"
             "ELSE:\n"
             "0;Sup test;1;player;\n"
             "1;Sup Son;;;\n",
-            "test")
+            "test", empty_character_data)
         all_statements = []
         all_behaviour_trees = []
         for logic_path in tree.logic_paths:
@@ -140,16 +149,46 @@ class TestResponseTree(TestCase):
 
     def test_read_behavior_fail(self):
         # invalid file line
-        output, tree = testing_utility.capture_print(people._ResponseTree, ">>>BEHAVIOUR\n1;col;ops;", "test")
+        empty_character_data = people._CharacteSpecificData("", "test")
+
+        output, tree = testing_utility.capture_print(people._ResponseTree, ">>>BEHAVIOUR\n1;col;ops;", "test",
+                                                     empty_character_data)
         self.assertEqual(output,
                          f"(lazy)> {lazy_constants.WARNING_COLOR}Person test encountered an invalid line: 1;col;ops;"
                          f".{lazy_constants.RESET_COLOR}\n")
 
         # empty elif statement
-        output, tree = testing_utility.capture_print(people._ResponseTree, ">>>BEHAVIOUR\nELIF:\n1;col;ops;;", "test")
+        output, tree = testing_utility.capture_print(people._ResponseTree, ">>>BEHAVIOUR\nELIF:\n1;col;ops;;", "test",
+                                                     empty_character_data)
         self.assertEqual(output,
                          f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains invalid logic "
                          f"for line 'ELIF:'. no statement for elif{lazy_constants.RESET_COLOR}\n")
+
+    def test_read_behaviour_inv_memory_substitutions(self):
+        testing_setup.create_test_account()
+
+        character_data = people._CharacteSpecificData(">>>START\n"
+                                                      "INVENTORY;coin;5\n"
+                                                      "MEMORY;test;this is a testing message", "test")
+
+        tree = people._ResponseTree(
+            ">>>BEHAVIOUR\n"
+            "0;Sup test. I have {PLAYER.money} coins. WBU?;1;player;\n"
+            "1;Sup Bro. I have {INVENTORY.coin} money. I like to say {MEMORY.test};;;\n",
+            "test", character_data)
+
+        output, _ = testing_utility.capture_print(tree.conversate, "")
+
+        self.assertEqual(output,
+                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test. I have 100 coins."
+                         f" WBU?{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Bro. I have 5 money. I like "
+                         f"to say this is a testing message{lazy_constants.RESET_COLOR}\n")
+
+        testing_setup.remove_test_account()
+
+    def test_read_behaviour_inv_memory_substitutions_fail(self):
+        self.fail()
 
 
 class TestLogicStatement(TestCase):
@@ -174,7 +213,7 @@ class TestLogicStatement(TestCase):
         self.assertEqual(statement._statement_parts, [["NOT", "ACTIVITY.working"]])
 
         # use integer comparissons
-        statement = people._LogicStatement(1, "PLAYER.money > 50", "test")
+        statement = people._LogicStatement(1, "100 > 50", "test")
         self.assertEqual(statement._statement_connector, "OR")
         # player money is set to 100 for testing
         self.assertEqual(statement._statement_parts, [["100", ">", "50"]])
@@ -207,13 +246,13 @@ class TestLogicStatement(TestCase):
 
         # wrong integer comparisson
         output, statement = testing_utility.capture_print(
-            people._LogicStatement, 1, "PLAYER.money > test", "test")
+            people._LogicStatement, 1, "100 > test", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains "
-                                 f"invalid logic for line 'PLAYER.money > test'. Invalid constant or integer provided"
+                                 f"invalid logic for line '100 > test'. Invalid constant or integer provided"
                                  f"{lazy_constants.RESET_COLOR}\n")
 
         output, statement = testing_utility.capture_print(
-            people._LogicStatement, 1, "PLAYER.money >", "test")
+            people._LogicStatement, 1, "100 >", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Person file for person 'test' contains "
                                  f"invalid logic for line '100 >'. Numerical comparissons must consist of value1 "
                                  f"operator value2.{lazy_constants.RESET_COLOR}\n")
@@ -268,12 +307,12 @@ class TestLogicStatement(TestCase):
         self.assertEqual(behaviour_tree, None)
 
         # check with integer checks
-        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money > 50", "test")  # testing value 100
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND 100 > 50", "test")
         statement.set_behaviour_tree({1: response})
         behaviour_tree = statement.get_behaviour_tree("walking")
         self.assertEqual(behaviour_tree, {1: response})
 
-        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")  # testing value 100
+        statement = people._LogicStatement(1, "NOT ACTIVITY.working AND 100 < 50", "test")
         statement.set_behaviour_tree({1: response})
         behaviour_tree = statement.get_behaviour_tree("walking")
         self.assertEqual(behaviour_tree, None)
@@ -285,7 +324,7 @@ class TestLogicStatement(TestCase):
         response3 = people._ReplyResponse(1, ["hey3"], "", "tast")
 
         # check with else
-        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")  # is false
+        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND 100 < 50", "test")  # is false
         statement1.set_behaviour_tree({1: response1})
         statement2 = people._LogicStatement(2, "", "tost")
         statement2.set_behaviour_tree({1: response2})
@@ -294,7 +333,7 @@ class TestLogicStatement(TestCase):
         self.assertEqual(behaviour_tree, {1: response2})
 
         # check with elif on true
-        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")
+        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND 100 < 50", "test")
         statement1.set_behaviour_tree({1: response1})
         statement2 = people._LogicStatement(2, "ACTIVITY.walking", "tost")
         statement2.set_behaviour_tree({1: response2})
@@ -306,7 +345,7 @@ class TestLogicStatement(TestCase):
         self.assertEqual(behaviour_tree, {1: response2})
 
         # check with elif on false
-        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND PLAYER.money < 50", "test")
+        statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND 100 < 50", "test")
         statement1.set_behaviour_tree({1: response1})
         statement2 = people._LogicStatement(2, "ACTIVITY.walking", "tost")
         statement2.set_behaviour_tree({1: response2})
@@ -330,13 +369,13 @@ class TestTimeActivities(TestCase):
 
     def test_read_pattern_lines(self):
         # simple version
-        time_activities = people._TimeActivities(">>>TIME_PATTERNS\n0:sleeping\n7:cooking\n10:cleaning", "test")
+        time_activities = people._TimeActivities(">>>TIME_PATTERNS\n0;sleeping\n7;cooking\n10;cleaning", "test")
         self.assertEqual(time_activities.get_current_activity(0), "sleeping")
         self.assertEqual(time_activities.get_current_activity(8), "cooking")
         self.assertEqual(time_activities.get_current_activity(23), "cleaning")
 
         # certain values unfilled
-        time_activities = people._TimeActivities(">>>TIME_PATTERNS\n10:cleaning", "test")
+        time_activities = people._TimeActivities(">>>TIME_PATTERNS\n10;cleaning", "test")
         self.assertEqual(time_activities.get_current_activity(0), None)
         self.assertEqual(time_activities.get_current_activity(8), None)
         self.assertEqual(time_activities.get_current_activity(23), "cleaning")
@@ -347,19 +386,42 @@ class TestTimeActivities(TestCase):
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
-        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n0:", "test")
-        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0:' for person "
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n0;", "test")
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time_pattern line '0;' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
-        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\nga:cooling", "test")
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\nga;cooling", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time 'ga' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
-        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n24:cooling", "test")
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n24;cooling", "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '24' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
 
-        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n2:cooling\n2:cooking",
+        output, _ = testing_utility.capture_print(people._TimeActivities, ">>>TIME_PATTERNS\n2;cooling\n2;cooking",
                                                   "test")
-        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '24' for person "
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Invalid time '2' for person "
                                  f"'test'.{lazy_constants.RESET_COLOR}\n")
+
+
+class TestCharacteSpecificData(TestCase):
+
+    @classmethod
+    def setUp(cls) -> None:
+        testing_setup.setup_test_folder()
+        testing_setup.create_test_account()
+
+    @classmethod
+    def tearDown(cls) -> None:
+        testing_setup.remove_test_account()
+        testing_setup.remove_test_folder()
+
+    def test_read_character_data(self):
+        character_data = people._CharacteSpecificData("# general_separator, item_name, quantity\n"
+                                                      "INVENTORY;coin;5\n"
+                                                      "MEMORY;test;this is a testing message", "test")
+        self.assertEqual(character_data._memory, {'test': 'this is a testing message'})
+        self.assertEqual(character_data._inventory, {"coin": "5"})
+
+    def test_read_character_data_fail(self):
+        self.fail()
