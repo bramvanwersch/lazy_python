@@ -143,6 +143,7 @@ class _ResponseTree:
 
     __ANSWER = "ANSWER"  # user is expected to choose an answer
     __REPLY = ""  # basic type just reply
+    __GIVE = "GIVE"
 
     __CONDITION_IF = "IF"
     __CONDITION_ELIF = "ELIF"
@@ -271,6 +272,8 @@ class _ResponseTree:
             return _AnswerResponse
         if response_type == self.__REPLY:
             return _ReplyResponse
+        # if response_type == self.__GIVE:
+        #     return _GiveResponse
         lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_RESPONSE_TYPE, debug_warning=True, name=self._name,
                            type=response_type)
         return None
@@ -459,6 +462,23 @@ class _AnswerResponse(_Response):
         self._total_answers = 0
         super().__init__(id_, lines, responses, person)
 
+    def trigger(self) -> str:
+        return self.get_response_id()
+
+    def get_response_id(self) -> str:
+        pass
+
+    def __str__(self):
+        return f"<AnswerResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
+
+
+class _GiveResponse(_Response):
+    # TODO add tests
+    # give an item to the player
+    def __init__(self, id_, lines, responses, person):
+        self._total_answers = 0
+        super().__init__(id_, lines, responses, person)
+
     def trigger(self) -> int:
         continue_last = False if self.id == 0 else True
         lazy_utility.message(f"choose one of:\n{self.text}", continue_last=continue_last,
@@ -480,7 +500,7 @@ class _AnswerResponse(_Response):
         return formatted_text[:-1]  # remove last newline
 
     def __str__(self):
-        return f"<AnswerResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
+        return f"<GiveResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
 
 
 class _CharacteSpecificData:
