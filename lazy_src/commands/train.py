@@ -62,6 +62,10 @@ def fish(*_):
     _set_training_skill(skills.Skills.FISHING)
 
 
+def mine(*_):
+    _set_training_skill(skills.Skills.MINING)
+
+
 TRAINING_COMMANDS = _commands.Command("train", description="The train command is used to train various skills. The "
                                                            "skills that can be trained depend on the current area and "
                                                            "location. An area can always be explored to reveal more "
@@ -72,6 +76,8 @@ TRAINING_COMMANDS.add_command(skills.Skills.EXPLORING.name, explore, "Explore th
 TRAINING_COMMANDS.add_command(skills.Skills.WOODCUTTING.name, woodcut, "Woodcut at the current location",
                               f"lazy train {skills.Skills.WOODCUTTING.name}")
 TRAINING_COMMANDS.add_command(skills.Skills.FISHING.name, fish, "Fish at the current location",
+                              f"lazy train {skills.Skills.FISHING.name}")
+TRAINING_COMMANDS.add_command(skills.Skills.MINING.name, mine, "Mine at the current location",
                               f"lazy train {skills.Skills.FISHING.name}")
 TRAINING_COMMANDS.add_command(skills.Skills.GATHERING.name, gather, "Gather at the current location",
                               f"lazy train {skills.Skills.GATHERING.name}")

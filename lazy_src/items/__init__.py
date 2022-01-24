@@ -24,6 +24,13 @@ class Items:
     SALMON = FoodItem("salmon", "I love to eat this with dill", 2)
     SHRIMP = FoodItem("shrimp", "I loveee shrimp.", 0)
     OLD_BOOT = GeneralItem("old boot", "Who leaves a perfectly fine boot like that... Oh nevermind. Yuck.")
+    PEBBLE = GeneralItem("pebble", "A simple rock.")
+    IRON_NUGGET = GeneralItem("iron nugget", "A small piece of iron.")
+    MYSTERY_STONE = GeneralItem("mystery stone", "What is in it?")
+    GOLD_NUGGET = GeneralItem("gold nugget", "A small piece of gold.")
+    ROCK = GeneralItem("rock", "It's not just a rock its a boulder!")
+    COAL_CHUNK = GeneralItem("coal chunk", "A piece of coal, luckily it is not christmas.")
+    IRON_ORE = GeneralItem("iron ore", "A large piece of iron.")
 
     @classmethod
     def all_items(cls):
