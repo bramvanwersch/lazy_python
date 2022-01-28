@@ -1,0 +1,31 @@
+>>>BEHAVIOUR
+# ref_id, message, next_id, person talking, repsponse_type
+IF ACTIVITY.sleeping:
+0;Dad is sleeping, lets leave him alone or he becomes realy grumpy;;player;
+ELSE:
+0;Hey son how are you today, are you ready to go on that journey?;1;;
+1;I am as ready as ill ever be|I don'n know if I can do it dad|Why am i going on a journey again?;2 3 4;player;ANSWER
+2;Good to hear son. Here are some supplies to take with you;5;;
+3;Of course you can. I believe in you;5;;
+4;To learn crafts in the world in order to make use money. We are running out and winter is approaching;5;;
+5;Here are some supplies;6;;GIVE
+6;Thanks dad;;player;
+
+
+>>>STATS
+health;10
+base_friendship;10
+
+>>>START
+# general_separator, item_name, quantity
+INVENTORY;coin;1
+INVENTORY;old bread;2
+INVENTORY;stone axe;1
+
+>>>TIME_PATTERNS
+0;sleeping
+7;eating
+10;working
+18;eating
+20;resting
+23;sleeping

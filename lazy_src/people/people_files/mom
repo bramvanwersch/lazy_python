@@ -20,7 +20,6 @@ base_friendship;10
 INVENTORY;coin;5
 
 # general_separator, memory_name (no spaces), memory
-MEMORY;test;this is a testing message
 
 >>>TIME_PATTERNS
 0;sleeping
