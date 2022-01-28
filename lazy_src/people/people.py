@@ -9,7 +9,6 @@ from lazy_src import lazy_utility
 from lazy_src import lazy_warnings
 from lazy_src import items
 
-
 # TODO add tests
 #  Add player stats where player specific values can be requested
 
@@ -212,12 +211,12 @@ class _ResponseTree:
         return logic_paths
 
     def _read_logic_statement(
-        self,
-        line: str,
-        prev_statement: Union["_LogicStatement", None]
+            self,
+            line: str,
+            prev_statement: Union["_LogicStatement", None]
     ) -> Union["_LogicStatement", None]:
 
-        values = line.removesuffix(":").split(" ", 1)
+        values = line.replace(":", "").split(" ", 1)
         if len(values) == 2:
             keyword, statement = values
         else:
@@ -247,7 +246,7 @@ class _ResponseTree:
         substiute_values = re.findall("\{.+?\}", line)  # noqa
         for value in substiute_values:
             replace_value = "<NOT FOUND>"
-            value_name = value.removesuffix("}").split(".")[1]
+            value_name = value.replace("}", "").split(".")[1]
             if INVENTORY_CONST in value:
                 item_dict = character_specific_data.get_item(value_name)
                 if item_dict is not None:
@@ -262,7 +261,7 @@ class _ResponseTree:
                     replace_value = player_value
             else:
                 lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.UNKNOWN_SUBSTITUTE_CONSTANT, debug_warning=True,
-                                   constant=value.removeprefix("{").split(".")[0])
+                                   constant=value.replace("{", "").split(".")[0])
                 continue
             line = line.replace(value, replace_value)
         return line
@@ -404,7 +403,6 @@ class _LogicStatement:
 
 
 class _Response(ABC):
-
     END_CONVERSATION_ID = "-1"
 
     id: int
@@ -488,7 +486,7 @@ class _GiveResponse(_Response):
     def get_response_id(self) -> int:
         return lazy_utility.ask_answer(
             f"Invalid answer choose one of {', '.join(map(str, range(1, self._total_answers + 1)))}",
-            {str(index+1): self.next_ids[index] for index in range(self._total_answers)})
+            {str(index + 1): self.next_ids[index] for index in range(self._total_answers)})
 
     def _prepare_lines(self, lines: str) -> str:
         formatted_text = ""
@@ -522,7 +520,9 @@ class _CharacteSpecificData:
         return None
 
     def _read_character_data(self, starting_data):
-        active_user_dir = lazy_utility.active_user_dir()
+        active_user_dir = lazy_utility.active_user_dir(return_on_fail=None)
+        if active_user_dir is None:
+            return
         person_file_name = active_user_dir / lazy_constants.USER_PEOPLE_DIR / self.name
         # first time setup
         if not person_file_name.exists():

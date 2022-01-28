@@ -140,12 +140,14 @@ def remove_lines_from_file(file: Union[str, "Path"], lines: List[str], first_onl
         f.write(''.join(new_text))
 
 
-def active_user_dir(username: Union[None, str] = None) -> "Path":
+def active_user_dir(username: Union[None, str] = None, return_on_fail: Any = "do_exit") -> "Path":
     if username is None:
         username = get_values_from_file(lazy_constants.GENERAL_INFO_PATH, [lazy_constants.FILE_GENERAL_ACTIVE_USER])[0]
     if username == "":
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER)
-        sys.exit(0)
+        if return_on_fail == "do_exit":
+            sys.exit(0)
+        return return_on_fail
     return lazy_constants.USER_DIRS_PATH / username
 
 

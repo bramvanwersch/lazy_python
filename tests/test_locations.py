@@ -27,7 +27,7 @@ class TestLocation(TestCase):
         random.seed(1)
         area = green_woods_area_definitions.green_woods
         xp_dict, location_dict = area.perform_activity_rolls("", skills.Skills.EXPLORING.name, 3600)
-        self.assertEqual(xp_dict, {'fishing': 0, 'exploring': 300, 'gathering': 0, 'woodcutting': 0})
+        self.assertEqual({"exploring": 300}, {key: value for key, value in xp_dict.items() if value != 0})
         self.assertEqual(location_dict, {"small_lake": 1, "old_tree": 1})
 
     def test_area_train(self):
@@ -35,5 +35,5 @@ class TestLocation(TestCase):
         area = green_woods_area_definitions.green_woods
         xp_dict, item_dict = area.perform_activity_rolls(lazy_constants.STARTING_LOCATION, skills.Skills.GATHERING.name,
                                                          3600)
-        self.assertEqual(xp_dict, {'exploring': 0, 'gathering': 4, 'woodcutting': 0, 'fishing': 0})
+        self.assertEqual({"gathering": 4}, {key: value for key, value in xp_dict.items() if value != 0})
         self.assertEqual(item_dict, {'old bread': 2, 'coin': 4})
