@@ -36,9 +36,12 @@ class Test(TestCase):
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
         user_dir = lazy_constants.USER_DIRS_PATH / "test"
+        xp_dict = {}
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
-            text = f.read()
-        self.assertEqual(text, "exploring:0\ngathering:4\nwoodcutting:0\nfishing:0\n")
+            for line in f:
+                key, value = line.strip().split(":")
+                xp_dict[key] = int(value)
+        self.assertEqual({"gathering": 4}, {key: value for key, value in xp_dict.items() if value != 0})
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
@@ -55,9 +58,12 @@ class Test(TestCase):
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 3 X coin{lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found old bread{lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
+        xp_dict = {}
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
-            text = f.read()
-        self.assertEqual(text, "exploring:0\ngathering:7\nwoodcutting:0\nfishing:0\n")
+            for line in f:
+                key, value = line.strip().split(":")
+                xp_dict[key] = int(value)
+        self.assertEqual({"gathering": 7}, {key: value for key, value in xp_dict.items() if value != 0})
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
@@ -81,9 +87,12 @@ class Test(TestCase):
                          f"(....)> {lazy_constants.GREEN_COLOR}You discovered old_tree{lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
         user_dir = lazy_constants.USER_DIRS_PATH / "test"
+        xp_dict = {}
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
-            text = f.read()
-        self.assertEqual(text, "exploring:300\ngathering:0\nwoodcutting:0\nfishing:0\n")
+            for line in f:
+                key, value = line.strip().split(":")
+                xp_dict[key] = int(value)
+        self.assertEqual({"exploring": 300}, {key: value for key, value in xp_dict.items() if value != 0})
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
@@ -98,9 +107,12 @@ class Test(TestCase):
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}exploring: +120xp (15-17){lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
+        xp_dict = {}
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
-            text = f.read()
-        self.assertEqual(text, "exploring:420\ngathering:0\nwoodcutting:0\nfishing:0\n")
+            for line in f:
+                key, value = line.split(":")
+                xp_dict[key] = int(value)
+        self.assertEqual({"exploring": 420}, {key: value for key, value in xp_dict.items() if value != 0})
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()

@@ -40,7 +40,10 @@ class Test(TestCase):
         try:
             with open(user_file_dir / "levels.txt") as f:
                 text = f.read()
-            self.assertEqual(text, 'exploring:0\ngathering:0\nwoodcutting:0\nfishing:0\n')
+            self.assertEqual(text, 'exploring:0\ngathering:0\nwoodcutting:0\nfishing:0\nmining:0\nstealing:0\nfarming:0'
+                                   '\narcheology:0\nhunting:0\nranging:0\nfighting:0\nspellcasting:0\nworshipping:0\n'
+                                   'leatherworking:0\nfletching:0\nweaving:0\narmor_smithing:0\nweapon_smithing:0\n'
+                                   'brewing:0\nbuilding:0\ncooking:0\nwriting:0\n')
         except IOError:
             self.fail("levels.txt file is missing on new account creation")
 
@@ -124,7 +127,25 @@ class Test(TestCase):
         self.assertEqual(output, "(lazy)> The current active account is: test\n"
                                  "(....)> Levels:\n(....)> exploring: 0 (10 until next)\n"
                                  "(....)> gathering: 0 (10 until next)\n(....)> woodcutting: 0 (10 until next)\n"
-                                 "(....)> fishing: 0 (10 until next)\n")
+                                 "(....)> fishing: 0 (10 until next)\n"
+                                 "(....)> mining: 0 (10 until next)\n"
+                                 "(....)> stealing: 0 (10 until next)\n"
+                                 "(....)> farming: 0 (10 until next)\n"
+                                 "(....)> archeology: 0 (10 until next)\n"
+                                 "(....)> hunting: 0 (10 until next)\n"
+                                 "(....)> ranging: 0 (10 until next)\n"
+                                 "(....)> fighting: 0 (10 until next)\n"
+                                 "(....)> spellcasting: 0 (10 until next)\n"
+                                 "(....)> worshipping: 0 (10 until next)\n"
+                                 "(....)> leatherworking: 0 (10 until next)\n"
+                                 "(....)> fletching: 0 (10 until next)\n"
+                                 "(....)> weaving: 0 (10 until next)\n"
+                                 "(....)> armor_smithing: 0 (10 until next)\n"
+                                 "(....)> weapon_smithing: 0 (10 until next)\n"
+                                 "(....)> brewing: 0 (10 until next)\n"
+                                 "(....)> building: 0 (10 until next)\n"
+                                 "(....)> cooking: 0 (10 until next)\n"
+                                 "(....)> writing: 0 (10 until next)\n")
 
         # check for items
         output, _ = testing_utility.capture_print(account.info, "items")
