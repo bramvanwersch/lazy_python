@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from lazy_src.people import people
-from lazy_src import lazy_constants
+from lazy_src.items import ITEM_MAPPING
+from lazy_src import lazy_constants, lazy_utility
 import testing_utility
 import testing_setup
 
@@ -28,9 +29,10 @@ class TestResponseTree(TestCase):
             "1;Sup Son;;;\n",
             "test", empty_character_data)
         output, _ = testing_utility.capture_print(tree.conversate, "")
-        self.assertEqual(output,
-                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+        self.assertEqual(
+            output,
+            f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+            f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
         tree = people._ResponseTree(
             ">>>BEHAVIOUR\n"
@@ -46,9 +48,10 @@ class TestResponseTree(TestCase):
                          f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: test is sleeping I better not "
                          f"talk to her{lazy_constants.RESET_COLOR}\n")
         output, _ = testing_utility.capture_print(tree.conversate, "")
-        self.assertEqual(output,
-                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+        self.assertEqual(
+            output,
+            f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+            f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
         tree = people._ResponseTree(
             ">>>BEHAVIOUR\n"
@@ -72,9 +75,10 @@ class TestResponseTree(TestCase):
                          f"{lazy_constants.RESET_COLOR}\n")
 
         output, _ = testing_utility.capture_print(tree.conversate, "anything else")
-        self.assertEqual(output,
-                         f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
+        self.assertEqual(
+            output,
+            f"(lazy)> {lazy_constants.CONVERSATION_COLOR}player sais: Sup test{lazy_constants.RESET_COLOR}\n"
+            f"(....)> {lazy_constants.CONVERSATION_COLOR}test sais: Sup Son{lazy_constants.RESET_COLOR}\n")
 
     def test_read_behavior(self):
         # test no logic statements
@@ -268,7 +272,7 @@ class TestLogicStatement(TestCase):
     def test_get_behaviour_tree(self):
         # simple test succes
         statement = people._LogicStatement(1, "ACTIVITY.working", "test")
-        response = people._ReplyResponse(1, ["hey"], "", "test")
+        response = people._ReplyResponse(1, ["hey"], "", "test", people._CharacteSpecificData("", "test"))
         statement.set_behaviour_tree({1: response})
         behaviour_tree = statement.get_behaviour_tree("working")
         self.assertEqual(behaviour_tree, {1: response})
@@ -327,9 +331,9 @@ class TestLogicStatement(TestCase):
 
     def test_get_behaviour_tree_chained(self):
         # test if works with elif/ else statements
-        response1 = people._ReplyResponse(1, ["hey1"], "", "test")
-        response2 = people._ReplyResponse(1, ["hey2"], "", "tost")
-        response3 = people._ReplyResponse(1, ["hey3"], "", "tast")
+        response1 = people._ReplyResponse(1, ["hey1"], "", "test", people._CharacteSpecificData("", "test"))
+        response2 = people._ReplyResponse(1, ["hey2"], "", "tost", people._CharacteSpecificData("", "tost"))
+        response3 = people._ReplyResponse(1, ["hey3"], "", "tast", people._CharacteSpecificData("", "tast"))
 
         # check with else
         statement1 = people._LogicStatement(1, "NOT ACTIVITY.working AND 100 < 50", "test")  # is false
@@ -434,7 +438,7 @@ class TestCharacteSpecificData(TestCase):
                                                       "INVENTORY;coin;5\n"
                                                       "MEMORY;test;this is a testing message", "test")
         self.assertEqual(character_data._memory, {'test': 'this is a testing message'})
-        self.assertEqual(character_data._inventory, {"coin": "5"})
+        self.assertEqual(character_data._inventory, {"coin": 5})
 
     def test_read_character_data_fail1(self):
         output, _ = testing_utility.capture_print(people._CharacteSpecificData,
@@ -486,3 +490,29 @@ class TestCharacteSpecificData(TestCase):
                                                   "test")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}Double data entry with identifier 'coin' for "
                                  f"person test.{lazy_constants.RESET_COLOR}\n")
+
+    def test_remove_items(self):
+        character_data = people._CharacteSpecificData(">>>START\n"
+                                                      "# general_separator, item_name, quantity\n"
+                                                      "INVENTORY;coin;5\n"
+                                                      "MEMORY;test;this is a testing message", "test")
+        removed_items = character_data.remove_items({ITEM_MAPPING["coin"]: 6})
+        self.assertEqual(removed_items, {ITEM_MAPPING["coin"]: 5})
+        active_user_dir = lazy_utility.active_user_dir("test")
+        person_file = active_user_dir / lazy_constants.USER_PEOPLE_DIR / "test"
+        with open(person_file) as f:
+            text = f.read()
+        self.assertEqual(text, ">>>INVENTORY\ncoin;0\n>>>MEMORY\ntest;this is a testing message")
+
+    def test_add_items(self):
+        character_data = people._CharacteSpecificData(">>>START\n"
+                                                      "# general_separator, item_name, quantity\n"
+                                                      "INVENTORY;coin;15\n"
+                                                      "MEMORY;test;this is a testing message", "test")
+        character_data.add_items({ITEM_MAPPING["coin"]: 6})
+        self.assertEqual(character_data._inventory["coin"], 21)
+        active_user_dir = lazy_utility.active_user_dir("test")
+        person_file = active_user_dir / lazy_constants.USER_PEOPLE_DIR / "test"
+        with open(person_file) as f:
+            text = f.read()
+        self.assertEqual(text, ">>>INVENTORY\ncoin;21\n>>>MEMORY\ntest;this is a testing message")

@@ -5,10 +5,10 @@ IF ACTIVITY.sleeping:
 ELSE:
 0;Hey son how are you today, are you ready to go on that journey?;1;;
 1;I am as ready as ill ever be|I don'n know if I can do it dad|Why am i going on a journey again?;2 3 4;player;ANSWER
-2;Good to hear son. Here are some supplies to take with you;5;;
+2;Good to hear son.;5;;
 3;Of course you can. I believe in you;5;;
-4;To learn crafts in the world in order to make use money. We are running out and winter is approaching;5;;
-5;Here are some supplies;6;;GIVE
+4;To learn crafts in the world in order to make us money. We are running out and winter is approaching;5;;
+5;Here are some supplies|INVENTORY.coin.1|INVENTORY.old bread.2|INVENTORY.stone axe.1;6;;GIVE
 6;Thanks dad;;player;
 
 

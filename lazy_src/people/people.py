@@ -1,6 +1,6 @@
 import random
 import re
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Union, Type, Dict, List
 import datetime
 
@@ -199,7 +199,8 @@ class _ResponseTree:
             response_class = self._get_response_class(response_type)
             if response_class is None:
                 continue
-            behaviour_tree[number] = response_class(number, talk_lines, responses, talking_person)
+            behaviour_tree[number] = response_class(number, talk_lines, responses, talking_person,
+                                                    character_specific_data)
 
         # make sure to add the last behaviour tree
         if previous_logic_statement is not None:
@@ -211,9 +212,9 @@ class _ResponseTree:
         return logic_paths
 
     def _read_logic_statement(
-            self,
-            line: str,
-            prev_statement: Union["_LogicStatement", None]
+        self,
+        line: str,
+        prev_statement: Union["_LogicStatement", None]
     ) -> Union["_LogicStatement", None]:
 
         values = line.replace(":", "").split(" ", 1)
@@ -241,7 +242,6 @@ class _ResponseTree:
         return statement
 
     def _substitute_data(self, line, character_specific_data: "_CharacteSpecificData") -> str:
-        # TODO add tests for missing values of memory and inventory
         # substitute values in a line that are requested with { }
         substiute_values = re.findall("\{.+?\}", line)  # noqa
         for value in substiute_values:
@@ -271,8 +271,8 @@ class _ResponseTree:
             return _AnswerResponse
         if response_type == self.__REPLY:
             return _ReplyResponse
-        # if response_type == self.__GIVE:
-        #     return _GiveResponse
+        if response_type == self.__GIVE:
+            return _GiveResponse
         lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_RESPONSE_TYPE, debug_warning=True, name=self._name,
                            type=response_type)
         return None
@@ -409,12 +409,21 @@ class _Response(ABC):
     next_ids: Union[List[str], None]
     text: str
     person: str
+    _character_data: "_CharacteSpecificData"
 
-    def __init__(self, id_: int, talk_lines: List[str], responses: str, person: str):
+    def __init__(
+        self,
+        id_: int,
+        talk_lines: List[str],
+        responses: str,
+        person: str,
+        character_data: "_CharacteSpecificData"
+    ):
         self.id = id_
+        self._character_data = character_data
+        self.person = person
         self.next_ids = self._disect_response_ids(responses)
         self.text = self._prepare_lines(talk_lines)
-        self.person = person
 
     def _prepare_lines(self, lines: List[str]) -> str:
         return '\n'.join(lines)
@@ -431,9 +440,10 @@ class _Response(ABC):
             lazy_utility.message_person(self.text, self.person, continue_last=continue_last)
         return self.get_response_id()
 
-    @abstractmethod
     def get_response_id(self) -> str:
-        pass
+        if self.next_ids is None:
+            return self.END_CONVERSATION_ID  # end of conversation
+        return random.choice(self.next_ids)
 
     def __str__(self):
         return f"<Response object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
@@ -445,57 +455,88 @@ class _Response(ABC):
 class _ReplyResponse(_Response):
     # simply reply one or more options without further input
 
-    def get_response_id(self) -> str:
-        if self.next_ids is None:
-            return self.END_CONVERSATION_ID  # end of conversation
-        return random.choice(self.next_ids)
-
     def __str__(self):
         return f"<ReplyResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
 
 
 class _AnswerResponse(_Response):
     # expect an answer from the user
-    def __init__(self, id_, lines, responses, person):
-        self._total_answers = 0
-        super().__init__(id_, lines, responses, person)
+    def __init__(self, id_, lines, responses, person, character_data):
+        super().__init__(id_, lines, responses, person, character_data)
+
+    def _prepare_lines(self, lines: List[str]) -> str:
+        new_lines = ["Choose one of:"]
+        for index, line in enumerate(lines):
+            new_lines.append(f"  {index + 1}: {line}")
+
+        return super()._prepare_lines(new_lines)
 
     def trigger(self) -> str:
+        continue_last = False if self.id == "0" else True
+        if self.text != "":
+            lazy_utility.message(self.text, continue_last=continue_last, color=lazy_constants.CONVERSATION_COLOR)
         return self.get_response_id()
 
     def get_response_id(self) -> str:
-        pass
+        return lazy_utility.ask_answer(
+            f"Invalid answer choose one of {', '.join(map(str, range(1, len(self.next_ids) + 1)))}",
+            {str(index + 1): self.next_ids[index] for index in range(len(self.next_ids))})
 
     def __str__(self):
-        return f"<AnswerResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
+        ans_text = self.text.replace('\n', '|')
+        return f"<AnswerResponse object[id: {self.id}, next_ids: {self.next_ids}, " \
+               f"text: {ans_text}]>"
 
 
 class _GiveResponse(_Response):
-    # TODO add tests
+    # TODO make sure this is tested --> YES still
     # give an item to the player
-    def __init__(self, id_, lines, responses, person):
-        self._total_answers = 0
-        super().__init__(id_, lines, responses, person)
+    def __init__(self, id_, lines, responses, person, character_data):
+        self._give_items = {}
+        super().__init__(id_, lines, responses, person, character_data)
 
-    def trigger(self) -> int:
-        continue_last = False if self.id == 0 else True
-        lazy_utility.message(f"choose one of:\n{self.text}", continue_last=continue_last,
-                             color=lazy_constants.CONVERSATION_COLOR)
-        return self.get_response_id()
-
-    def get_response_id(self) -> int:
-        return lazy_utility.ask_answer(
-            f"Invalid answer choose one of {', '.join(map(str, range(1, self._total_answers + 1)))}",
-            {str(index + 1): self.next_ids[index] for index in range(self._total_answers)})
+    def trigger(self) -> str:
+        removed_items = self._character_data.remove_items(self._give_items)
+        removed_items = {item.name: quantity for item, quantity in removed_items.items()}
+        items.add_items(removed_items)
+        return super().trigger()
 
     def _prepare_lines(self, lines: str) -> str:
-        formatted_text = ""
-        self._total_answers = len(lines)
-        if self._total_answers <= 1:
-            lazy_warnings.warn(lazy_warnings.DevelopLazyWarning, debug_warning=True)
-        for index, response in enumerate(lines):
-            formatted_text += f"  [{index + 1}] {response}\n"
-        return formatted_text[:-1]  # remove last newline
+        # first line is description then list of items
+        if len(lines) == 1:
+            lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_PERSON_LINE, debug_warning=True,
+                               name=self.person, line='|'.join(lines),
+                               extra_info="Expected at least 2 lines containing. First one being the description. "
+                                          "Second an item to give.")
+        final_text = lines[0]
+        any_given = False  # if any of the items is sufficiently present to be given
+        for line in lines[1:]:
+            values = line.split(".")
+            if len(values) != 3:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_PERSON_LINE, debug_warning=True,
+                                   name=self.person, line='|'.join(lines),
+                                   extra_info="Inventory item expects 3 values INVENTORY.name.quantity")
+                continue
+            item = items.ITEM_MAPPING[values[1]]
+            available_item = self._character_data.get_item(values[1])
+            if available_item is None:
+                continue
+            available_item_quantity = available_item.popitem()[1]
+            try:
+                wanted_give = int(values[2])
+                wanted_give = min(available_item_quantity, wanted_give)
+                if wanted_give == 0:
+                    continue
+                any_given = True
+                self._give_items[item] = wanted_give
+                final_text += f"\n- {values[1]}: {wanted_give}"
+            except ValueError:
+                lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INCOMPLETE_PERSON_LINE, debug_warning=True,
+                                   name=self.person, line='|'.join(lines),
+                                   extra_info=f"Item quantity should be integer. Got {values[2]}")
+        if any_given is False:
+            return ""
+        return final_text
 
     def __str__(self):
         return f"<GiveResponse object[id: {self.id}, next_ids: {self.next_ids}, text: {self.text}]>"
@@ -503,16 +544,60 @@ class _GiveResponse(_Response):
 
 class _CharacteSpecificData:
 
+    _inventory: Dict[str, int]
+    _memory: Dict[str, str]
+
     def __init__(self, starting_data, name):
         self.name = name
         self._inventory = {}
         self._memory = {}
         self._read_character_data(starting_data)
 
-    def get_item(self, name) -> Union[Dict[items.Item, int], None]:
+    def get_item(self, name: str) -> Union[Dict[items.Item, int], None]:
         if name in self._inventory:
             return {items.ITEM_MAPPING[name]: int(self._inventory[name])}
         return None
+
+    def remove_items(self, item_dict: Dict[items.Item, int]) -> Dict[items.Item, int]:
+        actualy_removed = {}  # track what is actually removed to make sure that items are not overgiven
+        for item, quantity in item_dict.items():
+            item_str = item.name
+            if item_str in self._inventory:
+                available_quantity = self._inventory[item_str]
+                removed_quantity = min(available_quantity, quantity)
+                self._inventory[item_str] -= removed_quantity
+            else:
+                removed_quantity = 0
+            actualy_removed[item] = removed_quantity
+        # save change
+        self._write_character_data()
+        return actualy_removed
+
+    def add_items(self, item_dict: Dict[items.Item, int]):
+        for item, amnt in item_dict.items():
+            item_str = item.name
+            if item_str in self._inventory:
+                self._inventory[item_str] += amnt
+            else:
+                self._inventory[item_str] = amnt
+        self._write_character_data()
+
+    def _write_character_data(self):
+        # writes current values in invenory and memory values --> should be called when these values are changed to save
+        # changes
+        new_file_text = [f"{COMPONENT_SPLITTER}{INVENTORY_CONST}"]
+        for key, value in self._inventory.items():
+            new_file_text.append(f"{key}{STATEMENT_SEP}{value}")
+        new_file_text.append(f"{COMPONENT_SPLITTER}{MEMORY_CONST}")
+        for key, value in self._memory.items():
+            new_file_text.append(f"{key}{STATEMENT_SEP}{value}")
+
+        active_user_dir = lazy_utility.active_user_dir()
+        person_file = active_user_dir / lazy_constants.USER_PEOPLE_DIR / self.name
+        # first clear the file and make sure it exists
+        open(person_file, "w").close()
+        with open(person_file, "w") as f:
+            f.write('\n'.join(new_file_text))
 
     def get_memory(self, name) -> Union[str, None]:
         if name in self._memory:
@@ -520,7 +605,8 @@ class _CharacteSpecificData:
         return None
 
     def _read_character_data(self, starting_data):
-        active_user_dir = lazy_utility.active_user_dir(return_on_fail=None)
+        # dont notify users on fail
+        active_user_dir = lazy_utility.active_user_dir(return_on_fail=None, warn=False)
         if active_user_dir is None:
             return
         person_file_name = active_user_dir / lazy_constants.USER_PEOPLE_DIR / self.name
@@ -585,7 +671,10 @@ class _CharacteSpecificData:
                 elif not value.isdigit():
                     lazy_warnings.warn(lazy_warnings.DevelopLazyWarning.INVALID_ITEM_QUANTITY, debug_warning=True)
                     continue
-            value_mapping[identifier] = value
+            if is_item:
+                value_mapping[identifier] = int(value)
+            else:
+                value_mapping[identifier] = value
         return value_mapping
 
 
