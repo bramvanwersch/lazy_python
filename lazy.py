@@ -23,13 +23,17 @@ def main():
 
 
 def show_main_help():
-    lazy_utility.message("Welcome to lazy. This program is used with the help of a number of commands. Here is a list of "
-                    "all the possible commands and a small explanation. Each command has additional help information "
-                    "by typing the command followed by help.")
-    for command_name, command in commands.COMMANDS.items():
+    lazy_utility.message("Welcome to lazy. This program is used with the help of a number of commands. Here is a "
+                         "list of all the possible commands and a small explanation. Each command has additional help "
+                         "information by typing the command followed by help.")
+    for index, (command_name, command) in enumerate(commands.COMMANDS.items()):
         if command_name == "help":
             continue
-        lazy_utility.message(f" - {command_name}: {command.help_text}")
+        if index == 0:
+            continue_last = False
+        else:
+            continue_last = True
+        lazy_utility.message(f" - {command_name}: {command.help_text}", continue_last=continue_last)
 
 
 if __name__ == '__main__':

@@ -163,20 +163,30 @@ def _show_general_information(user_dir, full_message):
 
 def _show_levels(user_dir, full_message):
     full_message += "Levels:\n"
+    infos = []
     with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
         for line in f:
             name, xp = line.strip().split(":")
             level = skills.xp_to_level(int(xp))
             xp_to_next = skills.xp_to_next_level(int(xp))
-            full_message += f"{name}: {level} ({xp_to_next} until next)\n"
+            infos.append([name, level, xp_to_next])
+    infos.sort()
+    for skill_info in infos:
+        name, level, xp_to_next = skill_info
+        full_message += f"{name}: {level} ({xp_to_next} until next)\n"
     lazy_utility.message(full_message[:-1])
 
 
 def _show_inventory(user_dir, full_message):
+    infos = []
     with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
         for line in f:
             name, total = line.strip().split(":")
-            full_message += f"{name}: {total}\n"
+            infos.append([name, total])
+    infos.sort()
+    for item_info in infos:
+        name, total = item_info
+        full_message += f"{name}: {total}\n"
     lazy_utility.message(full_message[:-1])
 
 
