@@ -38,7 +38,10 @@ class Test(TestCase):
         user_dir = lazy_constants.USER_DIRS_PATH / "test"
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             text = f.read()
-        self.assertEqual(text, "exploring:0\ngathering:4\nwoodcutting:0\nfishing:0\n")
+        for line in text:
+            if line.startswith("gathering"):
+                self.assertEqual(line, "gathering:4\n")
+                break
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
@@ -57,13 +60,16 @@ class Test(TestCase):
         # check items and levels being written properly
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             text = f.read()
-        self.assertEqual(text, "exploring:0\ngathering:7\nwoodcutting:0\nfishing:0\n")
+        for line in text:
+            if line.startswith("gathering"):
+                self.assertEqual(line, "gathering:7\n")
+                break
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
         self.assertEqual(text, "old bread:3\ncoin:7\n")
 
-        # NOTE: there is no real way to asser that the time stamp is written
+        # NOTE: there is no real way to assert that the time stamp is written
 
     def test_check_explore(self):
         # because exploring is handled differntly
@@ -83,7 +89,10 @@ class Test(TestCase):
         user_dir = lazy_constants.USER_DIRS_PATH / "test"
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             text = f.read()
-        self.assertEqual(text, "exploring:300\ngathering:0\nwoodcutting:0\nfishing:0\n")
+        for line in text:
+            if line.startswith("exploring"):
+                self.assertEqual(line, "exploring:300\n")
+                break
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
@@ -100,7 +109,10 @@ class Test(TestCase):
         # check items and levels being written properly
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             text = f.read()
-        self.assertEqual(text, "exploring:420\ngathering:0\nwoodcutting:0\nfishing:0\n")
+        for line in text:
+            if line.startswith("exploring"):
+                self.assertEqual(line, "exploring:420\n")
+                break
 
         with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
             text = f.read()
@@ -115,7 +127,8 @@ class Test(TestCase):
                                  "(....)> - ???: ???\n"
                                  "(....)> - ???: ???\n"
                                  "(....)> - home: A place with good and bad memories\n")
-        # check wrong name
+
+    def test_examine_area_wrong_name(self):
         output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
@@ -128,7 +141,8 @@ class Test(TestCase):
                                  "(....)> Activities:\n"
                                  "(....)>  - gathering (min. lvl. 0 gathering): There might be some supplies left,"
                                  " on the other hand there is a reason im leaving.\n")
-        # check wrong name
+
+    def test_examine_location_wrong_name(self):
         output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
@@ -149,7 +163,8 @@ class Test(TestCase):
                                  "(....)>  - small dagger: 1\n"
                                  "(....)>  - black cape: 1\n"
                                  "(....)>  - leather boots: 1\n")
-        # check wrong name
+
+    def test_examine_activity_wrong_name(self):
         output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
         self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No area with name green_woodse:r."
                                  f"{lazy_constants.RESET_COLOR}\n")
@@ -163,11 +178,14 @@ class Test(TestCase):
                                  f"{lazy_constants.RESET_COLOR}\n")
 
     def test_examine_item(self):
-        output, _ = testing_utility.capture_print(general_commands.examine_item, "log", "logger")
-        self.assertEqual(output, "(lazy)> log: This can be used for all sorts of things\n"
-                                 f"(lazy)> {lazy_constants.WARNING_COLOR}No item with name 'logger' "
-                                 f"exists.{lazy_constants.RESET_COLOR}\n")
+        output, _ = testing_utility.capture_print(general_commands.examine_items, "log")
+        self.assertEqual(output, "(lazy)> log: This can be used for all sorts of things\n")
 
+    def test_examine_item_wrong_name(self):
+        output, _ = testing_utility.capture_print(general_commands.examine_items, "logger")
+
+        self.assertEqual(output, f"(lazy)> {lazy_constants.WARNING_COLOR}No item with name 'logger' "
+                                 f"exists.{lazy_constants.RESET_COLOR}\n")
 
     def test_move_area(self):
         # NOTE: not checked if area is actually written to file, only one area available at the moment

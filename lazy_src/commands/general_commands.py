@@ -83,7 +83,7 @@ def examine_activity(*args):
     _examine(3, *args)
 
 
-def examine_item(*args):
+def examine_items(*args):
     if len(args) == 0:
         lazy_utility.message("Please provide an item name:")
         item_names = [lazy_utility.ask_valid_string()]
@@ -120,7 +120,7 @@ EXAMINE_COMMANDS.add_command("location", examine_location,
                              "lazy examine location (<area name> <location name>)")
 EXAMINE_COMMANDS.add_command("activity", examine_activity, "Check the loot that you can get from a certain activity.",
                              "lazy examine location (<area name> <location name> <activity name>)")
-EXAMINE_COMMANDS.add_command("item", examine_item, "Examine one or more items by providing item names separated by "
+EXAMINE_COMMANDS.add_command("item", examine_items, "Examine one or more items by providing item names separated by "
                                                    "spaces.", "lazy examine item (<item name>)")
 
 
