@@ -12,7 +12,7 @@ RESET_COLOR = colorama.Style.RESET_ALL
 CONVERSATION_COLOR = colorama.Fore.LIGHTBLUE_EX
 
 # value set when running tests
-TESTING = True
+TESTING = False
 
 # value that can be set to get certain warnings that are not important for the user but are for me
 # also enabled during testing

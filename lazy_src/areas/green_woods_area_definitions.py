@@ -44,6 +44,11 @@ _2_gold_nugget_loot = Loot({Items.GOLD_NUGGET: 2}, {Skills.MINING: 15}, weight=0
 _5_iron_nugget_loot = Loot({Items.IRON_NUGGET: 5}, {Skills.MINING: 25}, weight=0.1, required_level=15)
 _iron_ore_loot = Loot({Items.IRON_NUGGET: 5}, {Skills.MINING: 25}, weight=0.1, required_level=20)
 
+# quarry gather
+_rock_loot_gather = Loot({Items.ROCK: 1}, {Skills.GATHERING: 4}, weight=1, required_level=5)
+_1_gold_nugget_loot_gather = Loot({Items.GOLD_NUGGET: 1}, {Skills.GATHERING: 10}, weight=0.5, required_level=15)
+_iron_ore_loot_gather = Loot({Items.IRON_NUGGET: 1}, {Skills.GATHERING: 25}, weight=0.1, required_level=25)
+
 
 _tree_gather_loots = [_1_coin_loot, _10_coin_loot, _15_coin_loot, _20_coin_loot, _cobweb_loot, _brown_mushroom_loot,
                       _red_mushroom_loot, _yellow_mushroom_loot]
@@ -59,16 +64,18 @@ _lake_gather_loots = [_1_pebble_loot, _2_pebble_loot, _1_iron_nugget_loot, _2_ir
 _quarry_mining_loots = [_1_iron_nugget_loot, _2_iron_nugget_loot, _5_iron_nugget_loot, _mystery_rock_loot,
                         _rock_loot, _coal_chunk_loot, _1_gold_nugget_loot, _2_gold_nugget_loot, _5_iron_nugget_loot,
                         _iron_ore_loot]
+_quarry_gather_loots = [_rock_loot_gather, _1_gold_nugget_loot_gather, _iron_ore_loot_gather]
 
 # activities
 _old_tree_gather = Activity(Skills.GATHERING, succes_chance=0.25, loot_list=_tree_gather_loots,
                             description="There might be some things left around by other people.")
-_old_tree_chopping = Activity(Skills.WOODCUTTING, succes_chance=0.25,
-                              loot_list=_tree_woodcut_loots,
-                              description="The old tree can be chopped it never seems to get smaller though.")
+_old_tree_woodcutting = Activity(Skills.WOODCUTTING, succes_chance=0.25,
+                                 loot_list=_tree_woodcut_loots,
+                                 description="The old tree can be chopped it never seems to get smaller though.")
 
 _home_gather = Activity(Skills.GATHERING, succes_chance=0.05, loot_list=_home_loots,
-                        description="There might be some supplies left, on the other hand there is a reason im leaving.")
+                        description="There might be some supplies left, on the other hand there is "
+                                    "a reason im leaving.")
 
 _lake_fish_activity = Activity(Skills.FISHING, succes_chance=0.25, loot_list=_lake_fish_loots,
                                description="The lake is full of fish. Not many of them are interesting though.")
@@ -77,9 +84,12 @@ _lake_gather_acticity = Activity(Skills.GATHERING, succes_chance=0.25, loot_list
 
 _quarry_mining_activity = Activity(Skills.MINING, succes_chance=0.1, loot_list=_quarry_mining_loots,
                                    description="There might be some minerals left in the rocks.")
+_quarry_gather_activity = Activity(Skills.GATHERING, succes_chance=0.1, loot_list=_quarry_gather_loots,
+                                   description="Who know what is left laying around.")
 
 # locations
-_old_tree = Location("old_tree", discovery_chance=0.4, discover_xp=50, activities=[_old_tree_gather, _old_tree_chopping],
+_old_tree = Location("old_tree", discovery_chance=0.4, discover_xp=50,
+                     activities=[_old_tree_gather, _old_tree_woodcutting],
                      description="An old looking tree. Does not look like there is a lot of interesting "
                      "things to find here.")
 _small_lake = Location("small_lake", discovery_chance=0.1, discover_xp=50,
@@ -88,10 +98,11 @@ _small_lake = Location("small_lake", discovery_chance=0.1, discover_xp=50,
 _player_home = Location("home", discovery_chance=0.0, discover_xp=0, activities=[_home_gather],
                         description="A place with good and bad memories")
 
-_old_quarry = Location("old quarry", discovery_chance=0.1, discover_xp=50, activities=[_quarry_mining_activity],
+_old_quarry = Location("old_quarry", discovery_chance=0.1, discover_xp=50,
+                       activities=[_quarry_mining_activity, _quarry_gather_activity],
                        description="An old and abandoned quarry.")
 
-_all_locations = [_old_tree, _small_lake, _player_home]
+_all_locations = [_old_tree, _small_lake, _player_home, _old_quarry]
 
 # area definition
 green_woods = Area("green_woods", _all_locations, required_level=0, location_discovery_chance=0.25,

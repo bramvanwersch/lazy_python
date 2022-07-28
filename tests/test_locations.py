@@ -27,8 +27,8 @@ class TestLocation(TestCase):
         random.seed(1)
         area = green_woods_area_definitions.green_woods
         xp_dict, location_dict = area.perform_activity_rolls("", skills.Skills.EXPLORING.name, 3600)
-        self.assertEqual(xp_dict["exploring"], 300)
-        self.assertEqual(location_dict, {"small_lake": 1, "old_tree": 1})
+        self.assertEqual(xp_dict["exploring"], 330)
+        self.assertEqual(location_dict, {'old_quarry': 1, "small_lake": 1, "old_tree": 1})
 
     def test_area_train(self):
         random.seed(1)

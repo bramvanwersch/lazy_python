@@ -23,9 +23,10 @@ def main():
 
 
 def show_main_help():
-    lazy_utility.message("Welcome to lazy. This program is used with the help of a number of commands. Here is a list of "
-                    "all the possible commands and a small explanation. Each command has additional help information "
-                    "by typing the command followed by help.")
+    lazy_utility.message(
+        "Welcome to lazy. This program is used with the help of a number of commands. Here is a list of "
+        "all the possible commands and a small explanation. Each command has additional help information "
+        "by typing the command followed by help.")
     for command_name, command in commands.COMMANDS.items():
         if command_name == "help":
             continue

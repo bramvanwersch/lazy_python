@@ -23,20 +23,21 @@ def _set_training_skill(skill_object):
     skill_name = skill_object.name
     # make sure to check the current activity
     general_commands.check()
+
     location_obj = areas.get_current_location_object()
     if location_obj is None:
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.UNSELECTED_LOCATION)
         return
     activity_skills = {}
     for activity in location_obj.activities.values():
-        skill_name = activity.main_skill.name
-        if skill_name in activity_skills:
-            activity_skills[skill_name] = min(activity_skills[skill_name], activity.required_level)
+        activity_skill_name = activity.main_skill.name
+        if activity_skill_name in activity_skills:
+            activity_skills[activity_skill_name] = min(activity_skills[activity_skill_name], activity.required_level)
         else:
-            activity_skills[skill_name] = activity.required_level
+            activity_skills[activity_skill_name] = activity.required_level
     if skill_name not in activity_skills:
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ACTIVITY_AT_LOCATION, activity=skill_name,
-                           activities=','.join(list(s.name for s in activity_skills.keys())))
+                           activities=','.join(list(name for name in activity_skills.keys())))
         return
     current_skill_level = skills.get_level(skill_name)
     if activity_skills[skill_name] > current_skill_level:

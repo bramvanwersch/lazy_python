@@ -82,9 +82,10 @@ class Test(TestCase):
         self.assertEqual(output,
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}exploring: +300xp (0-15){lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You discovered small_lake{lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You discovered old_tree{lazy_constants.RESET_COLOR}\n")
+                         f"(....)> {lazy_constants.GREEN_COLOR}exploring: +330xp (0-15){lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You discovered old_quarry{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You discovered old_tree{lazy_constants.RESET_COLOR}\n"
+                         f"(....)> {lazy_constants.GREEN_COLOR}You discovered small_lake{lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
         user_dir = lazy_constants.USER_DIRS_PATH / "test"
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
@@ -105,7 +106,7 @@ class Test(TestCase):
         self.assertEqual(output,
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}exploring: +120xp (15-17){lazy_constants.RESET_COLOR}\n")
+                         f"(....)> {lazy_constants.GREEN_COLOR}exploring: +120xp (15-18){lazy_constants.RESET_COLOR}\n")
         # check items and levels being written properly
         with open(user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
             text = f.read()
@@ -126,7 +127,8 @@ class Test(TestCase):
                                  "(....)> Locations:\n"
                                  "(....)> - ???: ???\n"
                                  "(....)> - ???: ???\n"
-                                 "(....)> - home: A place with good and bad memories\n")
+                                 "(....)> - home: A place with good and bad memories\n"
+                                 "(....)> - ???: ???\n")
 
     def test_examine_area_wrong_name(self):
         output, _ = testing_utility.capture_print(general_commands.examine_activity, "green_woodse:r")
