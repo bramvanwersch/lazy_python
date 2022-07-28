@@ -49,6 +49,7 @@ class DevelopLazyWarning:
     INVALID_ITEM_QUANTITY = "Expected an integer as item quantitiy."
 
     UNKNOWN_SUBSTITUTE_CONSTANT = "Can not substitute with constant '{constant}'."
+    INVALID_SUBSTITUTE_ITEM_AMNT = "Can not convert item amount to integer for person '{name}'"
 
 
 def warn(warning_string, debug_warning=False, extra_info="", **named_formatting):

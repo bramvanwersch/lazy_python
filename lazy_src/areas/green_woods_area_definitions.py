@@ -1,7 +1,6 @@
 from lazy_src.areas.locations_classes import *
 from lazy_src.items import Items
 from lazy_src.skills import Skills
-from lazy_src.people import People
 
 # home
 _old_bread_loot = Loot({Items.OLD_BREAD: 1}, {}, weight=1, required_level=0)
@@ -81,17 +80,15 @@ _quarry_mining_activity = Activity(Skills.MINING, succes_chance=0.1, loot_list=_
 
 # locations
 _old_tree = Location("old_tree", discovery_chance=0.4, discover_xp=50, activities=[_old_tree_gather, _old_tree_chopping],
-                     people=[],
                      description="An old looking tree. Does not look like there is a lot of interesting "
                      "things to find here.")
 _small_lake = Location("small_lake", discovery_chance=0.1, discover_xp=50,
-                       activities=[_lake_fish_activity, _lake_gather_acticity], people=[],
+                       activities=[_lake_fish_activity, _lake_gather_acticity],
                        description="The small lake close to town, maybe there are some fish left")
-_player_home = Location("home", discovery_chance=0.0, discover_xp=0, activities=[_home_gather], people=[People.MOM],
+_player_home = Location("home", discovery_chance=0.0, discover_xp=0, activities=[_home_gather],
                         description="A place with good and bad memories")
 
 _old_quarry = Location("old quarry", discovery_chance=0.1, discover_xp=50, activities=[_quarry_mining_activity],
-                       people=[],
                        description="An old and abandoned quarry.")
 
 _all_locations = [_old_tree, _small_lake, _player_home]

@@ -8,7 +8,6 @@ from lazy_src import lazy_constants
 from lazy_src import skills
 from lazy_src import items
 from lazy_src import lazy_utility
-from lazy_src import people
 
 
 # general functions
@@ -120,21 +119,16 @@ class Area:
 
 
 class Location:
-    def __init__(self, name, discovery_chance, discover_xp, activities, people, description=""):
+    def __init__(self, name, discovery_chance, discover_xp, activities, description=""):
         self.name = name
         self.discover_xp = discover_xp
         self.discovery_chance = discovery_chance
         self.description = description
         self._activities = {activity.name: activity for activity in activities}
-        self._people = {person.name: person for person in people}
-    
+
     @property
     def activities(self) -> Dict[str, "Activity"]:
         return self._activities
-
-    @property
-    def people(self) -> Dict[str, "people.Person"]:
-        return self._people
 
     def examine(self):
         description = f"{self.name.upper()}:\n{self.description}\nActivities:\n"
