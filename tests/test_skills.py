@@ -22,23 +22,33 @@ class Test(TestCase):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
         current_user_dir = lazy_utility.active_user_dir()
+        level_dict = {}
         with open(current_user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
-            level_info = f.read()
-        self.assertEqual(level_info, "exploring:0\ngathering:1000\nwoodcutting:200\nfishing:0\nnon-existing:600\n")
+            for line in f:
+                key, value = line.strip().split(":")
+                level_dict[key] = value
+        self.assertEqual(level_dict["gathering"], "1000")
+        self.assertEqual(level_dict["woodcutting"], "200")
+        self.assertEqual(level_dict["non-existing"], "600")
 
     def test_set_xp(self):
         skills.set_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500, "non-existing": 300})
         skills.set_xp({skills.Skills.WOODCUTTING.name: 10, skills.Skills.GATHERING.name: 50, "non-existing": 300})
         current_user_dir = lazy_utility.active_user_dir()
+        level_dict = {}
         with open(current_user_dir / lazy_constants.USER_LEVEL_FILE_NAME) as f:
-            level_info = f.read()
-        self.assertEqual(level_info, "exploring:0\ngathering:50\nwoodcutting:10\nfishing:0\n")
+            for line in f:
+                key, value = line.strip().split(":")
+                level_dict[key] = value
+        self.assertEqual(level_dict["gathering"], "50")
+        self.assertEqual(level_dict["woodcutting"], "10")
 
     def test_get_xps(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500,
                        skills.Skills.FISHING.name: 300})
         xp_dict = skills.get_xps()
-        self.assertEqual(xp_dict, {'exploring': 0, 'gathering': 500, 'woodcutting': 100, 'fishing': 300})
+        self.assertEqual(xp_dict["gathering"], 500)
+        self.assertEqual(xp_dict["fishing"], 300)
 
     def test_get_xp(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 100, skills.Skills.GATHERING.name: 500,
@@ -52,7 +62,8 @@ class Test(TestCase):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 1000, skills.Skills.GATHERING.name: 5,
                        skills.Skills.FISHING.name: 300})
         level_dict = skills.get_levels()
-        self.assertEqual(level_dict, {'exploring': 0, 'gathering': 0, 'woodcutting': 26, 'fishing': 15})
+        self.assertEqual(level_dict["woodcutting"], 26)
+        self.assertEqual(level_dict["fishing"], 15)
 
     def test_get_level(self):
         skills.add_xp({skills.Skills.WOODCUTTING.name: 1000, skills.Skills.GATHERING.name: 500,
