@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Dict
 
 from lazy_src import lazy_utility
 from lazy_src import lazy_constants
@@ -76,7 +77,7 @@ class WeaponItem(Item, ABC):
 
 # general utility functions related to player
 
-def add_items(item_dict):
+def add_items(item_dict: Dict[str, int]):
     user_dir = lazy_utility.active_user_dir()
     lazy_utility.add_values_in_file(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME,
                                     list(item for item in item_dict.keys()), list(item_dict.values()), int)

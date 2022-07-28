@@ -18,7 +18,7 @@ TESTING = False
 # also enabled during testing
 DEBUGGING = True
 
-SHOW_WARN_TRACEBACK = True
+SHOW_WARN_TRACEBACK = False
 
 # constants for tests
 TEST_FOLDER = Path(__file__).resolve().parent.parent / "tests" / "test_dump"
