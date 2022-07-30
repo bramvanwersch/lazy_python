@@ -155,7 +155,7 @@ writing:0
         self.make_test_account()
         account.activate("test", "test")
         output, _ = testing_utility.capture_print(account.info, "levels")
-        self.assertEqual(output, """(lazy)> The current active account is: test
+        expected_output = """(lazy)> The current active account is: test
 (....)> Levels:
 (....)> exploring: 0 (10 until next)
 (....)> gathering: 0 (10 until next)
@@ -179,7 +179,8 @@ writing:0
 (....)> building: 0 (10 until next)
 (....)> cooking: 0 (10 until next)
 (....)> writing: 0 (10 until next)
-""")
+"""
+        self.assertSetEqual(set(output.split("\n")), set(expected_output.split("\n")))
 
     def test_info_active_account_items(self):
         self.make_test_account()
