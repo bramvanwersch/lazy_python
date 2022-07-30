@@ -19,7 +19,7 @@ class Areas:
     @classmethod
     def all_areas(cls):
         return [varvalue for varname, varvalue in vars(cls).items() if not varname.startswith("__") and
-                varname not in ["all_areas", "get_elligable_areas", "area_by_name"]]
+                varname not in ["all_areas", "get_elligable_areas"]]
 
 
 def get_current_area_object() -> Union[None, Area]:

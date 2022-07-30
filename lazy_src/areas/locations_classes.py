@@ -98,7 +98,7 @@ class Area:
                                   in self._locations.items() if location_name not in unlocked_locations}
         for _ in range(int(passed_time / self.SIMULATE_EVERY)):
             all_xp = xp_dict[skills.Skills.EXPLORING.name]
-            additional_skill_chance = skills.Skills.EXPLORING.get_additional_roll_chance(all_xp)
+            additional_skill_chance = skills.Skills.EXPLORING.get_additional_roll_chance_from_xp(all_xp)
             if random.random() < self._unlock_chance + additional_skill_chance:
                 if len(locations_unlock_table) != 0:
                     unlocked_area = random.choices(list(locations_unlock_table.keys()),
@@ -153,7 +153,7 @@ class Activity(Simulation):
         self.description = description
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._main_skill.name
 
     @property
@@ -161,8 +161,16 @@ class Activity(Simulation):
         return self._main_skill
 
     @property
-    def required_level(self):
+    def required_level(self) -> int:
         return self._level_requirement
+
+    @property
+    def loot_table(self) -> Dict["Loot", float]:
+        return self._loot_table
+
+    @property
+    def succes_chance(self) -> float:
+        return self._succes_chance
 
     def _simulate_roll(
         self,
@@ -170,7 +178,7 @@ class Activity(Simulation):
         item_dict: DefaultDict[str, int]
     ):
         all_xp = xp_dict[self._main_skill.name]
-        additional_skill_chance = self._main_skill.get_additional_roll_chance(all_xp)
+        additional_skill_chance = self._main_skill.get_additional_roll_chance_from_xp(all_xp)
         main_skill_level = skills.xp_to_level(all_xp)
         if random.random() < self._succes_chance + additional_skill_chance:
             elligable_loots = {loot: chance for loot, chance in self._loot_table.items() if
@@ -204,8 +212,12 @@ class Loot:
         self._max_supply = max_supply
 
     @property
-    def item_rewards(self):
+    def item_rewards(self) -> Dict[items.Item, int]:
         return self._item_rewards
+
+    @property
+    def xp_rewards(self) -> Dict[skills.Skill, int]:
+        return self._xp_rewards
 
     def is_depleted(self):
         if self.is_depletable() is False:

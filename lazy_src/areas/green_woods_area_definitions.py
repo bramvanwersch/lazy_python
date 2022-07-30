@@ -39,8 +39,11 @@ _mystery_rock_loot = Loot({Items.MYSTERY_STONE: 1}, {Skills.GATHERING: 10}, weig
 # quarry mining
 _rock_loot = Loot({Items.ROCK: 1}, {Skills.MINING: 1}, weight=1, required_level=0)
 _coal_chunk_loot = Loot({Items.COAL_CHUNK: 1}, {Skills.MINING: 5}, weight=1, required_level=5)
+_mystery_rock_loot_mine = Loot({Items.MYSTERY_STONE: 1}, {Skills.MINING: 10}, weight=0.5, required_level=10)
 _1_gold_nugget_loot = Loot({Items.GOLD_NUGGET: 1}, {Skills.MINING: 10}, weight=0.5, required_level=10)
 _2_gold_nugget_loot = Loot({Items.GOLD_NUGGET: 2}, {Skills.MINING: 15}, weight=0.1, required_level=15)
+_1_iron_nugget_loot_mine = Loot({Items.IRON_NUGGET: 1}, {Skills.MINING: 5}, weight=0.25, required_level=0)
+_2_iron_nugget_loot_mine = Loot({Items.IRON_NUGGET: 2}, {Skills.MINING: 15}, weight=0.1, required_level=5)
 _5_iron_nugget_loot = Loot({Items.IRON_NUGGET: 5}, {Skills.MINING: 25}, weight=0.1, required_level=15)
 _iron_ore_loot = Loot({Items.IRON_NUGGET: 5}, {Skills.MINING: 25}, weight=0.1, required_level=20)
 
@@ -61,9 +64,9 @@ _lake_fish_loots = [_old_boot_loot, _shrimp_loot, _double_shrimp_loot, _trout_lo
 _lake_gather_loots = [_1_pebble_loot, _2_pebble_loot, _1_iron_nugget_loot, _2_iron_nugget_loot, _1_coin_loot,
                       _10_coin_loot, _mystery_rock_loot]
 
-_quarry_mining_loots = [_1_iron_nugget_loot, _2_iron_nugget_loot, _5_iron_nugget_loot, _mystery_rock_loot,
-                        _rock_loot, _coal_chunk_loot, _1_gold_nugget_loot, _2_gold_nugget_loot, _5_iron_nugget_loot,
-                        _iron_ore_loot]
+_quarry_mining_loots = [_1_iron_nugget_loot_mine, _2_iron_nugget_loot_mine, _5_iron_nugget_loot,
+                        _mystery_rock_loot_mine, _rock_loot, _coal_chunk_loot, _1_gold_nugget_loot,
+                        _2_gold_nugget_loot, _5_iron_nugget_loot, _iron_ore_loot]
 _quarry_gather_loots = [_rock_loot_gather, _1_gold_nugget_loot_gather, _iron_ore_loot_gather]
 
 # activities

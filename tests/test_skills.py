@@ -103,7 +103,7 @@ class Test(TestCase):
 
     def test_skill(self):
         fish_skill = skills.Skills.FISHING
-        add_rol_chance = fish_skill.get_additional_roll_chance(10)
+        add_rol_chance = fish_skill.get_additional_roll_chance_from_xp(10)
         self.assertEqual(add_rol_chance, 0.005)
-        add_rol_chance = fish_skill.get_additional_roll_chance(500)
+        add_rol_chance = fish_skill.get_additional_roll_chance_from_xp(500)
         self.assertEqual(add_rol_chance, 0.095)

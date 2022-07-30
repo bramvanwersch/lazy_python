@@ -10,8 +10,11 @@ class Skill(ABC):
     def __init__(self, name):
         self.name = name
 
-    def get_additional_roll_chance(self, xp):
+    def get_additional_roll_chance_from_xp(self, xp: int) -> float:
         level = xp_to_level(xp)
+        return self.get_additional_roll_chance_from_level(level)
+
+    def get_additional_roll_chance_from_level(self, level: int) -> float:
         # TODO: think about changing per level with a formula
         return level * 0.005
 
