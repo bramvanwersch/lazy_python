@@ -236,4 +236,57 @@ writing:0
                                        f"'account activate' or create a new one with 'account new'."
                                        f"{lazy_constants.RESET_COLOR}\n")
 
-    # def test_equip_
+    def test_equip_nothing_to_equip(self):
+        testing_setup.create_test_account()
+
+        printed_text, _ = testing_utility.capture_print(account.equip)
+        self.assertEqual(printed_text, f"(lazy)> {lazy_constants.WARNING_COLOR}You have nothing in your inventory "
+                                       f"that is not already equiped.{lazy_constants.RESET_COLOR}\n")
+
+    def test_equip_invalid_item_name(self):
+        testing_setup.create_test_account()
+        inventory = items.get_inventory()
+        inventory.add_items({items.Items.BLACK_CAPE.name: 1})
+
+        printed_text, _ = testing_utility.capture_print(account.equip, "non existing item")
+        self.assertEqual(printed_text, f"(lazy)> {lazy_constants.WARNING_COLOR}No item with name 'non existing item'"
+                                       f" exists.{lazy_constants.RESET_COLOR}\n")
+
+    def test_equip_item_not_equipable(self):
+        testing_setup.create_test_account()
+        inventory = items.get_inventory()
+        inventory.add_items({items.Items.BLACK_CAPE.name: 1})
+
+        printed_text, _ = testing_utility.capture_print(account.equip, items.Items.LOG.name)
+        self.assertEqual(printed_text, f"(lazy)> {lazy_constants.WARNING_COLOR}Item '{items.Items.LOG.name}' "
+                                       f"is not in your inventory or is not equipable.{lazy_constants.RESET_COLOR}\n")
+
+    def test_equip_item_not_in_inventory(self):
+        testing_setup.create_test_account()
+        inventory = items.get_inventory()
+        inventory.add_items({items.Items.BLACK_CAPE.name: 1})
+
+        printed_text, _ = testing_utility.capture_print(account.equip, items.Items.PINK_CAPE.name)
+        self.assertEqual(printed_text, f"(lazy)> {lazy_constants.WARNING_COLOR}Item '{items.Items.PINK_CAPE.name}' "
+                                       f"is not in your inventory or is not equipable.{lazy_constants.RESET_COLOR}\n")
+
+    def test_equip_item_already_equiped(self):
+        testing_setup.create_test_account()
+        inventory = items.get_inventory()
+        inventory.add_items({items.Items.BLACK_CAPE.name: 2})
+        equipment = items.get_equipment()
+        equipment.equip_items({items.WearableItem.BACK: items.Items.BLACK_CAPE})
+
+        printed_text, _ = testing_utility.capture_print(account.equip, items.Items.BLACK_CAPE.name)
+        self.assertEqual(printed_text, f"(lazy)> {lazy_constants.WARNING_COLOR}You have nothing in your inventory "
+                                       f"that is not already equiped.{lazy_constants.RESET_COLOR}\n")
+
+    def test_equip_item(self):
+        testing_setup.create_test_account()
+        inventory = items.get_inventory()
+        inventory.add_items({items.Items.BLACK_CAPE.name: 2})
+        account.equip(items.Items.BLACK_CAPE.name)
+
+        equipment = items.get_equipment()
+        self.assertEqual(equipment.get_equipment_at_slot(items.WearableItem.BACK), items.Items.BLACK_CAPE)
+

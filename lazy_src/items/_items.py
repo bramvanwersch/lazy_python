@@ -66,6 +66,7 @@ class WearableItem(Item, ABC):
     def _set_slot(self, value: str):
         if value not in self.all_equipment_slots():
             raise ValueError(f"Invalid slot provided for {self.name}")
+        self.slot = value
 
 
 class EquipmentItem(WearableItem):

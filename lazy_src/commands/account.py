@@ -160,24 +160,39 @@ def info(*args):
 
 
 def equip(*args):
+    # pre-warn and exit, gives clearer issue to user
     active_account = lazy_utility.get_values_from_file(lazy_constants.GENERAL_INFO_PATH, ["active_user"])[0]
     if active_account == "":
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER)
         return
-    user_dir = lazy_utility.active_user_dir(active_account)
     inventory = items.get_inventory()
     wearable_items = inventory.get_all_of_type_items(items.WearableItem)
+    equipment = items.get_equipment()
+    equiped_items = set(equipment.get_equiped_items().values())
+    wearable_items = [item for item in wearable_items if item not in equiped_items]
 
-    equiped_items = lazy_utility.get_values_from_file(lazy_constants.USER_EQUIPMENT_FILE_NAME,
-                                                      items.WearableItem.all_equipment_slots())
+    if len(wearable_items) == 0:
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_EQUIPABLE_ITEMS)
+        return
 
     if len(args) == 0:
         lazy_utility.message_question(f"What item do you wish to equip? You have the following equipable items:"
                                       f" {', '.join(item.name for item in wearable_items)}")
-        lazy_utility.ask_answer(f"Please select one of: {', '.join(item.name for item in wearable_items)}",
-                                {item.name: item for item in wearable_items}, case_sensitive=False)
-    # TODO equip items
-    # TODO make sure that equipment has effect on training for instance
+        item_to_equip = lazy_utility.ask_answer(f"Please select one of: "
+                                                f"{', '.join(item.name for item in wearable_items)}",
+                                                {item.name: item for item in wearable_items}, case_sensitive=False)
+        item_to_equip = items.ITEM_MAPPING[item_to_equip]
+    else:
+        try:
+            item_to_equip = items.ITEM_MAPPING[args[0]]
+        except KeyError:
+            lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, name=args[0])
+            return
+    if item_to_equip not in wearable_items:
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.ITEM_CANNOT_BE_EQUIPED, name=item_to_equip.name)
+        return
+
+    equipment.equip_items({item_to_equip.slot: item_to_equip})
 
 
 def _show_general_information(user_dir, full_message):

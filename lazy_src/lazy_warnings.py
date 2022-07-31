@@ -23,7 +23,8 @@ class LazyWarningMessages:
     INVALID_ITEM_NAME = "No item with name '{name}' exists."
     TO_LOW_LEVEL = "Level {level} {skill} is required for {value}"
 
-    INVALID_PERSON = "No person with name {name} at location {location}. Choose one of: {people}"
+    NO_EQUIPABLE_ITEMS = "You have nothing in your inventory that is not already equiped."
+    ITEM_CANNOT_BE_EQUIPED = "Item '{name}' is not in your inventory or is not equipable."
 
 
 class DevelopLazyWarning:
