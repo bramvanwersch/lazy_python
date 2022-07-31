@@ -31,11 +31,12 @@ def remove_test_folder():
         pass
 
 
-def create_test_account():
+def create_test_account(activate=True):
     if not lazy_constants.TEST_FOLDER.exists():
         setup_test_folder()
     account.new("test", "test", "test")
-    account.activate("test", "test")
+    if activate:
+        account.activate("test", "test")
 
 
 def remove_test_account():

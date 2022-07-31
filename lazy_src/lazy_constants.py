@@ -30,9 +30,6 @@ BANNED_CHARACTERS = ('"', "'", ":", ";", "\\", "/", "%", " ")
 # project related data
 # path where this project is located for git updating
 PROJECT_BASE_PATH = Path(__file__).resolve().parent
-# conversation trees of people
-PERSON_FOLDER = PROJECT_BASE_PATH / "people" / "people_files"
-
 
 # user related data
 appdata = Path(appdirs.AppDirs().user_data_dir)  # appdata folder
@@ -72,8 +69,8 @@ if not ACCOUNT_PATH.exists():
 USER_GENERAL_FILE_NAME = "general.txt"
 USER_LEVEL_FILE_NAME = "levels.txt"
 USER_INVENTORY_FILE_NAME = "inventory.txt"
+USER_EQUIPMENT_FILE_NAME = "equipment.txt"
 USER_AREA_DIR = "areas"
-USER_PEOPLE_DIR = "people"
 
 # other
 XP_ATLEVEL = (10, 21, 32, 45, 59, 74, 91, 109, 130, 152, 176, 202, 232, 264, 299, 337, 379, 425, 476, 531, 592, 659,

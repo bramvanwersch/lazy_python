@@ -22,7 +22,7 @@ class Test(TestCase):
         self.assertFalse(lazy_utility.is_valid_string("'c"))
         self.assertFalse(lazy_utility.is_valid_string("adwdadw:"))
         self.assertFalse(lazy_utility.is_valid_string("dawd;"))
-        self.assertFalse(lazy_utility.is_valid_string("daw\d"))
+        self.assertFalse(lazy_utility.is_valid_string("daw\d"))  # noqa
         self.assertFalse(lazy_utility.is_valid_string("dawd/"))
         self.assertFalse(lazy_utility.is_valid_string("d%awd"))
         self.assertFalse(lazy_utility.is_valid_string("da wd"))

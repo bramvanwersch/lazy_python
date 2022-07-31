@@ -7,6 +7,7 @@ from lazy_src import lazy_utility
 from lazy_src import lazy_constants
 from lazy_src import skills
 from lazy_src import lazy_warnings
+from lazy_src import items
 
 
 def new(*args):
@@ -61,25 +62,38 @@ def new(*args):
                                         [username])
 
 
-def _create_account(username, password):
+def _create_account(
+    username: str,
+    password: str
+):
     lazy_utility.append_to_file(lazy_constants.ACCOUNT_PATH, f"n:{username}\np:{password}\n")
     os.mkdir(lazy_constants.USER_DIRS_PATH / username)
     active_user_dir = lazy_utility.active_user_dir(username)
+
+    # write general file values
     with open(active_user_dir / lazy_constants.USER_GENERAL_FILE_NAME, "w") as f:
         f.write(f"{lazy_constants.USERFILE_GENERAL_CURRENT_AREA}:{lazy_constants.STARTING_AREA}\n")
         f.write(f"{lazy_constants.USERFILE_GENERAL_CURRENT_LOCATION}:{lazy_constants.STARTING_LOCATION}\n")
         f.write(f"{lazy_constants.USERFILE_GENERAL_CURRENT_ACTIVITY}:\n")
         f.write(f"{lazy_constants.USERFILE_GENERAL_TIMESTAMP}:{time.time()}\n")
+
+    # write all the levels
     with open(active_user_dir / lazy_constants.USER_LEVEL_FILE_NAME, "w") as f:
         for skill in skills.Skills.all_skills():
             f.write(f"{skill.name}:0\n")
+
+    # create inventory
     with open(active_user_dir / lazy_constants.USER_INVENTORY_FILE_NAME, "w") as f:
         f.write("")
 
+    # for saving area specific information
     os.mkdir(active_user_dir / lazy_constants.USER_AREA_DIR)
     create_area_file(lazy_constants.STARTING_AREA, username, [lazy_constants.STARTING_LOCATION])
 
-    os.mkdir(active_user_dir / lazy_constants.USER_PEOPLE_DIR)
+    # create equiped item file
+    with open(active_user_dir / lazy_constants.USER_EQUIPMENT_FILE_NAME, "w") as f:
+        for slot in items.WearableItem.all_equipment_slots():
+            f.write(f"{slot}:\n")
 
 
 def create_area_file(area_name, username=None, unlocked_areas=None):
@@ -135,6 +149,7 @@ def info(*args):
     if len(args) == 0:
         _show_general_information(user_dir, full_message)
     else:
+        # TODO add option to check equipment
         if args[0] == "levels":
             _show_levels(user_dir, full_message)
         elif args[0] == "items":
@@ -142,6 +157,39 @@ def info(*args):
         else:
             lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_COMMAND_OPTION, command="lazy account info",
                                options="levels, items")
+
+
+def equip(*args):
+    active_account = lazy_utility.get_values_from_file(lazy_constants.GENERAL_INFO_PATH, ["active_user"])[0]
+    if active_account == "":
+        lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER)
+        return
+    user_dir = lazy_utility.active_user_dir(active_account)
+    wearable_items = []
+    with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
+        for line in f:
+            name, total = line.strip().split(":")
+            if total > 0:
+                try:
+                    item = items.ITEM_MAPPING[name]
+                except KeyError:
+                    # bad, item in inventory with no existing name
+                    lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, debug_warning=True,
+                                       extra_info="From item saved in inventory")
+                    continue
+                if isinstance(item, items.WearableItem):
+                    wearable_items.append(item)
+
+    equiped_items = lazy_utility.get_values_from_file(lazy_constants.USER_EQUIPMENT_FILE_NAME,
+                                                      items.WearableItem.all_equipment_slots())
+
+    if len(args) == 0:
+        lazy_utility.message_question(f"What item do you wish to equip? You have the following equipable items:"
+                                      f" {', '.join(item.name for item in wearable_items)}")
+        lazy_utility.ask_answer(f"Please select one of: {', '.join(item.name for item in wearable_items)}",
+                                {item.name: item for item in wearable_items}, case_sensitive=False)
+    # TODO equip items
+    # TODO make sure that equipment has effect on training for instance
 
 
 def _show_general_information(user_dir, full_message):
@@ -249,4 +297,6 @@ ACCOUNT_COMMANDS.add_command("activate", activate, "Load an existing account", "
 ACCOUNT_COMMANDS.add_command("info", info, "Show some basic information about the current account. Optionally request"
                                            " more detailed information with items or levels",
                              "lazy account info (levels | items)")
+ACCOUNT_COMMANDS.add_command("equip", equip, "Equip items in the inventory of the current account",
+                             "lazy account equip (<itemname>)")
 ACCOUNT_COMMANDS.add_command("delete", delete, "Delete the current active account", "lazy account delete (<password>)")

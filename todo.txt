@@ -7,7 +7,7 @@ major:
 - add crafting skills
 - add farming
 - add trade between characters
-- add a logger, to track what happens in more detail
+- save all messages pushed, for a certain user
 - add combat skills
 - add additional areas, locations and activities
 - add towns with shops

@@ -147,7 +147,7 @@ def active_user_dir(username: Union[None, str] = None, return_on_fail: Any = "do
         if warn:
             lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER)
         if return_on_fail == "do_exit":
-            sys.exit(0)
+            raise SystemExit("No activate user")
         return return_on_fail
     return lazy_constants.USER_DIRS_PATH / username
 

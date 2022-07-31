@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict
+from typing import Dict, List
 
 from lazy_src import lazy_utility
 from lazy_src import lazy_constants
@@ -26,7 +26,7 @@ class GeneralItem(Item):
     pass
 
 
-class FoodItem(Item, ABC):
+class FoodItem(Item):
 
     def __init__(self, name, description, health_restored):
         super().__init__(name, description)
@@ -37,10 +37,41 @@ class FoodItem(Item, ABC):
         return self._health_restored
 
 
-class EquipmentItem(Item, ABC):
+class WearableItem(Item, ABC):
+    HEAD: str = "head"
+    BACK: str = "back"
+    CHEST: str = "chest"
+    LEFT_HAND: str = "left"
+    RIGHT_HAND: str = "rigth"
+    LEGS: str = "pants"
+    RING: str = "ring"
+    AMULET: str = "amulet"
+    FEET: str = "boots"
 
-    def __init__(self, name, description, armour):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        slot: str
+    ):
         super().__init__(name, description)
+        self.slot = None
+        self._set_slot(slot)
+
+    @classmethod
+    def all_equipment_slots(cls) -> List[str]:
+        return [cls.HEAD, cls.BACK, cls.CHEST, cls.LEFT_HAND, cls.RIGHT_HAND, cls.LEGS,
+                cls.RING, cls.AMULET, cls.FEET]
+
+    def _set_slot(self, value: str):
+        if value not in self.all_equipment_slots():
+            raise ValueError(f"Invalid slot provided for {self.name}")
+
+
+class EquipmentItem(WearableItem):
+
+    def __init__(self, name, description, armour, slot):
+        super().__init__(name, description, slot)
         self._armour = armour
 
     @property
@@ -48,10 +79,10 @@ class EquipmentItem(Item, ABC):
         return self._armour
 
 
-class ToolItem(Item, ABC):
+class ToolItem(WearableItem):
 
-    def __init__(self, name, description, time_reduction, durability):
-        super().__init__(name, description)
+    def __init__(self, name, description, time_reduction, durability, slot):
+        super().__init__(name, description, slot)
         self._time_reduction = time_reduction
         self._durability = durability
 
@@ -64,10 +95,10 @@ class ToolItem(Item, ABC):
         return self._durability
 
 
-class WeaponItem(Item, ABC):
+class WeaponItem(WearableItem):
 
-    def __init__(self, name, description, damage):
-        super().__init__(name, description)
+    def __init__(self, name, description, damage, slot):
+        super().__init__(name, description, slot)
         self._damage = damage
 
     @property
@@ -75,14 +106,41 @@ class WeaponItem(Item, ABC):
         return self._damage
 
 
-# general utility functions related to player
+class Items:
 
-def add_items(item_dict: Dict[str, int]):
-    user_dir = lazy_utility.active_user_dir()
-    lazy_utility.add_values_in_file(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME,
-                                    list(item for item in item_dict.keys()), list(item_dict.values()), int)
+    LOG = GeneralItem("log", "This can be used for all sorts of things")
+    BIRDSNEST = GeneralItem("birdsnest", "")
+    EGG = FoodItem("egg", "Nicely egg shaped. I can cook with this.", 1)
+    BRANCH = GeneralItem("branch", "Like a long stick.")
+    LEAF = GeneralItem("leaf", "Leaf me alone.")
+    COBWEB = GeneralItem("cobweb", "Lots of silky smooth string.")
+    COIN = GeneralItem("coin", "The facilitator of capitalism")
+    SILVER_COIN = GeneralItem("silver coin", "Like a coin but silver (so more expensive).")
+    B_MUSHROOM = FoodItem("brown mushroom", "I think this one is edible", 1)
+    R_MUSHROOM = FoodItem("red mushroom", "I realy hope this one is edible. I am afraid my friend hoped the same. "
+                                          "RIP james :(.", -1)
+    Y_MUSHROOM = FoodItem("yellow mushroom", "A quite rare find, but very delicious.", 5)
+    OLD_BREAD = FoodItem("old bread", "Stale without fail.", 1)
+    SMALL_DAGGER = WeaponItem("small dagger", "Small stabber.", 2, WearableItem.RIGHT_HAND)
+    LEATHER_BOOTS = EquipmentItem("leather boots", "Durable protectors of feat.", 1, WearableItem.FEET)
+    BLACK_CAPE = EquipmentItem("black cape", "Look mom, I AM BATMAN", 1, WearableItem.BACK)
+    STONE_AXE = ToolItem("stone axe", "This presumably allows for cutting wood", 0.05, 100, WearableItem.RIGHT_HAND)
+    TROUT = FoodItem("trout", "A grayt(ish) fish.", 1)
+    SALMON = FoodItem("salmon", "I love to eat this with dill", 2)
+    SHRIMP = FoodItem("shrimp", "I loveee shrimp.", 0)
+    OLD_BOOT = GeneralItem("old boot", "Who leaves a perfectly fine boot like that... Oh nevermind. Yuck.")
+    PEBBLE = GeneralItem("pebble", "A simple rock.")
+    IRON_NUGGET = GeneralItem("iron nugget", "A small piece of iron.")
+    MYSTERY_STONE = GeneralItem("mystery stone", "What is in it?")
+    GOLD_NUGGET = GeneralItem("gold nugget", "A small piece of gold.")
+    ROCK = GeneralItem("rock", "It's not just a rock its a boulder!")
+    COAL_CHUNK = GeneralItem("coal chunk", "A piece of coal, luckily it is not christmas.")
+    IRON_ORE = GeneralItem("iron ore", "A large piece of iron.")
+
+    @classmethod
+    def all_items(cls):
+        return [varvalue for varname, varvalue in vars(cls).items() if not varname.startswith("__") and
+                varname not in ["all_items"]]
 
 
-def get_all_items():
-    user_dir = lazy_utility.active_user_dir()
-    return lazy_utility.get_all_named_values_from_file(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME, int)
+ITEM_MAPPING = {item.name: item for item in Items.all_items()}
