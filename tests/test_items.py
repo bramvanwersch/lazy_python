@@ -4,6 +4,7 @@ import testing_setup
 import testing_utility
 from lazy_src import items
 from lazy_src import lazy_constants
+from lazy_src.commands import account
 from lazy_src import lazy_utility
 
 
@@ -26,6 +27,14 @@ class Test(TestCase):
         testing_setup.create_test_account()
         inv = items.get_inventory()
         self.assertDictEqual(inv.get_all_items(), {})
+
+    def test_add_item_no_user(self):
+        testing_setup.create_test_account()
+        inventory = items.get_inventory()
+        # get rid of active account
+        account.delete("test")
+        with self.assertRaises(SystemExit):
+            inventory.add_items({})
 
     def test_add_items(self):
         testing_setup.create_test_account()
@@ -71,3 +80,46 @@ class Test(TestCase):
 
         self.assertDictEqual(all_items, {items.ITEM_MAPPING[items.Items.LEATHER_BOOTS.name]: 2})
 
+    def test_get_equipment_no_user(self):
+        testing_setup.create_test_account(activate=False)
+        with self.assertRaises(SystemExit):
+            items.get_equipment()
+
+    def test_get_equipment(self):
+        testing_setup.create_test_account()
+        equipment = items.get_equipment()
+        self.assertDictEqual(equipment.get_equiped_items(), {})
+
+    def test_equip_item(self):
+        testing_setup.create_test_account()
+        equipment = items.get_equipment()
+        equipment.equip_items({items.WearableItem.BACK: items.Items.BLACK_CAPE})
+        self.assertDictEqual(equipment.get_equiped_items(), {items.WearableItem.BACK: items.Items.BLACK_CAPE})
+
+    def test_double_equip_item(self):
+        testing_setup.create_test_account()
+        equipment = items.get_equipment()
+        equipment.equip_items({items.WearableItem.BACK: items.Items.BLACK_CAPE})
+        equipment.equip_items({items.WearableItem.BACK: items.Items.PINK_CAPE})
+        self.assertDictEqual(equipment.get_equiped_items(), {items.WearableItem.BACK: items.Items.PINK_CAPE})
+
+    def test_equip_invalid_slot(self):
+        testing_setup.create_test_account()
+        equipment = items.get_equipment()
+        captured_text, _ = testing_utility.capture_print(equipment.equip_items, {"Me head": items.Items.BLACK_CAPE})
+        self.assertEqual(captured_text, f"(lazy)> {lazy_constants.WARNING_COLOR}No equipment slot with name 'Me head'"
+                                        f"{lazy_constants.RESET_COLOR}\n")
+
+    def test_get_equipment_at_slot(self):
+        testing_setup.create_test_account()
+        equipment = items.get_equipment()
+        equipment.equip_items({items.WearableItem.BACK: items.Items.BLACK_CAPE})
+        item = equipment.get_equipment_at_slot(items.WearableItem.BACK)
+        self.assertEqual(item, items.Items.BLACK_CAPE)
+
+    def test_get_equipment_at_slot_(self):
+        testing_setup.create_test_account()
+        equipment = items.get_equipment()
+        equipment.equip_items({items.WearableItem.BACK: items.Items.BLACK_CAPE})
+        with self.assertRaises(SystemExit):
+            equipment.get_equipment_at_slot("unexisting slot")

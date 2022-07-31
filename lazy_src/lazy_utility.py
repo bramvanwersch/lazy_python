@@ -47,7 +47,11 @@ def append_to_file(file: Union[str, "Path"], information):
         f.write(information)
 
 
-def set_values_in_file(file: Union[str, "Path"], names: List[str], values: List[str]):
+def set_values_in_file(
+    file: Union[str, "Path"],
+    names: List[str],
+    values: List[str]
+):
     new_text = []
     uncovered_value_names = {name: values[index] for index, name in enumerate(names)}
     with open(file) as f:
@@ -68,7 +72,12 @@ def set_values_in_file(file: Union[str, "Path"], names: List[str], values: List[
         f.write(''.join(new_text))
 
 
-def add_values_in_file(file: Union[str, "Path"], names: List[str], values: List[Any], value_type: Any):
+def add_values_in_file(
+    file: Union[str, "Path"],
+    names: List[str],
+    values: List[Any],
+    value_type: Any
+):
     # add values to the current values in the file or add them if not present
     uncovered_value_names = {name: value_type(values[index]) for index, name in enumerate(names)}
     new_text = []
@@ -90,7 +99,11 @@ def add_values_in_file(file: Union[str, "Path"], names: List[str], values: List[
         f.write(''.join(new_text))
 
 
-def get_values_from_file(file: Union[str, "Path"], names: List[str], value_type: Any = str) -> List[str]:
+def get_values_from_file(
+    file: Union[str, "Path"],
+    names: List[str],
+    value_type: Any = str
+) -> List[str]:
     values = []
     uncovered_names = {name: None for name in names}
     with open(file) as f:

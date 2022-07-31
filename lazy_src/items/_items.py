@@ -124,6 +124,7 @@ class Items:
     SMALL_DAGGER = WeaponItem("small dagger", "Small stabber.", 2, WearableItem.RIGHT_HAND)
     LEATHER_BOOTS = EquipmentItem("leather boots", "Durable protectors of feat.", 1, WearableItem.FEET)
     BLACK_CAPE = EquipmentItem("black cape", "Look mom, I AM BATMAN", 1, WearableItem.BACK)
+    PINK_CAPE = EquipmentItem("pink cape", "Ohh my god I look so fab, UwU!", 1, WearableItem.BACK)
     STONE_AXE = ToolItem("stone axe", "This presumably allows for cutting wood", 0.05, 100, WearableItem.RIGHT_HAND)
     TROUT = FoodItem("trout", "A grayt(ish) fish.", 1)
     SALMON = FoodItem("salmon", "I love to eat this with dill", 2)

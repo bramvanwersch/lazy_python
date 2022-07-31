@@ -51,6 +51,8 @@ class DevelopLazyWarning:
     UNKNOWN_SUBSTITUTE_CONSTANT = "Can not substitute with constant '{constant}'."
     INVALID_SUBSTITUTE_ITEM_AMNT = "Can not convert item amount to integer for person '{name}'"
 
+    INVALID_EQUIPMENT_SLOT = "No equipment slot with name '{name}'"
+
 
 def warn(warning_string, debug_warning=False, extra_info="", **named_formatting):
     if debug_warning:

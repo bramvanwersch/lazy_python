@@ -235,5 +235,5 @@ writing:0
         self.assertEqual(printed_text, f"(lazy)> {lazy_constants.WARNING_COLOR}No user selected. Select a user with "
                                        f"'account activate' or create a new one with 'account new'."
                                        f"{lazy_constants.RESET_COLOR}\n")
-    #
+
     # def test_equip_

@@ -49,11 +49,12 @@ def check(continue_last=False):
         level_str = f"({before_check_levels[skill_name]}-{current_level})" if level_change > 0 else ''
         gathered_message += f"{skill_name}: +{xp_difference}xp {level_str}\n"
     if activity == skills.Skills.EXPLORING.name:
+        # exploring does not return items but locations
         for location_name, amnt in item_dict.items():
             gathered_message += f"You discovered {location_name}\n"
     else:
-        # exploring does not return items but locations
-        items.add_items(item_dict)
+        inventory = items.get_inventory()
+        inventory.add_items(item_dict)
         for item_name, amnt in item_dict.items():
             if amnt == 1:
                 gathered_message += f"You found {item_name}\n"

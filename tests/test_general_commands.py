@@ -200,7 +200,7 @@ class Test(TestCase):
                          "(lazy)> In total 3600s passed\n"
                          "(....)> The following things happened while you where away:\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}gathering: +4xp {lazy_constants.RESET_COLOR}\n"
-                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old bread{lazy_constants.RESET_COLOR}\n"                                 
+                         f"(....)> {lazy_constants.GREEN_COLOR}You found 2 X old bread{lazy_constants.RESET_COLOR}\n"
                          f"(....)> {lazy_constants.GREEN_COLOR}You found 4 X coin{lazy_constants.RESET_COLOR}\n"
                          "(....)> \n"
                          "(lazy)> You moved to area green_woods. You are ready to go do something...\n")

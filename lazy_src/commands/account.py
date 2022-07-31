@@ -165,20 +165,8 @@ def equip(*args):
         lazy_warnings.warn(lazy_warnings.LazyWarningMessages.NO_USER)
         return
     user_dir = lazy_utility.active_user_dir(active_account)
-    wearable_items = []
-    with open(user_dir / lazy_constants.USER_INVENTORY_FILE_NAME) as f:
-        for line in f:
-            name, total = line.strip().split(":")
-            if total > 0:
-                try:
-                    item = items.ITEM_MAPPING[name]
-                except KeyError:
-                    # bad, item in inventory with no existing name
-                    lazy_warnings.warn(lazy_warnings.LazyWarningMessages.INVALID_ITEM_NAME, debug_warning=True,
-                                       extra_info="From item saved in inventory")
-                    continue
-                if isinstance(item, items.WearableItem):
-                    wearable_items.append(item)
+    inventory = items.get_inventory()
+    wearable_items = inventory.get_all_of_type_items(items.WearableItem)
 
     equiped_items = lazy_utility.get_values_from_file(lazy_constants.USER_EQUIPMENT_FILE_NAME,
                                                       items.WearableItem.all_equipment_slots())
